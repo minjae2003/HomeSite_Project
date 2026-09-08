@@ -1,0 +1,87 @@
+@charset "UTF-8";
+
+.at_list{
+	float:left;
+	width:200px;
+	height:270px;	
+	margin:5px;
+	padding:5px;	
+	border:1px solid #cccccc;
+}
+
+.at_list:hover{
+	background-color:#f7f7f7;
+	border:1px solid #cccccc;
+}
+
+.view_box {
+	width: 100%; height:100%;
+	text-align:center;
+}
+
+.img_list {
+	width:180px; height:200px; 
+}
+
+.book_writer {
+	color: #808080;
+}
+
+/* ------------------ */
+
+.img_content {
+	width:270px; height:330px; 
+	margin-top:30px;
+}
+
+.view_img {
+	float:left;
+}
+
+.view_info {
+	float:left;
+	width:550px;
+	margin-left:40px;
+	padding:10px;	
+
+}
+
+.info_list {
+	margin: 15px;
+	list-style-type: circle;
+}
+
+
+.info_list li {
+	margin: 15px;
+	list-style-type: circle;
+}
+
+.info_list li span{
+	display: inline-block;
+	width:80px;
+}
+
+hr {
+	border-color: #dddddd; margin-top: 30px; margin-bottom: 30px;
+}
+
+.search_box { float: right; margin: 30px 10px 0 0;}
+
+/* ------------------ */
+
+.page {
+	clear:left;
+	width:895px;
+	text-align:center;
+	padding-top: 5px;
+}
+
+#btn {
+	display: inline-block;
+	width: 80px; margin-top:20px ; padding:4px;
+	text-align:center;	
+	background: #655c83; color: white; 
+	font-size: 18px; font-family: 'Do Hyeon', sans-serif; 
+	border-color: #6b628c;
+}

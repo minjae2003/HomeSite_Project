@@ -1,0 +1,39 @@
+@charset "UTF-8";
+
+.main {
+	width:1000px;
+	margin: 0 auto;	
+}
+
+section article{
+	float:left;
+	width:450px;
+	height:290px;	
+	margin:5px;
+	padding:10px;	
+	border:1px solid #cccccc;
+}
+
+.at1, .at2, .at3, .at4 {
+	transition:2s;
+	-webkit-transition:2s;
+	-moz-transition:2s;
+	-o-transition:2s;
+	-ms-transition:2s;
+}
+.at1:hover{
+	background-color:#f7f7f7;
+	border:1px solid #cccccc;
+}
+.at2:hover{
+	background-color:#f7f7f7;
+	border:1px solid #cccccc;
+}
+.at3:hover{
+	background-color:#f7f7f7;
+	border:1px solid #cccccc;
+}
+.at4:hover{
+	background-color:#f7f7f7;
+	border:1px solid #cccccc;
+}

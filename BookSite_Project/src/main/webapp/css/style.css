@@ -1,0 +1,90 @@
+/* 기본 초기화 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+    color: #333;
+}
+
+/* =========================================
+   header.jsp 전용 스타일 (#top, #topmenu, #menubar)
+   ========================================= */
+
+/* 1. 상단 영역 (로고 + 상단메뉴) */
+#top {
+    width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 0 15px 0;
+}
+
+#top h3 {
+    font-size: 26px;
+    font-weight: 800;
+}
+
+#top h3 a {
+    color: #000;
+    text-decoration: none;
+    letter-spacing: -1px;
+}
+
+/* 상단 우측 메뉴 (회원가입 | 로그인 | 정보수정) */
+#topmenu {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 6px; /* 메뉴 항목 간격 */
+    font-size: 13px;
+    color: #666;
+}
+
+#topmenu li a {
+    color: #333;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#topmenu li a:hover {
+    text-decoration: underline;
+}
+
+/* 2. 네비게이션 바 (보라색 메인 메뉴) */
+#menubar {
+    width: 100%;
+    background-color: #423853; /* 이미지 동일 보라색 */
+    margin-bottom: 30px;
+}
+
+#menubar ul {
+    width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    list-style: none;
+    padding: 0;
+}
+
+#menubar ul li {
+    flex: 1;
+    text-align: center;
+}
+
+#menubar ul li a {
+    display: block;
+    padding: 13px 0;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+#menubar ul li a:hover {
+    background-color: #332b40; /* 마우스 호버 시 배경색 */
+}

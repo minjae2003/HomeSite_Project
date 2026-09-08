@@ -1,0 +1,62 @@
+
+#member_box { width: 700px; margin: 0 auto;}
+#member_list { margin: 20px 0 10px 0;}
+#member_list li { padding: 10px 0; border-bottom: solid 1px #dddddd; }
+#member_list span { display: inline-block; text-align: center;}
+#member_list button { padding: 5px 10px;}
+#member_list .col1 { width: 100px; }
+#member_list .col2 { width: 150px; }
+#member_list .col3 { width: 150px; }
+#member_list .col4 { width: 150px; }
+#member_list .col5 { width: 120px; }
+
+#board_list { margin: 20px 0 10px 0;}
+#board_list .col1 { width: 80px; }
+#board_list .col2 { width: 330px; text-align: left; }
+#board_list .col3 { width: 130px; }
+#board_list .col4 { width: 150px; }
+#board_list .col5 { width: 80px; }
+#board_list .col6 { width: 100px; }
+#board_list li { padding: 10px 0; border-bottom: solid 1px #dddddd; }
+#board_list span { display: inline-block; text-align: center; }
+#board_list button { padding: 5px 10px;}
+#board_list .replycount { font-size: 13px; color: rgb(128, 128, 128);}
+
+
+#book_list { margin: 20px 0 10px 0;}
+#book_list .col1 { width: 40px; }
+#book_list .col2 { width: 40px; }
+#book_list .col3 { width: 200px; }
+#book_list .col4 { width: 80px; }
+#book_list .col5 { width: 100px; }
+#book_list .col6 { width: 90px; }
+#book_list .col7 { width: 50px; }
+#book_list .col8 { width: 160px; }
+#book_list .col9 { width: 45px; }
+#book_list .col10 { width: 45px; }
+#book_list li { padding: 10px 0; border-bottom: solid 1px #dddddd; }
+#book_list span { display: inline-block; text-align: center; }
+#book_list button { padding: 5px 5px;}
+
+#bookform_box { position: relative; width: 800px; margin: 0 auto;}
+#book_form span { display: inline-block; }
+#book_form .col1 { width: 150px; font-weight:bold;}
+#book_form li {	padding: 7px; border-bottom: solid 1px #dddddd; }
+#book_form input { width: 500px; height: 25px; }
+#book_form textarea { width: 500px;	height: 150px; }
+#book_form #text_area {position: relative;	height: 158px; }
+#book_form #text_area .col1 { position: absolute; top: 10px; }
+#book_form #text_area .col2 { position: absolute; left: 163px; }
+#book_form select { width: 150px; height: 25px}
+#book_form button { padding: 5px 10px;}
+
+.buttons { text-align: right; margin: 10px 15px 10px 0; }
+.buttons li { display: inline; }
+.buttons button { padding: 5px 10px; cursor: pointer; }
+
+.page {
+	clear:left;
+	width:400px; margin: 0 auto;
+	text-align:center;
+	padding-top: 5px;
+}

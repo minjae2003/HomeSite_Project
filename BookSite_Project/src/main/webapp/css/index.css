@@ -1,0 +1,150 @@
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans KR', -apple-system, sans-serif; }
+body { background-color: #f4f5f7; color: #333; line-height: 1.5; }
+a { text-decoration: none; color: inherit; }
+
+/* Container & Layout */
+.container { display: flex; width: 80%; max-width: 1200px; margin: 30px auto; gap: 24px; }
+.main-content { flex: 3; display: flex; flex-direction: column; gap: 20px; }
+.sidebar { flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 260px; }
+
+/* Notice Hero Banner */
+.notice-banner { 
+    background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%); 
+    border: 2px solid #bfdbfe; 
+    border-radius: 16px; 
+    padding: 24px; 
+    text-align: center; 
+    font-weight: 700; 
+    font-size: 20px; 
+    color: #1e3a8a; 
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08); 
+}
+.notice-banner small { 
+    display: inline-block; 
+    margin-top: 8px; 
+    background: #ffffff; 
+    padding: 8px 16px; 
+    border-radius: 20px; 
+    border: 1px solid #93c5fd; 
+    color: #1e40af; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03); 
+}
+
+/* 4-Card Grid */
+.board-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.board-card { 
+    background: #ffffff; 
+    border-radius: 16px; 
+    padding: 20px 16px; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); 
+    border: 1px solid #f0f0f0; 
+    cursor: pointer; 
+    transition: transform 0.2s ease, box-shadow 0.2s ease; 
+}
+.board-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); }
+.card-header { text-align: center; border-bottom: 1px dashed #e5e7eb; padding-bottom: 12px; margin-bottom: 12px; }
+.card-icon { 
+    font-size: 24px; 
+    margin: 0 auto 8px; 
+    background: #fff7ed; 
+    width: 48px; 
+    height: 48px; 
+    line-height: 48px; 
+    border-radius: 50%; 
+    border: 1px solid #ffedd5; 
+}
+.card-title { font-size: 16px; font-weight: 700; color: #111827; }
+
+.post-list { list-style: none; font-size: 13px; }
+.post-list li { margin-bottom: 10px; }
+.post-list a { 
+    display: block; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    color: #4b5563; 
+    transition: color 0.2s ease; 
+}
+.post-list a:hover { color: #f97316; text-decoration: underline; }
+
+/* Sidebar Elements */
+.sidebar-box { 
+    background: #ffffff; 
+    border-radius: 14px; 
+    padding: 18px; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); 
+    border: 1px solid #f0f0f0; 
+    cursor: pointer;
+}
+.sidebar-box strong { font-size: 14px; color: #374151; display: block; margin-bottom: 10px; }
+
+.search-bar { display: flex; gap: 6px; }
+.search-bar input { 
+    flex: 1; 
+    padding: 9px 12px; 
+    border: 1px solid #d1d5db; 
+    border-radius: 8px; 
+    font-size: 13px; 
+    outline: none; 
+    transition: border-color 0.2s; 
+}
+.search-bar input:focus { border-color: #f97316; }
+.search-bar button { 
+    padding: 9px 14px; 
+    background: #4b5563; 
+    color: white; 
+    border: none; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    transition: background 0.2s; 
+}
+.search-bar button:hover { background: #1f2937; }
+
+.auth-buttons { display: flex; gap: 10px; }
+.btn { 
+    flex: 1; 
+    padding: 12px; 
+    text-align: center; 
+    border-radius: 8px; 
+    font-weight: 700; 
+    font-size: 13px; 
+    color: white; 
+    transition: opacity 0.2s; 
+}
+.btn:hover { opacity: 0.9; }
+.btn-login { background-color: #f97316; }
+.btn-signup { background-color: #2563eb; }
+
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { 
+    background: #f3f4f6; 
+    color: #4b5563; 
+    padding: 6px 12px; 
+    border-radius: 20px; 
+    font-size: 12px; 
+    font-weight: 500; 
+    cursor: pointer; 
+    transition: background 0.2s, color 0.2s; 
+}
+.tag:hover { background: #ffedd5; color: #c2410c; }
+
+.best-list { list-style: none; counter-reset: best-counter; }
+.best-list li { 
+    font-size: 13px; 
+    margin-bottom: 12px; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    color: #374151; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+}
+.best-list li::before { 
+    counter-increment: best-counter; 
+    content: counter(best-counter); 
+    font-weight: 800; 
+    color: #f97316; 
+    font-size: 14px; 
+    min-width: 14px; 
+}

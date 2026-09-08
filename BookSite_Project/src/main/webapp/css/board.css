@@ -1,0 +1,53 @@
+/* 게시판 글쓰기(writeForm.jsp) */
+#board_box { position: relative; width: 800px; margin: 0 auto;}
+#board_form span { display: inline-block; }
+#board_form .col1 { width: 150px; font-weight:bold;}
+#board_form li {	padding: 12px; border-bottom: solid 1px #dddddd; }
+#board_form input { width: 500px; height: 25px; }
+#board_form textarea { width: 500px;	height: 150px; }
+#board_form #text_area {position: relative;	height: 158px; }
+#board_form #text_area .col1 { position: absolute; top: 10px; }
+#board_form #text_area .col2 { position: absolute; left: 166px; }
+
+.buttons { text-align: right; margin: 20px 10px 20px 0; }
+.buttons li { display: inline; }
+button { padding: 5px 10px; cursor: pointer; }
+
+/* 게시판 목록보기(list.jsp) */
+#board_list li { padding: 10px; border-bottom: solid 1px #dddddd; }
+#board_list span { display: inline-block; text-align: center;}
+#board_list .col1 { width: 70px; }
+#board_list .col2 { width: 350px; text-align: left; }
+#board_list .col3 { width: 130px; }
+#board_list .col4 { width: 150px; }
+#board_list .col5 { width: 50px; }
+#board_list .replycount { font-size: 13px; color: #808080;}
+
+.page {
+	clear:left;
+	width:800px;
+	text-align:center;
+	padding-top: 5px;
+}
+
+/* 게시판 내용보기(content.jsp) */
+#board_box { width: 800px; margin: 0 auto; }
+#board_box .title { margin-top: 30px; padding: 10px; border-bottom: solid 2px #516e7f; font-size: 20px; }
+#view_content li:nth-child(1) {	padding: 15px; border-bottom: solid 1px #aaaaaa; }
+#view_content .col2 { float: right; }
+#view_content li:nth-child(2) {	padding: 15px 15px 80px 15px; border-bottom: solid 1px #cccccc; }
+
+#reply_content { padding: 5px; border: solid 1px #dddddd; }
+#reply_content li { padding: 10px; border-bottom: solid 1px #dddddd; }
+#reply_content span { display: inline-block;}
+#reply_content .col1 { width: 80px; text-align: center;}
+#reply_content .col2 { width: 470px; text-align: left;}
+#reply_content .col3 { width: 100px; text-align: center;}
+#reply_content .col4 { width: 80px; text-align: right; }
+
+#reply_form li { padding: 10px 10px 60px 10px; border: solid 1px #dddddd; margin-top:20px;}
+#reply_form span { display: inline-block;}
+#reply_form textarea { width: 570px; height: 50px; }
+#reply_form .col1 { width: 95px; text-align: center; float:left;}
+#reply_form .col2 { width: 580px; text-align: left; float:left;}
+#reply_form .col3 { width: 100px; text-align: center; float:right;}
