@@ -113,8 +113,9 @@ a { text-decoration: none; color: inherit; }
 }
 .btn:hover { opacity: 0.9; }
 .btn-login { background-color: #f97316; }
+.btn-login small { font-weight: 500; font-size: 11px; color: black; display: block; margin-top: 2px; }
 .btn-signup { background-color: #2563eb; }
-
+.btn-signup small { font-weight: 500; font-size: 11px; color: black; display: block; margin-top: 2px; }
 .tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .tag { 
     background: #f3f4f6; 

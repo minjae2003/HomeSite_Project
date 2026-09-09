@@ -173,8 +173,8 @@
             </div>
 
             <div class="auth-buttons">
-                <a href="../member/loginForm.jsp" class="btn btn-login">LOGIN</a>
-                <a href="../member/memberForm.jsp" class="btn btn-signup">SIGN UP</a>
+                <a href="../member/loginForm.jsp" class="btn btn-login">LOGIN<small>로그인</small></a>
+                <a href="../member/memberForm.jsp" class="btn btn-signup">SIGN UP<small>회원가입</small></a>
             </div>
 
             <div class="sidebar-box">

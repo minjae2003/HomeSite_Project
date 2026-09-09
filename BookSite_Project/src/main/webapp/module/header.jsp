@@ -1,4 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+    // 세션 로그인 정보 확인
+    String id = (String) session.getAttribute("id");
+    String name = (String) session.getAttribute("name");
+%>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
 
 <header>
@@ -13,4 +18,20 @@
             <li><a href="${pageContext.request.contextPath}/finalPage/index.jsp">MY PAGE</a></li>
         </ul>
     </nav>
+
+    <!-- 로그인 / 회원가입 / 닉네임 동적 상태 영역 -->
+    <div class="header-auth">
+    <% if (id == null) { %>
+        <!-- 로그아웃 상태 -->
+        
+        <a href="${pageContext.request.contextPath}/member/loginForm.jsp" class="btn-auth btn-login">로그인</a>
+        
+        <a href="${pageContext.request.contextPath}/member/memberForm.jsp" class="btn-auth btn-signup">회원가입</a>
+    <% } else { %>
+        <!-- 로그인 상태 -->
+        <a href="${pageContext.request.contextPath}/member/LogoutPro.jsp" class="btn-auth btn-logout">로그아웃</a>
+       
+        <span class="user-nickname"><strong><%= (name != null && !name.equals("")) ? name : id %></strong> 님</span>
+    <% } %>
+    </div>
 </header>
