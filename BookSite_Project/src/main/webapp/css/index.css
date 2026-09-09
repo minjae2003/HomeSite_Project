@@ -148,3 +148,221 @@ a { text-decoration: none; color: inherit; }
     font-size: 14px; 
     min-width: 14px; 
 }
+
+/* 실시간 인기글 섹션 */
+.hot-posts-section {
+    margin-top: 32px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    padding: 28px 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+.hot-posts-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.hot-posts-section .section-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 0;
+}
+
+.hot-post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.hot-posts-section .btn-more {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.hot-posts-section .btn-more:hover {
+    color: #f97316;
+}
+.hot-post-item {
+    background: litegray;
+    border: 2px solid gray;
+    border-radius: 12px;
+    padding: 13px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+
+.hot-post-item:hover {
+    background: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-color: #fdba74;
+}
+
+.post-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.post-icon {
+    font-size: 15px;
+    line-height: 1;
+}
+
+.post-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-decoration: none;
+}
+
+.post-title:hover {
+    color: #f97316;
+}
+
+.post-author-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 130px;
+    
+}
+
+.author-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.author-name {
+    font-size: 13px;
+    color: #4b5563;
+    font-weight: 500;
+}
+
+.post-stats {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #6b7280;
+    width: 140px;
+    justify-content: flex-end;
+}
+
+.post-stats strong {
+    color: #111827;
+    font-weight: 700;
+}
+
+.post-stats .divider {
+    color: #d1d5db;
+    margin: 0 2px;
+}
+
+.status-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+.status-card .widget-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 18px;
+}
+
+.status-grid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.status-item {
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+
+.status-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 15%;
+    height: 70%;
+    width: 1px;
+    background-color: #e5e7eb;
+}
+
+.status-value {
+    font-size: 18px;
+    font-weight: 800;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.status-label {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* 체크리스트 안내 배너 */
+.checklist-banner {
+    background: #f0f5ff;
+    border: 1px solid #e0e7ff;
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+}
+
+.banner-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.banner-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+}
+
+.banner-desc {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.4;
+    margin-bottom: 18px;
+}
+
+.btn-checklist {
+    width: 100%;
+    padding: 12px;
+    background-color: #4c80f6;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-checklist:hover {
+    background-color: #3b6cd4;
+}
