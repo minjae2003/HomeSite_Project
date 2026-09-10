@@ -1,186 +1,93 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="freeboard.FreeboardDAO" %>
-<%@ page import="freeboard.FreeboardVO" %>
-<%@ page import="java.text.SimpleDateFormat" %>
-<%@ page import="replyfreeboard.ReplyfreeboardVO" %>
-<%@ page import="replyfreeboard.ReplyfreeboardDAO" %>
+<%@ page import="board.BoardDAO" %>
+<%@ page import="board.BoardVO" %>
+<%@ page import="reply.ReplyDAO" %>
+<%@ page import="reply.ReplyVO" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 
 <%
-	request.setCharacterEncoding("UTF-8");
+    int num = Integer.parseInt(request.getParameter("num"));
+    String pageNum = request.getParameter("pageNum");
+    String category = request.getParameter("category");
 
-	int num = Integer.parseInt(request.getParameter("num"));
+    BoardDAO dao = BoardDAO.getInstance();
+    dao.updateReadcount(num); // 조회수 증가
+    BoardVO board = dao.getBoardDetail(num);
 
-	String pageNumStr = request.getParameter("pageNum");
-	if(pageNumStr == null) {
-		pageNumStr = "1";
-	}
-	int pageNum = Integer.parseInt(pageNumStr);
-
-	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-	FreeboardDAO fbdao = FreeboardDAO.getInstance();
-	FreeboardVO fb = fbdao.getFreeboard(num);
-	
-	List<ReplyfreeboardVO> rList = null;
-	int rcount = 0;
-
-	ReplyfreeboardDAO rdao = ReplyfreeboardDAO.getInstance();
-	rcount = rdao.getReplyFreeboardCount(num);
-
-	if(rcount > 0) {
-	    rList = rdao.getReplyFreeboards(num);
-	}
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm");
+    
+    // 세션 로그인 회원 정보 및 권한 체크
+    String sessionUserId = (String) session.getAttribute("id");
+    String sessionRole = (String) session.getAttribute("role");
+    
+    boolean isOwnerOrAdmin = sessionUserId != null && (sessionUserId.equals(board.getWriterId()) || "ADMIN".equals(sessionRole));
 %>
 
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>도서 소개</title>
-
-<link href="../css/common.css" rel="stylesheet" type="text/css">
-<link href="../css/board.css" rel="stylesheet" type="text/css">
-
-<script>
-	function check_input() {
-		if(!document.reply_form.reply.value.trim()) {
-			alert("댓글을 입력하세요!");
-			document.reply_form.reply.focus();
-			return;
-		}
-		document.reply_form.submit();
-	}
-	
-	function del(num, pageNum) {
-		if(confirm("삭제하시겠습니까?")) {
-			location.href = "deletePro.jsp?num=" + num + "&pageNum=" + pageNum;
-		}
-	}
-	
-	function delReply(rnum, num, pageNum) {
-		if(confirm("댓글을 삭제하시겠습니까?")) {
-			location.href = "replyDelete.jsp?rnum=" + rnum + "&num=" + num + "&pageNum=" + pageNum;
-		}
-	}
-</script>
+    <meta charset="UTF-8">
+    <title><%= board.getSubject() %></title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/index.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/board.css">
 </head>
-
 <body>
 
-<header>
-  <jsp:include page="../module/header.jsp" flush="false"/>
-</header>
+    <jsp:include page="/module/header.jsp" flush="false"/>
 
-<section>
-<h2>자유 게시판 > 내용 보기</h2>
+    <div class="container">
+        <main class="main-content">
+            <div class="post-detail">
+                <h2><%= board.getSubject() %></h2>
+                <div class="post-info">
+                    <span>작성자: <b><%= board.getWriterNickname() %></b></span> | 
+                    <span>작성일: <%= sdf.format(board.getRegDate()) %></span> | 
+                    <span>조회: <%= board.getReadcount() %></span> | 
+                    <span>추천: <%= board.getLikeCount() %></span>
+                </div>
+                <hr>
+                <div class="post-content">
+                    <%= board.getContent().replace("\n", "<br>") %>
+                </div>
+                
+                <!-- 추천 버튼 -->
+                <div class="like-box" style="text-align: center; margin: 30px 0;">
+                    <button type="button" onclick="location.href='likePro.jsp?num=<%= board.getNum() %>&pageNum=<%= pageNum %>'" class="btn-like">
+                        👍 추천 (<%= board.getLikeCount() %>)
+                    </button>
+                </div>
 
-<div id="board_box">
-<ul id="view_content">
-	<li>
-		<span class="col1"><b>제 목 : <%= fb.getSubject() %></b></span>
-		<span class="col2">
-			<%= fb.getWriter() %> |
-			<%= sdf.format(fb.getReg_date()) %> |
-			조회 <%= fb.getReadcount() %>
-		</span>
-	</li>
-	<li id="text">
-		<%= fb.getContent() %>
-	</li>
-</ul>
+                <!-- 권한 기반 버튼 조작 -->
+                <div class="post-buttons">
+                    <button onclick="location.href='list.jsp?pageNum=<%= pageNum %>&category=<%= category %>'">목록보기</button>
+                    
+                    <% if (isOwnerOrAdmin) { %>
+                        <button onclick="location.href='updateForm.jsp?num=<%= board.getNum() %>&pageNum=<%= pageNum %>'">수정</button>
+                        <button onclick="if(confirm('정말 삭제하시겠습니까?')) location.href='deletePro.jsp?num=<%= board.getNum() %>'">삭제</button>
+                    <% } %>
+                </div>
+            </div>
 
-<ul class="buttons">
-<%
-	String id = (String)session.getAttribute("id");
+            <!-- 댓글 영역 -->
+            <div class="reply-section" style="margin-top: 40px;">
+                <h3>💬 댓글 목록</h3>
+                
+                <!-- 댓글 작성 폼 (로그인 사용자 전용) -->
+                <% if (sessionUserId != null) { %>
+                    <form action="replyWritePro.jsp" method="post" class="reply-form">
+                        <input type="hidden" name="boardNum" value="<%= board.getNum() %>">
+                        <input type="hidden" name="pageNum" value="<%= pageNum %>">
+                        <textarea name="content" placeholder="댓글을 남겨보세요." required style="width: 100%; height: 70px;"></textarea>
+                        <button type="submit">댓글 등록</button>
+                    </form>
+                <% } else { %>
+                    <p class="text-muted">댓글을 작성하려면 <a href="${pageContext.request.contextPath}/member/loginForm.jsp">로그인</a>이 필요합니다.</p>
+                <% } %>
+            </div>
+        </main>
+    </div>
 
-	if(id != null && id.equals(fb.getWriter())) {
-%>
-	<li>
-		<button type="button" onclick="location.href='updateForm.jsp?num=<%= fb.getNum() %>&pageNum=<%= pageNum %>'">
-			수정
-		</button>
-	</li>
-	<li>
-		<button type="button" onclick="del(<%= fb.getNum() %>, <%= pageNum %>)">
-			삭제
-		</button>
-	</li>
-<%
-	}
-%>
-	<li>
-		<button type="button" onclick="location.href='list.jsp?pageNum=<%= pageNum %>'">
-			목록
-		</button>
-	</li>
-</ul>
-
-<%
-if(rcount > 0) {
-%>
-	<ul id="reply_content">
-<%
-	for(int i = 0; i < rList.size(); i++) {
-		ReplyfreeboardVO reply = rList.get(i);
-%>
-		<li>
-			<span class="col1"><%= reply.getRwriter() %></span>
-			<span class="col2"><%= reply.getReply().replace("\r\n", "<br>") %></span>
-			<span class="col3"><%= sdf.format(reply.getRreg_date()) %></span>
-
-			<%
-				if(id != null && id.equals(reply.getRwriter())) {
-			%>
-				<span class="col4">
-					<button type="button" onclick="delReply(<%= reply.getRnum() %>, <%= num %>, <%= pageNum %>)">
-						삭제
-					</button>
-				</span>
-			<%
-				}
-			%>
-		</li>
-<%
-	}
-%>
-	</ul>
-<%
-}
-%>
-
-<form name="reply_form" method="post" action="replyWriterPro.jsp">
-	<input type="hidden" name="rwriter" value="<%= id %>">
-	<input type="hidden" name="ref" value="<%= num %>">
-	<input type="hidden" name="pageNum" value="<%= pageNum %>">
-
-	<ul id="reply_form">
-	<%
-		if(id == null || id.equals("")) {
-	%>
-		<li> * 댓글은 회원만 가능합니다 * </li>
-	<%
-		} else {
-	%>
-		<li>
-			<span class="col1"><%= id %></span>
-			<span class="col2"><textarea name="reply"></textarea></span>
-			<span class="col3">
-				<button type="button" onclick="check_input()">입력</button>
-			</span>
-		</li>
-	<%
-		}
-	%>
-	</ul>
-</form>
-
-</div>
-</section>
-
-<footer>
-  <jsp:include page="../module/footer.jsp" flush="false"/>
-</footer>
-
+    <jsp:include page="/module/footer.jsp" flush="false"/>
 </body>
 </html>

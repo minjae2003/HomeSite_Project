@@ -4,58 +4,43 @@ import java.sql.Timestamp;
 
 public class MemberVO {
     private String id;
-    private String pass;
+    private String password;
     private String name;
-    private Timestamp reg_date;
+    private String nickname;
+    private String email;
+    private String authStatus;
+    private String role;
+    private Timestamp regDate;
 
-    public MemberVO() {}
+    // Standard Getters & Setters
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public MemberVO(String id, String pass, String name, Timestamp reg_date) {
-        this.id = id;
-        this.pass = pass;
-        this.name = name;
-        this.reg_date = reg_date;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public String getId() {
-        return id;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public String getNickname() { return nickname; }
+    public void setNickname(String nickname) { this.nickname = nickname; }
 
-    /* pass 필드용 Getter / Setter */
-    public String getPass() {
-        return pass;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setPass(String pass) {
-        this.pass = pass;
-    }
+    public String getAuthStatus() { return authStatus; }
+    public void setAuthStatus(String authStatus) { this.authStatus = authStatus; }
 
-    /* MemberDAO.java의 getPasswd() 에러 해결용 호환 메서드 */
-    public String getPasswd() {
-        return pass;
-    }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 
-    public void setPasswd(String passwd) {
-        this.pass = passwd;
-    }
+    public Timestamp getRegDate() { return regDate; }
+    public void setRegDate(Timestamp regDate) { this.regDate = regDate; }
 
-    public String getName() {
-        return name;
-    }
+    // Legacy/JSP 호환용 Alias 메서드
+    public String getPass() { return password; }
+    public void setPass(String pass) { this.password = pass; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Timestamp getReg_date() {
-        return reg_date;
-    }
-
-    public void setReg_date(Timestamp reg_date) {
-        this.reg_date = reg_date;
-    }
+    public Timestamp getReg_date() { return regDate; }
+    public void setReg_date(Timestamp reg_date) { this.regDate = reg_date; }
 }

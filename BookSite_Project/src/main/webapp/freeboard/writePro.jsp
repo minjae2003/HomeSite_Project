@@ -1,30 +1,28 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-    <%@ page import="freeboard.FreeboardDAO" %>
-     <% request.setCharacterEncoding("utf-8"); %>
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-</head>
-<body>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="board.BoardDAO" %>
+<%@ page import="board.BoardVO" %>
+
 <%
-	String id = (String) session.getAttribute("id");
-	if(id==null || id.equals("")){
-		response.sendRedirect("../main/main.jsp");
-		
-	}else{
+    request.setCharacterEncoding("UTF-8");
+
+    String writerId = (String) session.getAttribute("id");
+    String writerNickname = (String) session.getAttribute("nickname");
+
+    if (writerId == null) {
+        out.println("<script>alert('로그인이 필요합니다.'); location.href='../member/loginForm.jsp';</script>");
+        return;
+    }
+
+    BoardVO board = new BoardVO();
+    board.setBoardType("FREE");
+    board.setCategory(request.getParameter("category"));
+    board.setWriterId(writerId);
+    board.setWriterNickname(writerNickname != null ? writerNickname : writerId);
+    board.setSubject(request.getParameter("subject"));
+    board.setContent(request.getParameter("content"));
+
+    BoardDAO dao = BoardDAO.getInstance();
+    dao.insertBoard(board);
+
+    response.sendRedirect("list.jsp");
 %>
-	<jsp:useBean id="fb" class="freeboard.FreeboardVO">
-		<jsp:setProperty name ="fb" property="*"/>
-	</jsp:useBean>
-<%
-	FreeboardDAO fbdao = FreeboardDAO.getInstance();
-	fbdao.insertFreeboard(fb);
-	
-	response.sendRedirect("list.jsp");
-	}
-%>
-</body>
-</html>

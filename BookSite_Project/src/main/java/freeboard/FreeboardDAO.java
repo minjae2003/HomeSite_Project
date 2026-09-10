@@ -1,7 +1,12 @@
 package freeboard;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
@@ -15,187 +20,170 @@ public class FreeboardDAO {
 
     private FreeboardDAO() {}
 
-    private Connection getConnection() {
-        Connection conn = null;
+    // DB 연결 메서드 (프로젝트 설정에 맞는 방식 사용)
+    private Connection getConnection() throws Exception {
+        // DBCP/JNDI 방식을 사용할 경우
+        Context initCtx = new InitialContext();
+        Context envCtx = (Context) initCtx.lookup("java:comp/env");
+        DataSource ds = (DataSource) envCtx.lookup("jdbc/oracle"); // 프로젝트 JNDI 이름
+        return ds.getConnection();
 
-        try {
-            InitialContext ic = new InitialContext();
-            DataSource ds = (DataSource) ic.lookup("java:comp/env/jdbc/basicjsp");
-            conn = ds.getConnection();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return conn;
+        /* DriverManager 사용 시 아래 주석 해제 후 수정
+        Class.forName("oracle.jdbc.driver.OracleDriver");
+        return DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "db_id", "db_pw");
+        */
     }
 
+    // 1. 전체 게시글 수 조회
     public int getFreeboardCount() {
+        int x = 0;
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
-        int count = 0;
+        try {
+            conn = getConnection();
+            pstmt = conn.prepareStatement("select count(*) from freeboard");
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                x = rs.getInt(1);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            if (rs != null) try { rs.close(); } catch (Exception e) {}
+            if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}
+            if (conn != null) try { conn.close(); } catch (Exception e) {}
+        }
+        return x;
+    }
+
+    // 2. 카테고리별 게시글 수 조회 (오버로딩)
+    public int getFreeboardCount(String category) {
+        int x = 0;
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
 
         try {
             conn = getConnection();
+            String sql = "";
 
-            String sql = "select count(*) from freeboard";
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-
-            if(rs.next()) {
-                count = rs.getInt(1);
+            if ("popular".equals(category)) {
+                sql = "select count(*) from freeboard where readcount >= 50";
+                pstmt = conn.prepareStatement(sql);
+            } else {
+                sql = "select count(*) from freeboard where category = ?";
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, category);
             }
 
-        } catch(Exception e) {
-            e.printStackTrace();
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                x = rs.getInt(1);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         } finally {
-            if(rs != null) try { rs.close(); } catch(SQLException se) {}
-            if(pstmt != null) try { pstmt.close(); } catch(SQLException se) {}
-            if(conn != null) try { conn.close(); } catch(SQLException se) {}
+            if (rs != null) try { rs.close(); } catch (Exception e) {}
+            if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}
+            if (conn != null) try { conn.close(); } catch (Exception e) {}
         }
-
-        return count;
+        return x;
     }
 
+    // 3. 전체 게시글 목록 조회
     public List<FreeboardVO> getFreeboards(int start, int end) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-
-        List<FreeboardVO> fbList = new ArrayList<FreeboardVO>();
+        List<FreeboardVO> articleList = null;
 
         try {
             conn = getConnection();
-
-            String sql = "select * from freeboard order by num desc limit ?, ?";
+            String sql = "select * from (select rownum rnum, num, writer, subject, email, content, password, reg_date, readcount, category " +
+                         "from (select * from freeboard order by num desc)) where rnum >= ? and rnum <= ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, start-1);
-            pstmt.setInt(2, end);
+            pstmt.setInt(1, start);
+            pstmt.setInt(2, start + end - 1);
+
             rs = pstmt.executeQuery();
-
-            while(rs.next()) {
-                FreeboardVO fb = new FreeboardVO();
-
-                fb.setNum(rs.getInt("num"));
-                fb.setWriter(rs.getString("writer"));
-                fb.setSubject(rs.getString("subject"));
-                fb.setReg_date(rs.getTimestamp("reg_date"));
-                fb.setReadcount(rs.getInt("readcount"));
-                fb.setContent(rs.getString("content"));
-
-                fbList.add(fb);
+            if (rs.next()) {
+                articleList = new ArrayList<FreeboardVO>();
+                do {
+                    FreeboardVO article = new FreeboardVO();
+                    article.setNum(rs.getInt("num"));
+                    article.setWriter(rs.getString("writer"));
+                    article.setSubject(rs.getString("subject"));
+                    article.setEmail(rs.getString("email"));
+                    article.setContent(rs.getString("content"));
+                    article.setPassword(rs.getString("password"));
+                    article.setReg_date(rs.getTimestamp("reg_date"));
+                    article.setReadcount(rs.getInt("readcount"));
+                    article.setCategory(rs.getString("category"));
+                    articleList.add(article);
+                } while (rs.next());
             }
-
-        } catch(Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         } finally {
-            if(rs != null) try { rs.close(); } catch(SQLException se) {}
-            if(pstmt != null) try { pstmt.close(); } catch(SQLException se) {}
-            if(conn != null) try { conn.close(); } catch(SQLException se) {}
+            if (rs != null) try { rs.close(); } catch (Exception e) {}
+            if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}
+            if (conn != null) try { conn.close(); } catch (Exception e) {}
         }
-
-        return fbList;
+        return articleList;
     }
 
-    public FreeboardVO getFreeboard(int num) {
+    // 4. 카테고리별 게시글 목록 조회 (오버로딩)
+    public List<FreeboardVO> getFreeboards(String category, int start, int end) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        FreeboardVO fb = null;
+        List<FreeboardVO> articleList = null;
 
         try {
             conn = getConnection();
+            String sql = "";
 
-            String sql = "update freeboard set readcount = readcount + 1 where num = ?";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, num);
-            pstmt.executeUpdate();
-
-            pstmt.close();
-
-            sql = "select * from freeboard where num = ?";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, num);
-            rs = pstmt.executeQuery();
-
-            if(rs.next()) {
-                fb = new FreeboardVO();
-
-                fb.setNum(rs.getInt("num"));
-                fb.setWriter(rs.getString("writer"));
-                fb.setSubject(rs.getString("subject"));
-                fb.setReg_date(rs.getTimestamp("reg_date"));
-                fb.setReadcount(rs.getInt("readcount"));
-                fb.setContent(rs.getString("content"));
+            if ("popular".equals(category)) {
+                sql = "select * from (select rownum rnum, num, writer, subject, email, content, password, reg_date, readcount, category " +
+                      "from (select * from freeboard where readcount >= 50 order by num desc)) where rnum >= ? and rnum <= ?";
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setInt(1, start);
+                pstmt.setInt(2, start + end - 1);
+            } else {
+                sql = "select * from (select rownum rnum, num, writer, subject, email, content, password, reg_date, readcount, category " +
+                      "from (select * from freeboard where category = ? order by num desc)) where rnum >= ? and rnum <= ?";
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, category);
+                pstmt.setInt(2, start);
+                pstmt.setInt(3, start + end - 1);
             }
 
-        } catch(Exception e) {
-            e.printStackTrace();
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                articleList = new ArrayList<FreeboardVO>();
+                do {
+                    FreeboardVO article = new FreeboardVO();
+                    article.setNum(rs.getInt("num"));
+                    article.setWriter(rs.getString("writer"));
+                    article.setSubject(rs.getString("subject"));
+                    article.setEmail(rs.getString("email"));
+                    article.setContent(rs.getString("content"));
+                    article.setPassword(rs.getString("password"));
+                    article.setReg_date(rs.getTimestamp("reg_date"));
+                    article.setReadcount(rs.getInt("readcount"));
+                    article.setCategory(rs.getString("category"));
+                    articleList.add(article);
+                } while (rs.next());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         } finally {
-            if(rs != null) try { rs.close(); } catch(SQLException se) {}
-            if(pstmt != null) try { pstmt.close(); } catch(SQLException se) {}
-            if(conn != null) try { conn.close(); } catch(SQLException se) {}
+            if (rs != null) try { rs.close(); } catch (Exception e) {}
+            if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}
+            if (conn != null) try { conn.close(); } catch (Exception e) {}
         }
-
-        return fb;
-    }
-
-    public void insertFreeboard(FreeboardVO fb) {
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-
-        try {
-            conn = getConnection();
-
-            String sql = "insert into freeboard(writer, subject, reg_date, content) values (?, ?, now(), ?)";
-            pstmt = conn.prepareStatement(sql);
-
-            pstmt.setString(1, fb.getWriter());
-            pstmt.setString(2, fb.getSubject());
-            pstmt.setString(3, fb.getContent());
-
-            pstmt.executeUpdate();
-
-        } catch(Exception e) {
-            e.printStackTrace();
-        } finally {
-            if(pstmt != null) try { pstmt.close(); } catch(SQLException se) {}
-            if(conn != null) try { conn.close(); } catch(SQLException se) {}
-        }
-    }
-    
-    public void deleteFreeboard(int num) {
-
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-
-        try {
-            conn = getConnection();
-            
-            String sql = "delete from replyfreeboard where ref=?";
-            pstmt = conn.prepareStatement(sql);
-
-            pstmt.setInt(1, num);
-
-            pstmt.executeUpdate();
-
-            sql = "delete from freeboard where num=?";
-            pstmt = conn.prepareStatement(sql);
-
-            pstmt.setInt(1, num);
-
-            pstmt.executeUpdate();
-
-        } catch(Exception e) {
-            e.printStackTrace();
-
-        } finally {
-            if(pstmt != null)
-                try { pstmt.close(); } catch(SQLException se) {}
-
-            if(conn != null)
-                try { conn.close(); } catch(SQLException se) {}
-        }
+        return articleList;
     }
 }
