@@ -22,7 +22,7 @@
 
             <div class="board-grid">
                 <!-- 공지사항 카드 -->
-                <div class="board-card" onclick="location.href='boardList.do?category=notice'">
+                <div class="board-card" onclick="location.href='../book/booklist.jsp'">
                     <div class="card-header">
                         <div class="card-icon">📢</div>
                         <div class="card-title">공지사항</div>
@@ -33,7 +33,7 @@
                 </div>
 
                 <!-- 자취꿀팁 카드 -->
-                <div class="board-card" onclick="location.href='boardList.do?category=tip'">
+                <div class="board-card" onclick="location.href='../freeboard/list.jsp'">
                     <div class="card-header">
                         <div class="card-icon">💡</div>
                         <div class="card-title">자취꿀팁</div>
@@ -46,7 +46,7 @@
                 </div>
 
                 <!-- 자유게시판 카드 -->
-                <div class="board-card" onclick="location.href='boardList.do?category=free'">
+                <div class="board-card" onclick="location.href='../qna/qnaList.jsp'">
                     <div class="card-header">
                         <div class="card-icon">💬</div>
                         <div class="card-title">자유게시판</div>
@@ -59,7 +59,7 @@
                 </div>
 
                 <!-- 요리레시피 카드 -->
-                <div class="board-card" onclick="location.href='boardList.do?category=recipe'">
+                <div class="board-card" onclick="location.href='../qna/qnaList.jsp'">
                     <div class="card-header">
                         <div class="card-icon">🍳</div>
                         <div class="card-title">요리레시피</div>

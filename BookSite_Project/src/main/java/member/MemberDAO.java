@@ -15,7 +15,7 @@ public class MemberDAO {
     private Connection getConnection() throws Exception {
         Context initCtx = new InitialContext();
         Context envCtx = (Context) initCtx.lookup("java:comp/env");
-        DataSource ds = (DataSource) envCtx.lookup("jdbc/mysql");
+        DataSource ds = (DataSource) envCtx.lookup("jdbc/homesiteproject");
         return ds.getConnection();
     }
 
@@ -31,7 +31,7 @@ public class MemberDAO {
             pstmt.setString(1, member.getId());
             pstmt.setString(2, member.getPassword() != null ? member.getPassword() : member.getPass());
             pstmt.setString(3, member.getName());
-            pstmt.setString(4, member.getNickname() != null ? member.getNickname() : member.getName());
+            pstmt.setString(4, (member.getNickname() != null && !member.getNickname().isEmpty()) ? member.getNickname() : member.getName());
             pstmt.setString(5, member.getEmail() != null ? member.getEmail() : "");
             pstmt.executeUpdate();
         } catch (Exception ex) {
@@ -83,18 +83,19 @@ public class MemberDAO {
             conn = getConnection();
             String sql = "SELECT password FROM MEMBER WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, id);
+            pstmt.setString(1, id != null ? id.trim() : "");
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
                 String dbPassword = rs.getString("password");
-                if (dbPassword.equals(password)) {
+                
+                if (dbPassword != null && password != null && dbPassword.trim().equals(password.trim())) {
                     x = 1; // 로그인 성공
                 } else {
                     x = 0; // 비밀번호 불일치
                 }
             } else {
-                x = -1; // 회원 정보 없음
+                x = -1; // 회원 없음
             }
         } catch (Exception ex) {
             ex.printStackTrace();
