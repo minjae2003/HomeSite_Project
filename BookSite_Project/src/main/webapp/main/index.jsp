@@ -32,29 +32,61 @@
                     </ul>
                 </div>
 
-                <!-- 자취꿀팁 카드 -->
+                <!-- 자취꿀팁 카드 (DB 연동) -->
                 <div class="board-card" onclick="location.href='../freeboard/list.jsp'">
                     <div class="card-header">
                         <div class="card-icon">💡</div>
                         <div class="card-title">자취꿀팁</div>
                     </div>
                     <ul class="post-list">
-                        <li><a href="boardDetail.do?id=201" onclick="event.stopPropagation();">원룸 청소 필수템 BEST 5</a></li>
-                        <li><a href="boardDetail.do?id=202" onclick="event.stopPropagation();">보증금 반환받는 절차 정리</a></li>
-                        <li><a href="boardDetail.do?id=203" onclick="event.stopPropagation();">한달 식비 20만원으로 살기</a></li>
+                        <%
+                            board.BoardDAO tipDao = board.BoardDAO.getInstance();
+                            java.util.List<board.BoardVO> tipList = tipDao.getArticles(0, 3, "TIP");
+                            if (tipList == null || tipList.isEmpty()) {
+                        %>
+                            <li style="color: #999; text-align: center; padding: 10px 0;">등록된 꿀팁이 없습니다.</li>
+                        <%
+                            } else {
+                                for (board.BoardVO item : tipList) {
+                        %>
+                            <li>
+                                <a href="../freeboard/content.jsp?num=<%= item.getNum() %>" onclick="event.stopPropagation();">
+                                    <%= item.getSubject() %>
+                                </a>
+                            </li>
+                        <%
+                                }
+                            }
+                        %>
                     </ul>
                 </div>
 
-                <!-- 자유게시판 카드 -->
-                <div class="board-card" onclick="location.href='../qna/qnaList.jsp'">
+                <!-- 자유게시판 카드 (DB 연동) -->
+                <div class="board-card" onclick="location.href='../freeboard/list.jsp'">
                     <div class="card-header">
                         <div class="card-icon">💬</div>
                         <div class="card-title">자유게시판</div>
                     </div>
                     <ul class="post-list">
-                        <li><a href="boardDetail.do?id=301" onclick="event.stopPropagation();">오늘 저녁 메뉴 추천 부탁해요!</a></li>
-                        <li><a href="boardDetail.do?id=302" onclick="event.stopPropagation();">옆집 층간소음 때문에 미치겠어요</a></li>
-                        <li><a href="boardDetail.do?id=303" onclick="event.stopPropagation();">자취 3년 차, 유익했던 자취템</a></li>
+                        <%
+                            board.BoardDAO freeDao = board.BoardDAO.getInstance();
+                            java.util.List<board.BoardVO> freeList = freeDao.getArticles(0, 3, "FREE");
+                            if (freeList == null || freeList.isEmpty()) {
+                        %>
+                            <li style="color: #999; text-align: center; padding: 10px 0;">등록된 글이 없습니다.</li>
+                        <%
+                            } else {
+                                for (board.BoardVO item : freeList) {
+                        %>
+                            <li>
+                                <a href="../freeboard/content.jsp?num=<%= item.getNum() %>" onclick="event.stopPropagation();">
+                                    <%= item.getSubject() %>
+                                </a>
+                            </li>
+                        <%
+                                }
+                            }
+                        %>
                     </ul>
                 </div>
 
@@ -71,94 +103,64 @@
                     </ul>
                 </div>
             </div>
-            <!-- 실시간 인기글 섹션 -->
-            <div class="hot-posts-section" >
-            	<div class="section-header">
-        <h2 class="section-title">실시간 인기글</h2>
-        <a href="${pageContext.request.contextPath}/boardList.do?category=popular" class="btn-more">더보기 +</a>
-    			</div>
-    			<div class="hot-post-list">
-                    
-                    <div class="hot-post-item">
-                        <div class="post-title-group">
-                            <span class="post-icon">📰</span>
-                            <a href="${pageContext.request.contextPath}/boardDetail.do?id=501" class="post-title">어제 냉장고 파먹기 대성공!</a>
-                        </div>
-                        <div class="post-author-group">
-                            <span class="author-avatar" style="background-color: #818cf8;"></span>
-                            <span class="author-name">청소왕</span>
-                        </div>
-                        <div class="post-stats">
-                            <span>조회 <strong>112</strong></span>
-                            <span class="divider">|</span>
-                            <span>추천 <strong>14</strong></span>
-                        </div>
-                    </div>
 
-                    <div class="hot-post-item">
-                        <div class="post-title-group">
-                            <span class="post-icon">🌙</span>
-                            <a href="${pageContext.request.contextPath}/boardDetail.do?id=502" class="post-title">원룸 층간소음 해결하신 분 계신가요?</a>
+            <!-- 실시간 인기글 섹션 (category=BEST 연동) -->
+            <div class="hot-posts-section">
+                <div class="section-header">
+                    <h2 class="section-title">실시간 인기글</h2>
+                    <a href="../freeboard/list.jsp?category=BEST" class="btn-more">더보기 +</a>
+                </div>
+                <div class="hot-post-list">
+                    <%
+                        board.BoardDAO hotDao = board.BoardDAO.getInstance();
+                        java.util.List<board.BoardVO> hotList = hotDao.getArticles(0, 5, "BEST");
+                        if (hotList == null || hotList.isEmpty()) {
+                    %>
+                        <div style="padding: 30px; text-align: center; color: #94a3b8; font-size: 14px;">
+                            등록된 인기글이 없습니다.
                         </div>
-                        <div class="post-author-group">
-                            <span class="author-avatar" style="background-color: #38bdf8;"></span>
-                            <span class="author-name">21:55</span>
-                        </div>
-                        <div class="post-stats">
-                            <span>조회 <strong>187</strong></span>
-                            <span class="divider">|</span>
-                            <span>추천 <strong>9</strong></span>
-                        </div>
-                    </div>
+                    <%
+                        } else {
+                            String[] avatarColors = {"#818cf8", "#38bdf8", "#a78bfa", "#60a5fa", "#f43f5e"};
+                            int colorIdx = 0;
 
-                    <div class="hot-post-item">
-                        <div class="post-title-group">
-                            <span class="post-icon">✅</span>
-                            <a href="${pageContext.request.contextPath}/boardDetail.do?id=503" class="post-title">보증금 전입신고 꼭 하세요!!</a>
-                        </div>
-                        <div class="post-author-group">
-                            <span class="author-avatar" style="background-color: #a78bfa;"></span>
-                            <span class="author-name">정보통</span>
-                        </div>
-                        <div class="post-stats">
-                            <span>조회 <strong>341</strong></span>
-                            <span class="divider">|</span>
-                            <span>추천 <strong>28</strong></span>
-                        </div>
-                    </div>
+                            for (board.BoardVO item : hotList) {
+                                String color = avatarColors[colorIdx % avatarColors.length];
+                                colorIdx++;
 
-                    <div class="hot-post-item">
-                        <div class="post-title-group">
-                            <span class="post-icon">🍲</span>
-                            <a href="${pageContext.request.contextPath}/boardDetail.do?id=504" class="post-title">냉장고 파먹기 대장정 시작!</a>
+                                String icon = "🔥";
+                                String cat = item.getCategory();
+                                if ("TIP".equalsIgnoreCase(cat) || "꿀팁".equals(cat)) {
+                                    icon = "💡";
+                                } else if ("QNA".equalsIgnoreCase(cat) || "질문".equalsIgnoreCase(cat)) {
+                                    icon = "❓";
+                                } else if ("NOTICE".equalsIgnoreCase(cat) || "공지".equalsIgnoreCase(cat)) {
+                                    icon = "📢";
+                                } else if ("FREE".equalsIgnoreCase(cat) || "자유".equalsIgnoreCase(cat)) {
+                                    icon = "💬";
+                                }
+                    %>
+                        <div class="hot-post-item">
+                            <div class="post-title-group">
+                                <span class="post-icon"><%= icon %></span>
+                                <a href="../freeboard/content.jsp?num=<%= item.getNum() %>" class="post-title">
+                                    <%= item.getSubject() %>
+                                </a>
+                            </div>
+                            <div class="post-author-group">
+                                <span class="author-avatar" style="background-color: <%= color %>;"></span>
+                                <span class="author-name"><%= item.getWriter() %></span>
+                            </div>
+                            <div class="post-stats">
+                                <span>조회 <strong><%= item.getReadcount() %></strong></span>
+                                <span class="divider">|</span>
+                                <span>추천 <strong><%= item.getLikeCount() %></strong></span>
+                            </div>
                         </div>
-                        <div class="post-author-group">
-                            <span class="author-avatar" style="background-color: #60a5fa;"></span>
-                            <span class="author-name">살림왕2</span>
-                        </div>
-                        <div class="post-stats">
-                            <span>조회 <strong>98</strong></span>
-                            <span class="divider">|</span>
-                            <span>추천 <strong>15</strong></span>
-                        </div>
-                    </div>
-
-                    <div class="hot-post-item">
-                        <div class="post-title-group">
-                            <span class="post-icon">📷</span>
-                            <a href="${pageContext.request.contextPath}/boardDetail.do?id=505" class="post-title">원룸 인테리어 소품 추천해주세요!</a>
-                        </div>
-                        <div class="post-author-group">
-                            <span class="author-avatar" style="background-color: #818cf8;"></span>
-                            <span class="author-name">감성인</span>
-                        </div>
-                        <div class="post-stats">
-                            <span>조회 <strong>110</strong></span>
-                            <span class="divider">|</span>
-                            <span>추천 <strong>20</strong></span>
-                        </div>
-                    </div>
-
+                    <%
+                            }
+                        }
+                    %>
                 </div>
             </div>
         </main>
@@ -188,35 +190,36 @@
                     <span class="tag">야식</span>
                 </div>
             </div>
-            <!-- 커뮤니티 현황 위젯 -->
-    <div class="status-card">
-        <div class="widget-title">커뮤니티 현황</div>
-        <div class="status-grid">
-            <div class="status-item">
-                <div class="status-value">4,281</div>
-                <div class="status-label">전체 회원</div>
-            </div>
-            <div class="status-item">
-                <div class="status-value">312</div>
-                <div class="status-label">오늘 방문자</div>
-            </div>
-            <div class="status-item">
-                <div class="status-value">47</div>
-                <div class="status-label">오늘 등록글</div>
-            </div>
-        </div>
-    </div>
 
-    <!-- 첫 자취 체크리스트 배너 -->
-    <div class="checklist-banner">
-        <div class="banner-icon">🏠</div>
-        <div class="banner-title">첫 자취 준비 중이신가요?</div>
-        <div class="banner-desc">
-            신규 회원을 위한<br>
-            자취 시작 체크리스트를 확인해보세요.
-        </div>
-        <button type="button" class="btn-checklist" onclick="location.href='${pageContext.request.contextPath}/checklist.do'">체크리스트 보기</button>
-    </div>
+            <!-- 커뮤니티 현황 위젯 -->
+            <div class="status-card">
+                <div class="widget-title">커뮤니티 현황</div>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div class="status-value">4,281</div>
+                        <div class="status-label">전체 회원</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value">312</div>
+                        <div class="status-label">오늘 방문자</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-value">47</div>
+                        <div class="status-label">오늘 등록글</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 첫 자취 체크리스트 배너 -->
+            <div class="checklist-banner">
+                <div class="banner-icon">🏠</div>
+                <div class="banner-title">첫 자취 준비 중이신가요?</div>
+                <div class="banner-desc">
+                    신규 회원을 위한<br>
+                    자취 시작 체크리스트를 확인해보세요.
+                </div>
+                <button type="button" class="btn-checklist" onclick="location.href='${pageContext.request.contextPath}/checklist.do'">체크리스트 보기</button>
+            </div>
         </aside>
     </div>
 

@@ -1,28 +1,38 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="board.BoardDAO" %>
-<%@ page import="board.BoardVO" %>
+<%@ page import="board.BoardDAO, board.BoardVO" %>
 
 <%
     request.setCharacterEncoding("UTF-8");
 
-    String writerId = (String) session.getAttribute("id");
-    String writerNickname = (String) session.getAttribute("nickname");
+    String sessionUserId = (String) session.getAttribute("id");
+    String sessionUserNick = (String) session.getAttribute("nickname");
+    if (sessionUserNick == null) sessionUserNick = (String) session.getAttribute("name");
+    if (sessionUserNick == null) sessionUserNick = sessionUserId;
+    if (sessionUserNick == null) sessionUserNick = "익명";
 
-    if (writerId == null) {
-        out.println("<script>alert('로그인이 필요합니다.'); location.href='../member/loginForm.jsp';</script>");
-        return;
+    String category = request.getParameter("category");
+    String subject = request.getParameter("subject");
+    String content = request.getParameter("content");
+
+    if (category == null || category.trim().isEmpty()) {
+        category = "FREE";
     }
 
-    BoardVO board = new BoardVO();
-    board.setBoardType("FREE");
-    board.setCategory(request.getParameter("category"));
-    board.setWriterId(writerId);
-    board.setWriterNickname(writerNickname != null ? writerNickname : writerId);
-    board.setSubject(request.getParameter("subject"));
-    board.setContent(request.getParameter("content"));
+    if (subject != null && content != null && !subject.trim().isEmpty()) {
+        BoardVO article = new BoardVO();
+        article.setWriter(sessionUserNick);
+        article.setWriterId(sessionUserId);
+        article.setWriterNickname(sessionUserNick);
+        article.setCategory(category);
+        article.setSubject(subject);
+        article.setContent(content);
 
-    BoardDAO dao = BoardDAO.getInstance();
-    dao.insertBoard(board);
+        BoardDAO dao = BoardDAO.getInstance();
+        dao.insertArticle(article);
 
-    response.sendRedirect("list.jsp");
+        // 작성 후 등록한 카테고리의 게시판 목록으로 이동
+        response.sendRedirect("list.jsp?category=" + category);
+    } else {
+        out.println("<script>alert('제목과 내용을 입력해 주세요.'); history.go(-1);</script>");
+    }
 %>

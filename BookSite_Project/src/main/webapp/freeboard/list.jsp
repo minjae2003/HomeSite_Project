@@ -1,160 +1,205 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="board.BoardDAO" %>
-<%@ page import="board.BoardVO" %>
-<%@ page import="reply.ReplyDAO" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="board.BoardDAO, board.BoardVO, java.util.List, java.text.SimpleDateFormat" %>
 
 <%
     request.setCharacterEncoding("UTF-8");
 
+    String sessionUserId = (String) session.getAttribute("id");
+    String sessionUserNick = (String) session.getAttribute("nickname");
+    if (sessionUserNick == null) sessionUserNick = (String) session.getAttribute("name");
+
+    // 카테고리 파라미터 (ALL, BEST, FREE, TIP, QNA, NOTICE)
     String category = request.getParameter("category");
-    if(category == null || category.trim().equals("")) category = "all";
+    if (category == null || category.trim().isEmpty()) {
+        category = "ALL";
+    }
 
-    SimpleDateFormat sdf = new SimpleDateFormat("MM.dd");
-    BoardDAO dao = BoardDAO.getInstance();
-    ReplyDAO rdao = ReplyDAO.getInstance();
-
-    // MySQL 페이징 설정
+    // 페이징 처리
     int pageSize = 10;
     String pageNum = request.getParameter("pageNum");
-    if(pageNum == null) pageNum = "1";
+    if (pageNum == null) pageNum = "1";
 
     int currentPage = Integer.parseInt(pageNum);
-    int startRow = (currentPage - 1) * pageSize; // MySQL LIMIT 오프셋 (0부터 시작)
+    int startRow = (currentPage - 1) * pageSize;
 
-    int count = dao.getBoardCount("FREE", category);
-    List<BoardVO> boardList = null;
+    BoardDAO dao = BoardDAO.getInstance();
+    int totalCount = dao.getArticleCount(category);
 
-    if(count > 0) {
-        boardList = dao.getBoards("FREE", category, startRow, pageSize);
+    List<BoardVO> articleList = null;
+    if (totalCount > 0) {
+        articleList = dao.getArticles(startRow, pageSize, category);
     }
+
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 %>
 
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>자유게시판</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/index.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/freeboard.css">
+    <title>자취게시판 - 자취의 품격</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; background-color: #f7f9fa; color: #333; line-height: 1.5; }
+        a { text-decoration: none; color: inherit; }
+
+        .navbar { background: #fff; border-bottom: 1px solid #eaeaea; padding: 15px 0; }
+        .nav-container { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        .logo { font-size: 20px; font-weight: 800; color: #ff5722; display: flex; align-items: center; gap: 8px; }
+
+        .container { max-width: 1000px; margin: 35px auto; padding: 0 20px; }
+        
+        /* 1. 게시판 상단 제목 & 설명 헤더 영역 */
+        .board-header { margin-bottom: 24px; }
+        .board-title { font-size: 28px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .board-subtitle { font-size: 15px; color: #64748b; font-weight: 400; }
+
+        /* 2. 카테고리 탭 */
+        .category-tabs { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+        .tab-item { padding: 9px 20px; border-radius: 25px; font-size: 14px; font-weight: 700; color: #64748b; background: transparent; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 6px; }
+        .tab-item:hover { color: #1e293b; background-color: #f1f5f9; }
+        .tab-item.active { background: #2b374e; color: #ffffff !important; box-shadow: 0 4px 12px rgba(43, 55, 78, 0.25); }
+
+        /* 3. 게시글 목록 영역 */
+        .board-card { background: #fff; border-radius: 12px; border: 1px solid #eaeaea; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        
+        .board-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+        .board-table th { background: #f8f9fa; padding: 14px 16px; border-bottom: 1px solid #eaeaea; color: #555; font-weight: 700; }
+        .board-table td { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+        .board-table tr:hover { background-color: #fdfdfd; }
+
+        .cat-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: #edf2f7; color: #4a5568; margin-right: 6px; }
+        .cat-badge.TIP { background: #e8f5e9; color: #2e7d32; }
+        .cat-badge.QNA { background: #fff3e0; color: #e65100; }
+        .cat-badge.NOTICE { background: #ffebee; color: #c62828; }
+
+        .subject-link { color: #2d3436; font-weight: 600; font-size: 15px; }
+        .subject-link:hover { color: #ff5722; text-decoration: underline; }
+
+        .comment-cnt { font-size: 13px; font-weight: 700; color: #ff5722; margin-left: 4px; }
+
+        .readcount-text { color: #ff5722; font-weight: 700; }
+
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .btn-write { background: #ff5722; color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; }
+        .btn-write:hover { background: #e64a19; }
+
+        /* 페이징 */
+        .pagination { display: flex; justify-content: center; gap: 5px; margin-top: 25px; }
+        .page-link { padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; background: #fff; color: #555; font-size: 13px; font-weight: 600; }
+        .page-link.active { background: #1e272e; color: #fff; border-color: #1e272e; }
+    </style>
 </head>
 <body>
+<jsp:include page="../module/header.jsp" flush="false"/>
 
-    <jsp:include page="/module/header.jsp" flush="false"/>
+<div class="container">
+    <!-- 게시판 헤더 -->
+    <div class="board-header">
+        <h1 class="board-title">💭 자취게시판</h1>
+        <p class="board-subtitle">자취생들과 다양한 소식, 고민, 꿀팁을 나누는 공간입니다.</p>
+    </div>
 
-    <div class="container">
-        <main class="main-content">
-            <div class="board-header">
-                <h1 class="board-title">💬 자유게시판</h1>
-                <p class="board-desc">자취생들과 소통하는 공간입니다.</p>
-            </div>
+    <!-- 카테고리 탭 -->
+    <div class="category-tabs">
+        <a href="list.jsp?category=ALL" class="tab-item <%= "ALL".equals(category) ? "active" : "" %>">전체보기</a>
+        <a href="list.jsp?category=BEST" class="tab-item <%= "BEST".equals(category) ? "active" : "" %>">🔥 인기글</a>
+        <a href="list.jsp?category=TIP" class="tab-item <%= "TIP".equals(category) ? "active" : "" %>">💡 자취꿀팁</a>
+        <a href="list.jsp?category=QNA" class="tab-item <%= "QNA".equals(category) ? "active" : "" %>">❓ 질문/답변</a>
+        <a href="list.jsp?category=FREE" class="tab-item <%= "FREE".equals(category) ? "active" : "" %>">🏫 일상/수다</a>
+    </div>
 
-            <!-- 카테고리 필터 -->
-            <div class="category-filter">
-                <a href="list.jsp?category=all" class="filter-btn <%= category.equals("all") ? "active" : "" %>">전체보기</a>
-                <a href="list.jsp?category=popular" class="filter-btn <%= category.equals("popular") ? "active" : "" %>">🔥 인기글</a>
-                <a href="list.jsp?category=tip" class="filter-btn <%= category.equals("tip") ? "active" : "" %>">💡 자취꿀팁</a>
-                <a href="list.jsp?category=qna" class="filter-btn <%= category.equals("qna") ? "active" : "" %>">❓ 질문/답변</a>
-                <a href="list.jsp?category=free" class="filter-btn <%= category.equals("free") ? "active" : "" %>">🏫 일상/수다</a>
-            </div>
+    <div class="top-bar">
+        <span style="font-size: 14px; color: #666;">
+            총 <b><%= totalCount %></b>개의 게시글 <%= "BEST".equals(category) ? "(조회수 높은 순)" : "" %>
+        </span>
+        <a href="writeForm.jsp" class="btn-write">✏️ 글쓰기</a>
+    </div>
 
-            <!-- 목록 테이블 -->
-            <div class="board-table-container">
-                <table class="board-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 10%;" class="text-center">구분</th>
-                            <th style="width: 48%;">제목</th>
-                            <th style="width: 16%;">작성자</th>
-                            <th style="width: 10%;" class="text-center">날짜</th>
-                            <th style="width: 8%;" class="text-center">조회</th>
-                            <th style="width: 8%;" class="text-center">추천</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <%
-                        if(count == 0) {
-                    %>
-                        <tr>
-                            <td colspan="6" class="text-center" style="padding: 40px 0; color: #9ca3af;">
-                                작성된 게시글이 없습니다.
-                            </td>
-                        </tr>
-                    <%
-                        } else if(boardList != null) {
-                            for(BoardVO board : boardList) {
-                                int rcount = rdao.getReplyCount(board.getNum());
-                    %>
-                        <tr>
-                            <td class="text-center">
-                                <span class="badge badge-free"><%= board.getCategory() != null ? board.getCategory() : "자유" %></span>
-                            </td>
-                            <td>
-                                <a href="content.jsp?num=<%= board.getNum() %>&pageNum=<%= currentPage %>&category=<%= category %>" class="post-title-link">
-                                    <%= board.getSubject() %>
-                                </a>
-                                <% if(rcount > 0) { %>
-                                    <span class="comment-count">[<%= rcount %>]</span>
-                                <% } %>
-                            </td>
-                            <td>
-                                <div class="author-box"><%= board.getWriterNickname() %></div>
-                            </td>
-                            <td class="text-center text-muted"><%= sdf.format(board.getRegDate()) %></td>
-                            <td class="text-center text-muted"><%= board.getReadcount() %></td>
-                            <td class="text-center font-bold"><%= board.getLikeCount() %></td>
-                        </tr>
-                    <%
-                            }
-                        }
-                    %>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- 하단 페이징 및 글쓰기 버튼 -->
-            <div class="board-footer">
-                <div class="pagination">
+    <div class="board-card">
+        <table class="board-table">
+            <thead>
+                <tr>
+                    <th style="width: 58%;">제목</th>
+                    <th style="width: 16%;">작성자</th>
+                    <th style="width: 16%;">작성일</th>
+                    <th style="width: 10%; text-align: center;">조회수</th>
+                </tr>
+            </thead>
+            <tbody>
                 <%
-                    if(count > 0) {
-                        int pageCount = count / pageSize + (count % pageSize == 0 ? 0 : 1);
-                        int pageBlock = 10;
-                        int startPage = ((currentPage - 1) / pageBlock) * pageBlock + 1;
-                        int endPage = startPage + pageBlock - 1;
-                        if(endPage > pageCount) endPage = pageCount;
+                    if (totalCount == 0) {
+                %>
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 40px; color: #999;">게시글이 존재하지 않습니다.</td>
+                </tr>
+                <%
+                    } else {
+                        for (BoardVO article : articleList) {
+                            String catCode = article.getCategory();
+                            String catName = "일상";
+                            if ("TIP".equals(catCode)) catName = "꿀팁";
+                            else if ("QNA".equals(catCode)) catName = "질문";
 
-                        if(startPage > pageBlock) {
+                            String dateStr = article.getRegDate() != null ? sdf.format(article.getRegDate()) : "";
                 %>
-                            <a href="list.jsp?category=<%= category %>&pageNum=<%= startPage - pageBlock %>" class="page-btn">&lt;</a>
-                <%
-                        }
-                        for(int i = startPage; i <= endPage; i++) {
-                %>
-                            <a href="list.jsp?category=<%= category %>&pageNum=<%= i %>" class="page-btn <%= (i == currentPage) ? "active" : "" %>"><%= i %></a>
-                <%
-                        }
-                        if(endPage < pageCount) {
-                %>
-                            <a href="list.jsp?category=<%= category %>&pageNum=<%= startPage + pageBlock %>" class="page-btn">&gt;</a>
+                <tr>
+                    <td>
+                        <span class="cat-badge <%= catCode %>"><%= catName %></span>
+                        <a href="content.jsp?num=<%= article.getNum() %>&pageNum=<%= pageNum %>&category=<%= category %>" class="subject-link">
+                            <%= article.getSubject() %>
+                        </a>
+                        
+                        <!-- 댓글 수 표시 -->
+                        <% if (article.getCommentCount() > 0) { %>
+                            <span class="comment-cnt">[💬 <%= article.getCommentCount() %>]</span>
+                        <% } %>
+
+                        <!-- 추천 수 표시 -->
+                        <% if (article.getLikeCount() > 0) { %>
+                            <span style="font-size: 12px; color: #e53935; font-weight: 700; margin-left: 4px;">[❤️ <%= article.getLikeCount() %>]</span>
+                        <% } %>
+                    </td>
+                    <td><%= article.getWriterNickname() != null ? article.getWriterNickname() : article.getWriter() %></td>
+                    <td><%= dateStr %></td>
+                    <td style="text-align: center;">
+                        <span class="<%= "BEST".equals(category) ? "readcount-text" : "" %>">
+                            👁️ <%= article.getReadcount() %>
+                        </span>
+                    </td>
+                </tr>
                 <%
                         }
                     }
                 %>
-                </div>
-
-                <%
-                    String sessionUserId = (String) session.getAttribute("id");
-                    if(sessionUserId == null) {
-                %>
-                    <a href="javascript:alert('로그인 후 이용 가능합니다.'); location.href='${pageContext.request.contextPath}/member/loginForm.jsp';" class="btn-write">✏️ 글쓰기</a>
-                <% } else { %>
-                    <a href="writeForm.jsp?category=<%= category %>" class="btn-write">✏️ 글쓰기</a>
-                <% } %>
-            </div>
-        </main>
+            </tbody>
+        </table>
     </div>
 
-    <jsp:include page="/module/footer.jsp" flush="false"/>
+    <!-- 페이징 영역 -->
+    <%
+        if (totalCount > 0) {
+            int pageCount = totalCount / pageSize + (totalCount % pageSize == 0 ? 0 : 1);
+            int pageBlock = 5;
+            int startPage = ((currentPage - 1) / pageBlock) * pageBlock + 1;
+            int endPage = startPage + pageBlock - 1;
+            if (endPage > pageCount) endPage = pageCount;
+    %>
+    <div class="pagination">
+        <% if (startPage > pageBlock) { %>
+            <a href="list.jsp?pageNum=<%= startPage - pageBlock %>&category=<%= category %>" class="page-link">이전</a>
+        <% } %>
+
+        <% for (int i = startPage; i <= endPage; i++) { %>
+            <a href="list.jsp?pageNum=<%= i %>&category=<%= category %>" class="page-link <%= (i == currentPage) ? "active" : "" %>"><%= i %></a>
+        <% } %>
+
+        <% if (endPage < pageCount) { %>
+            <a href="list.jsp?pageNum=<%= startPage + pageBlock %>&category=<%= category %>" class="page-link">다음</a>
+        <% } %>
+    </div>
+    <% } %>
+</div>
+
 </body>
 </html>
