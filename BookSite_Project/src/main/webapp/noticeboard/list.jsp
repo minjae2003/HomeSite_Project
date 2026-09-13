@@ -129,7 +129,7 @@
                         for (BoardVO article : articleList) {
                             String catCode = article.getCategory();
                             String catName = "공지글";
-                            if ("TIP".equals(catCode)) catName = "고정공지";
+                            if ("TIP".equals(catCode)) catName = "고정 공지";
                            
 
                             String dateStr = article.getRegDate() != null ? sdf.format(article.getRegDate()) : "";
