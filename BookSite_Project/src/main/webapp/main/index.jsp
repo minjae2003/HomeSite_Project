@@ -22,7 +22,7 @@
 
             <div class="board-grid">
                 <!-- 공지사항 카드 -->
-                <div class="board-card" onclick="location.href='../book/booklist.jsp'">
+                <div class="board-card" onclick="location.href='../noticeboard/list.jsp'">
                     <div class="card-header">
                         <div class="card-icon">📢</div>
                         <div class="card-title">공지사항</div>

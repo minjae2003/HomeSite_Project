@@ -11,7 +11,7 @@
     <nav>
         <ul>
             <li><a href="${pageContext.request.contextPath}/main/index.jsp">HOME</a></li>
-            <li><a href="${pageContext.request.contextPath}/book/booklist.jsp">NOTICE<small>공지사항</small></a></li>
+            <li><a href="${pageContext.request.contextPath}/noticeboard/list.jsp">NOTICE<small>공지사항</small></a></li>
             <li><a href="${pageContext.request.contextPath}/freeboard/list.jsp">TIPS/BOARD<small>생활 꿀팁/자유게시판</small></a></li>
             <li><a href="${pageContext.request.contextPath}/qna/qnaList.jsp">RECIPES<small>요리레시피</small></a></li>
             <li><a href="${pageContext.request.contextPath}/finalPage/index.jsp">MY PAGE</a></li>
