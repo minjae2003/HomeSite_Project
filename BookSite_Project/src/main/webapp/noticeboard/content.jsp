@@ -7,6 +7,7 @@
     String sessionUserId = (String) session.getAttribute("id");
     if (sessionUserId == null) sessionUserId = (String) session.getAttribute("userId");
     if (sessionUserId == null) sessionUserId = (String) session.getAttribute("memberId");
+    String sessionRole = (String) session.getAttribute("role");
 
     String numParam = request.getParameter("num");
     String pageNum = request.getParameter("pageNum");
@@ -23,7 +24,7 @@
     int num = Integer.parseInt(numParam);
 
     BoardDAO dao = BoardDAO.getInstance();
-    dao.updateReadcount(num); // 조회수 증가
+    dao.updateReadcount(num);
     BoardVO article = dao.getBoardDetail(num);
 
     if (article == null) {
@@ -32,8 +33,10 @@
     }
 
     boolean isLiked = dao.hasUserLiked(num, sessionUserId);
+    boolean isFixed = "FIX".equals(article.getNoticeType());
 
-    // 댓글 목록 가져오기
+    boolean canManage = (sessionUserId != null && sessionUserId.equals(article.getWriterId())) || "ADMIN".equals(sessionRole);
+
     CommentDAO commentDao = CommentDAO.getInstance();
     List<CommentVO> commentList = commentDao.getComments(num);
 
@@ -57,6 +60,10 @@
         .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
         .card { background: #fff; border-radius: 12px; border: 1px solid #eaeaea; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-bottom: 25px; }
 
+        .notice-badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; margin-bottom: 10px; }
+        .notice-badge.FIX { background: #ffebee; color: #c62828; }
+        .notice-badge.NORMAL { background: #e3f2fd; color: #1565c0; }
+
         .post-title { font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 12px; }
         .post-meta { display: flex; gap: 15px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; margin-bottom: 20px; }
         .post-content { font-size: 15px; color: #334155; min-height: 150px; line-height: 1.7; white-space: pre-line; margin-bottom: 30px; }
@@ -67,7 +74,6 @@
         .btn-like.active { background: #e53935; color: #fff; border-color: #e53935; }
         .btn-list { background: #f1f5f9; color: #475569; }
 
-        /* 댓글 영역 */
         .comment-section { background: #fff; border-radius: 12px; border: 1px solid #eaeaea; padding: 25px; }
         .comment-header { font-size: 18px; font-weight: 700; margin-bottom: 18px; color: #1e293b; }
         .comment-form { display: flex; gap: 10px; margin-bottom: 25px; }
@@ -90,8 +96,8 @@
 <jsp:include page="../module/header.jsp" flush="false"/>
 
 <div class="container">
-    <!-- 본문 카드 -->
     <div class="card">
+        <span class="notice-badge <%= isFixed ? "FIX" : "NORMAL" %>"><%= isFixed ? "📌 고정공지" : "📝 일반공지" %></span>
         <h1 class="post-title"><%= article.getSubject() %></h1>
         <div class="post-meta">
             <span>작성자: <b><%= article.getWriterNickname() != null ? article.getWriterNickname() : article.getWriter() %></b></span>
@@ -101,14 +107,13 @@
         <div class="post-content"><%= article.getContent() %></div>
 
         <div class="btn-box">
-            <!-- 추천 버튼 -->
             <button class="btn btn-like <%= isLiked ? "active" : "" %>" 
                     onclick="location.href='likePro.jsp?num=<%= num %>&pageNum=<%= pageNum %>&category=<%= category %>'">
                 <%= isLiked ? "❤️ 추천취소" : "🤍 추천하기" %> <b><%= article.getLikeCount() %></b>
             </button>
 
             <div>
-                <% if (sessionUserId != null && sessionUserId.equals(article.getWriterId())) { %>
+                <% if (canManage) { %>
                     <button class="btn" style="background:#f1f5f9;" onclick="location.href='updateForm.jsp?num=<%= num %>&pageNum=<%= pageNum %>&category=<%= category %>'">수정</button>
                     <button class="btn" style="background:#fee2e2; color:#dc2626;" onclick="if(confirm('정말 삭제하시겠습니까?')) location.href='deletePro.jsp?num=<%= num %>&pageNum=<%= pageNum %>&category=<%= category %>'">삭제</button>
                 <% } %>
@@ -117,11 +122,9 @@
         </div>
     </div>
 
-    <!-- 댓글 카드 -->
     <div class="comment-section">
         <h3 class="comment-header">💬 댓글 <span>(<%= commentList.size() %>)</span></h3>
 
-        <!-- 댓글 작성 폼 -->
         <form action="commentWritePro.jsp" method="post" class="comment-form">
             <input type="hidden" name="boardNum" value="<%= num %>">
             <input type="hidden" name="pageNum" value="<%= pageNum %>">
@@ -130,7 +133,6 @@
             <button type="submit" class="btn-comment-submit" <%= sessionUserId == null ? "disabled" : "" %>>등록</button>
         </form>
 
-        <!-- 댓글 목록 -->
         <ul class="comment-list">
             <% if (commentList.isEmpty()) { %>
                 <li style="text-align: center; color: #94a3b8; padding: 20px 0; font-size: 14px;">첫 번째 댓글을 작성해 보세요!</li>

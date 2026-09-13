@@ -5,6 +5,8 @@
     request.setCharacterEncoding("UTF-8");
     String numStr = request.getParameter("num");
     String pageNum = request.getParameter("pageNum");
+    String category = request.getParameter("category");
+    if (category == null) category = "ALL";
 
     if (numStr == null || numStr.trim().isEmpty()) {
         out.println("<script>alert('잘못된 접근입니다.'); history.go(-1);</script>");
@@ -29,7 +31,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>게시글 수정</title>
+    <title>공지사항 수정</title>
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; margin: 30px; background-color: #f9f9f9; }
         .container { max-width: 700px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; border: 1px solid #ddd; }
@@ -37,6 +39,8 @@
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; }
         input[type="text"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .notice-type-group { display: flex; gap: 10px; }
+        .notice-type-group label { display: inline-flex; align-items: center; gap: 6px; font-weight: normal; }
         .btn-box { text-align: right; margin-top: 15px; }
         .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
         .btn-submit { background-color: #007bff; color: white; }
@@ -46,10 +50,24 @@
 <body>
 
 <div class="container">
-    <h2>게시글 수정</h2>
+    <h2>공지사항 수정</h2>
     <form action="updatePro.jsp" method="post">
         <input type="hidden" name="num" value="<%= num %>">
         <input type="hidden" name="pageNum" value="<%= pageNum %>">
+        <input type="hidden" name="category" value="<%= category %>">
+
+        <div class="form-group">
+            <label>공지 유형</label>
+            <% if ("ADMIN".equals(sessionRole)) { %>
+            <div class="notice-type-group">
+                <label><input type="radio" name="noticeType" value="NORMAL" <%= !"FIX".equals(board.getNoticeType()) ? "checked" : "" %>> 📝 일반공지</label>
+                <label><input type="radio" name="noticeType" value="FIX" <%= "FIX".equals(board.getNoticeType()) ? "checked" : "" %>> 📌 고정공지</label>
+            </div>
+            <% } else { %>
+                <input type="hidden" name="noticeType" value="<%= board.getNoticeType() %>">
+                <span><%= "FIX".equals(board.getNoticeType()) ? "📌 고정공지" : "📝 일반공지" %> (관리자만 변경 가능)</span>
+            <% } %>
+        </div>
 
         <div class="form-group">
             <label>제목</label>
@@ -63,7 +81,7 @@
 
         <div class="btn-box">
             <button type="submit" class="btn btn-submit">수정 완료</button>
-            <button type="button" class="btn btn-cancel" onclick="location.href='content.jsp?num=<%= num %>&pageNum=<%= pageNum %>'">취소</button>
+            <button type="button" class="btn btn-cancel" onclick="location.href='content.jsp?num=<%= num %>&pageNum=<%= pageNum %>&category=<%= category %>'">취소</button>
         </div>
     </form>
 </div>

@@ -20,17 +20,35 @@
                 <small>[공지] 9월 사이트 완성작업 및 서버 안정화 작업 안내 (09/07~)</small>
             </div>
 
-            <div class="board-grid">
-                <!-- 공지사항 카드 -->
-                <div class="board-card" onclick="location.href='../noticeboard/list.jsp'">
-                    <div class="card-header">
-                        <div class="card-icon">📢</div>
-                        <div class="card-title">공지사항</div>
-                    </div>
-                    <ul class="post-list">
-                        <li><a href="boardDetail.do?id=101" onclick="event.stopPropagation();">[필독] 커뮤니티 이용 규칙</a></li>
-                    </ul>
-                </div>
+            <!-- 공지사항 카드 (DB 연동) -->
+<div class="board-card" onclick="location.href='../noticeboard/list.jsp'">
+    <div class="card-header">
+        <div class="card-icon">📢</div>
+        <div class="card-title">공지사항</div>
+    </div>
+    <ul class="post-list">
+        <%
+            board.BoardDAO noticeDao = board.BoardDAO.getInstance();
+            java.util.List<board.BoardVO> noticeList = noticeDao.getNotices(0, 3, "ALL");
+            if (noticeList == null || noticeList.isEmpty()) {
+        %>
+            <li style="color: #999; text-align: center; padding: 10px 0;">등록된 공지사항이 없습니다.</li>
+        <%
+            } else {
+                for (board.BoardVO item : noticeList) {
+                    boolean isFixed = "FIX".equals(item.getNoticeType());
+        %>
+            <li>
+                <a href="../noticeboard/content.jsp?num=<%= item.getNum() %>" onclick="event.stopPropagation();">
+                    <%= isFixed ? "📌 " : "" %><%= item.getSubject() %>
+                </a>
+            </li>
+        <%
+                }
+            }
+        %>
+    </ul>
+</div>
 
                 <!-- 자취꿀팁 카드 (DB 연동) -->
                 <div class="board-card" onclick="location.href='../freeboard/list.jsp'">

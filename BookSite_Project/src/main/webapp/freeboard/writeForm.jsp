@@ -3,6 +3,13 @@
     request.setCharacterEncoding("UTF-8");
 
     String sessionUserId = (String) session.getAttribute("id");
+
+    // 로그인하지 않은 사용자는 글쓰기 폼에 접근할 수 없도록 차단
+    if (sessionUserId == null) {
+        out.println("<script>alert('로그인이 필요합니다.'); location.href='../member/loginForm.jsp';</script>");
+        return;
+    }
+
     String sessionUserNick = (String) session.getAttribute("nickname");
     if (sessionUserNick == null) sessionUserNick = (String) session.getAttribute("name");
     if (sessionUserNick == null) sessionUserNick = sessionUserId;
@@ -21,16 +28,14 @@
         body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; background-color: #f7f9fa; color: #333; line-height: 1.5; }
         a { text-decoration: none; color: inherit; }
 
-        /* 상단 네비게이션바 */
         .navbar { background: #fff; border-bottom: 1px solid #eaeaea; padding: 15px 0; }
         .nav-container { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
         .logo { font-size: 20px; font-weight: 800; color: #ff5722; display: flex; align-items: center; gap: 8px; }
         .logo-icon { background: #ff5722; color: #fff; padding: 4px 8px; border-radius: 8px; font-size: 14px; }
 
-        /* 메인 컨테이너 */
         .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
         .card { background: #fff; border-radius: 12px; border: 1px solid #eaeaea; padding: 35px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-        
+
         .form-header { margin-bottom: 25px; border-bottom: 2px solid #f1f3f5; padding-bottom: 15px; }
         .form-title { font-size: 20px; font-weight: 800; color: #1e272e; }
         .form-subtitle { font-size: 13px; color: #888; margin-top: 4px; }
@@ -38,10 +43,9 @@
         .form-group { margin-bottom: 22px; }
         .form-label { display: block; font-size: 14px; font-weight: 700; color: #2d3436; margin-bottom: 8px; }
 
-        /* 카테고리 라디오 버튼 선택 스타일 */
         .category-select-group { display: flex; gap: 10px; flex-wrap: wrap; }
         .category-select-group input[type="radio"] { display: none; }
-        
+
         .cat-btn {
             display: inline-flex;
             align-items: center;
@@ -66,7 +70,6 @@
 
         .cat-btn:hover { border-color: #1e272e; }
 
-        /* 입력 폼 스타일 */
         .input-control {
             width: 100%;
             padding: 12px 15px;
@@ -82,7 +85,6 @@
 
         textarea.input-control { resize: vertical; min-height: 250px; line-height: 1.6; }
 
-        /* 버튼 그룹 */
         .btn-group { display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px; }
         .btn { padding: 11px 24px; border-radius: 8px; font-size: 14px; font-weight: 700; border: none; cursor: pointer; transition: background 0.2s; }
         .btn-submit { background: #ff5722; color: #fff; box-shadow: 0 4px 10px rgba(255,87,34,0.25); }
@@ -93,7 +95,6 @@
 </head>
 <body>
 
-<!-- 상단 네비게이션 바 -->
 <nav class="navbar">
     <div class="nav-container">
         <a href="list.jsp" class="logo">
@@ -110,7 +111,6 @@
         </div>
 
         <form action="writePro.jsp" method="post">
-            <!-- 1. 카테고리 선택 영역 -->
             <div class="form-group">
                 <label class="form-label">카테고리 선택</label>
                 <div class="category-select-group">
@@ -135,25 +135,21 @@
                 </div>
             </div>
 
-            <!-- 2. 작성자 표시 -->
             <div class="form-group">
                 <label class="form-label">작성자</label>
                 <input type="text" class="input-control input-readonly" value="<%= sessionUserNick %>" readonly>
             </div>
 
-            <!-- 3. 제목 입력 -->
             <div class="form-group">
                 <label class="form-label">제목</label>
                 <input type="text" name="subject" class="input-control" placeholder="제목을 입력해 주세요." required autofocus>
             </div>
 
-            <!-- 4. 내용 입력 -->
             <div class="form-group">
                 <label class="form-label">내용</label>
                 <textarea name="content" class="input-control" placeholder="자취생들과 나누고 싶은 이야기를 자유롭게 작성해 주세요." required></textarea>
             </div>
 
-            <!-- 5. 하단 버튼 -->
             <div class="btn-group">
                 <button type="button" class="btn btn-cancel" onclick="location.href='list.jsp'">취소</button>
                 <button type="submit" class="btn btn-submit">게시글 등록</button>
