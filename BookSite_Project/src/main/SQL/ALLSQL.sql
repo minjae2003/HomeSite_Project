@@ -70,3 +70,9 @@ CREATE TABLE CHECKLIST (
     reg_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_checklist_member FOREIGN KEY (member_id) REFERENCES MEMBER(id) ON DELETE CASCADE
 );
+
+
+-- 관리자 계정 새로 생성
+INSERT INTO MEMBER (id, password, name, nickname, email, auth_status, role)
+VALUES ('admin', 'admin1234', '관리자', '관리자', 'admin@example.com', 'Y', 'ADMIN');
+

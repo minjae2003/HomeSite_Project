@@ -5,7 +5,7 @@
 %>
 <script>
 	alert("로그아웃 되었습니다");
-	location.href="../main/main.jsp";
+	location.href="../main/index.jsp";
 </script>
 <!DOCTYPE html>
 <html>

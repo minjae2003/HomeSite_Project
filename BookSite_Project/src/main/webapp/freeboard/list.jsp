@@ -96,7 +96,7 @@
 <div class="container">
     <!-- 게시판 헤더 -->
     <div class="board-header">
-        <h1 class="board-title">💭 자취게시판</h1>
+        <h1 class="board-title">💭 자취/자유게시판</h1>
         <p class="board-subtitle">자취생들과 다양한 소식, 고민, 꿀팁을 나누는 공간입니다.</p>
     </div>
 

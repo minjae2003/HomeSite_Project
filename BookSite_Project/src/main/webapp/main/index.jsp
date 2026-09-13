@@ -20,7 +20,8 @@
                 <small>[공지] 9월 사이트 완성작업 및 서버 안정화 작업 안내 (09/07~)</small>
             </div>
 
-            <!-- 공지사항 카드 (DB 연동) -->
+            <div class="board-grid">
+                <!-- 공지사항 카드 (DB 연동) -->
 <div class="board-card" onclick="location.href='../noticeboard/list.jsp'">
     <div class="card-header">
         <div class="card-icon">📢</div>
