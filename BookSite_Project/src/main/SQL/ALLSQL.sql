@@ -1,14 +1,13 @@
--- 외래키 제약조건 비활성화 (삭제 시 순서 오류 방지)
+-- 1. 외래키 제약조건 비활성화 및 기존 테이블 삭제
 SET FOREIGN_KEY_CHECKS = 0;
 
--- 1. 기존 테이블 삭제
 DROP TABLE IF EXISTS CHECKLIST;
 DROP TABLE IF EXISTS BOARD_LIKE;
+DROP TABLE IF EXISTS BOARD_COMMENT;
 DROP TABLE IF EXISTS BOARD_REPLY;
 DROP TABLE IF EXISTS BOARD;
 DROP TABLE IF EXISTS MEMBER;
 
--- 외래키 제약조건 재활성화
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- 2. 회원 테이블 (MEMBER)
@@ -26,10 +25,11 @@ CREATE TABLE MEMBER (
 -- 3. 통합 게시판 테이블 (BOARD)
 CREATE TABLE BOARD (
     num INT AUTO_INCREMENT PRIMARY KEY,
-    board_type VARCHAR(20) NOT NULL,
-    category VARCHAR(20),
-    writer_id VARCHAR(50) NOT NULL,
-    writer_nickname VARCHAR(50) NOT NULL,
+    writer VARCHAR(50),
+    writer_id VARCHAR(50) DEFAULT NULL,
+    writer_nickname VARCHAR(50) DEFAULT NULL,
+    board_type VARCHAR(20) DEFAULT 'FREE',
+    category VARCHAR(50) DEFAULT 'FREE',
     subject VARCHAR(200) NOT NULL,
     content TEXT NOT NULL,
     readcount INT DEFAULT 0,
@@ -38,27 +38,27 @@ CREATE TABLE BOARD (
     CONSTRAINT fk_board_writer FOREIGN KEY (writer_id) REFERENCES MEMBER(id) ON DELETE CASCADE
 );
 
--- 4. 댓글 테이블 (BOARD_REPLY)
-CREATE TABLE BOARD_REPLY (
-    reply_num INT AUTO_INCREMENT PRIMARY KEY,
+-- 4. 게시글 댓글 테이블 (BOARD_COMMENT)
+CREATE TABLE BOARD_COMMENT (
+    comment_num INT AUTO_INCREMENT PRIMARY KEY,
     board_num INT NOT NULL,
-    writer_id VARCHAR(50) NOT NULL,
-    writer_nickname VARCHAR(50) NOT NULL,
-    content VARCHAR(1000) NOT NULL,
+    writer VARCHAR(50),
+    writer_id VARCHAR(50),
+    writer_nickname VARCHAR(50),
+    content TEXT NOT NULL,
     reg_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_reply_board FOREIGN KEY (board_num) REFERENCES BOARD(num) ON DELETE CASCADE,
-    CONSTRAINT fk_reply_writer FOREIGN KEY (writer_id) REFERENCES MEMBER(id) ON DELETE CASCADE
+    CONSTRAINT fk_comment_board FOREIGN KEY (board_num) REFERENCES BOARD(num) ON DELETE CASCADE,
+    CONSTRAINT fk_comment_writer FOREIGN KEY (writer_id) REFERENCES MEMBER(id) ON DELETE CASCADE
 );
 
 -- 5. 게시글 추천 테이블 (BOARD_LIKE)
 CREATE TABLE BOARD_LIKE (
-    like_id INT AUTO_INCREMENT PRIMARY KEY,
     board_num INT NOT NULL,
-    member_id VARCHAR(50) NOT NULL,
+    user_id VARCHAR(50) NOT NULL,
     reg_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (board_num, user_id),
     CONSTRAINT fk_like_board FOREIGN KEY (board_num) REFERENCES BOARD(num) ON DELETE CASCADE,
-    CONSTRAINT fk_like_member FOREIGN KEY (member_id) REFERENCES MEMBER(id) ON DELETE CASCADE,
-    CONSTRAINT unique_board_member UNIQUE (board_num, member_id)
+    CONSTRAINT fk_like_user FOREIGN KEY (user_id) REFERENCES MEMBER(id) ON DELETE CASCADE
 );
 
 -- 6. 체크리스트 테이블 (CHECKLIST)
@@ -70,83 +70,3 @@ CREATE TABLE CHECKLIST (
     reg_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_checklist_member FOREIGN KEY (member_id) REFERENCES MEMBER(id) ON DELETE CASCADE
 );
-
-SELECT id, password, name FROM MEMBER WHERE id = '입력한아이디';
-
-SELECT * FROM MEMBER;
-
-ALTER TABLE BOARD ADD COLUMN writer VARCHAR(50) AFTER num;
-
-ALTER TABLE BOARD MODIFY COLUMN board_type VARCHAR(20) DEFAULT 'FREE';
-
-SELECT * FROM BOARD ORDER BY num DESC LIMIT 5;
-
-ALTER TABLE BOARD MODIFY COLUMN category VARCHAR(50) DEFAULT 'FREE';
-ALTER TABLE BOARD MODIFY COLUMN writer_id VARCHAR(50) DEFAULT NULL;
-ALTER TABLE BOARD MODIFY COLUMN writer_nickname VARCHAR(50) DEFAULT NULL;
-ALTER TABLE BOARD MODIFY COLUMN like_count INT DEFAULT 0;
-
-CREATE TABLE IF NOT EXISTS BOARD_COMMENT (
-    comment_num INT AUTO_INCREMENT PRIMARY KEY,
-    board_num INT NOT NULL,
-    writer VARCHAR(50) NOT NULL,
-    writer_id VARCHAR(50),
-    content TEXT NOT NULL,
-    reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (board_num) REFERENCES BOARD(num) ON DELETE CASCADE
-);
-
--- 게시판 테이블
-CREATE TABLE IF NOT EXISTS BOARD (
-    num INT AUTO_INCREMENT PRIMARY KEY,
-    writer VARCHAR(50) NOT NULL,
-    writer_id VARCHAR(50),
-    writer_nickname VARCHAR(50),
-    subject VARCHAR(100) NOT NULL,
-    content TEXT NOT NULL,
-    readcount INT DEFAULT 0,
-    like_count INT DEFAULT 0,
-    reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    board_type VARCHAR(20) DEFAULT 'FREE'
-);
-
--- 댓글 테이블
-CREATE TABLE IF NOT EXISTS BOARD_COMMENT (
-    comment_num INT AUTO_INCREMENT PRIMARY KEY,
-    board_num INT NOT NULL,
-    writer VARCHAR(50) NOT NULL,
-    writer_id VARCHAR(50),
-    content TEXT NOT NULL,
-    reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (board_num) REFERENCES BOARD(num) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS BOARD_LIKE (
-    board_num INT NOT NULL,
-    user_id VARCHAR(50) NOT NULL,
-    PRIMARY KEY (board_num, user_id),
-    FOREIGN KEY (board_num) REFERENCES BOARD(num) ON DELETE CASCADE
-);
-
--- BOARD 테이블에 like_count 컬럼 추가 (기본값 0)
-DROP TABLE IF EXISTS BOARD_LIKE;
-
-CREATE TABLE BOARD_LIKE (
-    board_num INT NOT NULL,
-    user_id VARCHAR(50) NOT NULL,
-    PRIMARY KEY (board_num, user_id)
-);
-
-CREATE TABLE IF NOT EXISTS BOARD_COMMENT (
-    comment_num INT AUTO_INCREMENT PRIMARY KEY,
-    board_num INT NOT NULL,
-    writer VARCHAR(50),
-    writer_id VARCHAR(50),
-    writer_nickname VARCHAR(50),
-    content TEXT NOT NULL,
-    reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (board_num) REFERENCES BOARD(num) ON DELETE CASCADE
-);
-
-
-ALTER TABLE BOARD_COMMENT ADD COLUMN writer_nickname VARCHAR(50) AFTER writer_id;
