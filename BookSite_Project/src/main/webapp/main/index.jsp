@@ -191,10 +191,10 @@
         <!-- 사이드바 영역 -->
         <aside class="sidebar">
             <div class="sidebar-box">
-                <div class="search-bar">
-                    <input type="text" placeholder="SEARCH BAR">
-                    <button>🔍</button>
-                </div>
+                <form class="search-bar" action="../freeboard/list.jsp" method="get">
+                    <input type="text" name="keyword" placeholder="SEARCH BAR">
+                    <button type="submit">🔍</button>
+                </form>
             </div>
 
            <div class="auth-buttons">

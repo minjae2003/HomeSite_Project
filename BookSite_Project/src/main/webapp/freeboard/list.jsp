@@ -14,6 +14,10 @@
         category = "ALL";
     }
 
+    // 검색어 파라미터
+    String keyword = request.getParameter("keyword");
+    if (keyword != null) keyword = keyword.trim();
+
     // 페이징 처리
     int pageSize = 10;
     String pageNum = request.getParameter("pageNum");
@@ -23,11 +27,28 @@
     int startRow = (currentPage - 1) * pageSize;
 
     BoardDAO dao = BoardDAO.getInstance();
-    int totalCount = dao.getArticleCount(category);
+    int totalCount = dao.getArticleCount(category, keyword);
 
     List<BoardVO> articleList = null;
     if (totalCount > 0) {
-        articleList = dao.getArticles(startRow, pageSize, category);
+        articleList = dao.getArticles(startRow, pageSize, category, keyword);
+    }
+
+    // 페이징/탭 링크에 검색어를 그대로 이어붙이기 위한 쿼리스트링 조각
+    String keywordQuery = "";
+    if (keyword != null && !keyword.isEmpty()) {
+        try {
+            keywordQuery = "&keyword=" + java.net.URLEncoder.encode(keyword, "UTF-8");
+        } catch (java.io.UnsupportedEncodingException e) {
+            keywordQuery = "";
+        }
+    }
+
+    // 검색창에 값 채워넣을 때 쓰는 이스케이프 처리 (XSS 방지)
+    String escapedKeyword = "";
+    if (keyword != null) {
+        escapedKeyword = keyword.replace("&", "&amp;").replace("<", "&lt;")
+                .replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
     }
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
@@ -88,6 +109,15 @@
         .pagination { display: flex; justify-content: center; gap: 5px; margin-top: 25px; }
         .page-link { padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; background: #fff; color: #555; font-size: 13px; font-weight: 600; }
         .page-link.active { background: #1e272e; color: #fff; border-color: #1e272e; }
+
+        /* 검색 */
+        .search-box { display: flex; gap: 8px; margin-bottom: 20px; }
+        .search-box input { flex: 1; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; }
+        .search-box input:focus { border-color: #ff5722; }
+        .search-box button { padding: 10px 18px; background: #2b374e; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .search-box button:hover { background: #1e272e; }
+        .search-result-info { font-size: 14px; color: #64748b; margin-bottom: 12px; }
+        .search-result-info b { color: #ff5722; }
     </style>
 </head>
 <body>
@@ -100,13 +130,27 @@
         <p class="board-subtitle">자취생들과 다양한 소식, 고민, 꿀팁을 나누는 공간입니다.</p>
     </div>
 
+    <!-- 검색창 -->
+    <form class="search-box" action="list.jsp" method="get">
+        <input type="hidden" name="category" value="<%= category %>">
+        <input type="text" name="keyword" placeholder="제목/내용으로 검색" value="<%= escapedKeyword %>">
+        <button type="submit">🔍 검색</button>
+    </form>
+
+    <% if (keyword != null && !keyword.isEmpty()) { %>
+        <div class="search-result-info">
+            '<b><%= escapedKeyword %></b>' 검색 결과 <b><%= totalCount %></b>건
+            <a href="list.jsp?category=<%= category %>" style="margin-left: 8px; color: #94a3b8; text-decoration: underline;">검색 초기화</a>
+        </div>
+    <% } %>
+
     <!-- 카테고리 탭 -->
     <div class="category-tabs">
-        <a href="list.jsp?category=ALL" class="tab-item <%= "ALL".equals(category) ? "active" : "" %>">전체보기</a>
-        <a href="list.jsp?category=BEST" class="tab-item <%= "BEST".equals(category) ? "active" : "" %>">🔥 인기글</a>
-        <a href="list.jsp?category=TIP" class="tab-item <%= "TIP".equals(category) ? "active" : "" %>">💡 자취꿀팁</a>
-        <a href="list.jsp?category=QNA" class="tab-item <%= "QNA".equals(category) ? "active" : "" %>">❓ 질문/답변</a>
-        <a href="list.jsp?category=FREE" class="tab-item <%= "FREE".equals(category) ? "active" : "" %>">🏫 일상/수다</a>
+        <a href="list.jsp?category=ALL<%= keywordQuery %>" class="tab-item <%= "ALL".equals(category) ? "active" : "" %>">전체보기</a>
+        <a href="list.jsp?category=BEST<%= keywordQuery %>" class="tab-item <%= "BEST".equals(category) ? "active" : "" %>">🔥 인기글</a>
+        <a href="list.jsp?category=TIP<%= keywordQuery %>" class="tab-item <%= "TIP".equals(category) ? "active" : "" %>">💡 자취꿀팁</a>
+        <a href="list.jsp?category=QNA<%= keywordQuery %>" class="tab-item <%= "QNA".equals(category) ? "active" : "" %>">❓ 질문/답변</a>
+        <a href="list.jsp?category=FREE<%= keywordQuery %>" class="tab-item <%= "FREE".equals(category) ? "active" : "" %>">🏫 일상/수다</a>
     </div>
 
     <div class="top-bar">
@@ -131,7 +175,9 @@
                     if (totalCount == 0) {
                 %>
                 <tr>
-                    <td colspan="4" style="text-align: center; padding: 40px; color: #999;">게시글이 존재하지 않습니다.</td>
+                    <td colspan="4" style="text-align: center; padding: 40px; color: #999;">
+                        <%= (keyword != null && !keyword.isEmpty()) ? "검색 결과가 없습니다." : "게시글이 존재하지 않습니다." %>
+                    </td>
                 </tr>
                 <%
                     } else {
@@ -146,7 +192,7 @@
                 <tr>
                     <td>
                         <span class="cat-badge <%= catCode %>"><%= catName %></span>
-                        <a href="content.jsp?num=<%= article.getNum() %>&pageNum=<%= pageNum %>&category=<%= category %>" class="subject-link">
+                        <a href="content.jsp?num=<%= article.getNum() %>&pageNum=<%= pageNum %>&category=<%= category %><%= keywordQuery %>" class="subject-link">
                             <%= article.getSubject() %>
                         </a>
                         
@@ -187,15 +233,15 @@
     %>
     <div class="pagination">
         <% if (startPage > pageBlock) { %>
-            <a href="list.jsp?pageNum=<%= startPage - pageBlock %>&category=<%= category %>" class="page-link">이전</a>
+            <a href="list.jsp?pageNum=<%= startPage - pageBlock %>&category=<%= category %><%= keywordQuery %>" class="page-link">이전</a>
         <% } %>
 
         <% for (int i = startPage; i <= endPage; i++) { %>
-            <a href="list.jsp?pageNum=<%= i %>&category=<%= category %>" class="page-link <%= (i == currentPage) ? "active" : "" %>"><%= i %></a>
+            <a href="list.jsp?pageNum=<%= i %>&category=<%= category %><%= keywordQuery %>" class="page-link <%= (i == currentPage) ? "active" : "" %>"><%= i %></a>
         <% } %>
 
         <% if (endPage < pageCount) { %>
-            <a href="list.jsp?pageNum=<%= startPage + pageBlock %>&category=<%= category %>" class="page-link">다음</a>
+            <a href="list.jsp?pageNum=<%= startPage + pageBlock %>&category=<%= category %><%= keywordQuery %>" class="page-link">다음</a>
         <% } %>
     </div>
     <% } %>
