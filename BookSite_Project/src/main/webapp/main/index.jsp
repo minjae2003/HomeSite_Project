@@ -3,6 +3,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>자취의 품격</title>
     <!-- external css 불러오기 -->
     <link rel="stylesheet" href="../css/index.css">
@@ -191,10 +192,10 @@
         <!-- 사이드바 영역 -->
         <aside class="sidebar">
             <div class="sidebar-box">
-                <div class="search-bar">
-                    <input type="text" placeholder="SEARCH BAR">
-                    <button>🔍</button>
-                </div>
+                <form class="search-bar" action="../freeboard/list.jsp" method="get">
+                    <input type="text" name="keyword" placeholder="SEARCH BAR">
+                    <button type="submit">🔍</button>
+                </form>
             </div>
 
            <div class="auth-buttons">
