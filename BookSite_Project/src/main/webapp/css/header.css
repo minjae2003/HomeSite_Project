@@ -1,12 +1,13 @@
-header { 
-    background: #ffffff; 
-    padding: 16px 10%; 
-    display: flex; 
-    justify-content: flex-start; 
-    align-items: center; 
-    gap: 40px; 
-    border-bottom: 1px solid #e5e7eb; 
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03); 
+header {
+    background: #ffffff;
+    padding: 16px 10%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 16px 40px;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
 }
 
 .logo { 
@@ -19,7 +20,7 @@ header {
     white-space: nowrap; 
 }
 
-nav ul { display: flex; list-style: none; gap: 24px; }
+nav ul { display: flex; flex-wrap: wrap; list-style: none; gap: 12px 24px; }
 nav a { font-weight: 700; font-size: 18px; color: #4b5563; text-align: center; display: block; transition: color 0.2s; text-decoration: none; }
 nav a:hover { color: #f97316; }
 nav a small { font-weight: 500; font-size: 11px; color: #9ca3af; display: block; margin-top: 2px; }
@@ -112,4 +113,13 @@ nav li { margin-right: 20px; }
     color: #dc2626 !important;
     border-color: #fca5a5;
     transform: translateY(-1px);
+}
+
+/* 좁은 창/모바일: 로고-네비-로그인영역이 겹치지 않게 줄바꿈 + 여백 축소 */
+@media (max-width: 760px) {
+    header { padding: 12px 5%; gap: 10px 20px; }
+    nav ul { gap: 8px 16px; }
+    nav a { font-size: 14px; }
+    nav li { margin-right: 0; }
+    .header-auth { margin-left: 0; }
 }
