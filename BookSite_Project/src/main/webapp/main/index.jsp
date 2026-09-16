@@ -195,7 +195,7 @@
                     <input type="text" name="keyword" placeholder="SEARCH BAR">
                     <button type="submit">🔍</button>
                 </form>
-            </div>
+         
 
            <div class="auth-buttons">
 <%
