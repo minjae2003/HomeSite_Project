@@ -30,7 +30,7 @@
             session.setAttribute("nickname", member.getNickname());
             session.setAttribute("role", member.getRole());
 
-            out.println("<script>alert('" + member.getNickname() + "님 환영합니다!'); location.href='../freeboard/list.jsp';</script>");
+            out.println("<script>alert('" + member.getNickname() + "님 환영합니다!'); location.href='../main/index.jsp';</script>");
         } else {
             out.println("<script>alert('회원 정보를 불러오지 못했습니다.'); history.go(-1);</script>");
         }

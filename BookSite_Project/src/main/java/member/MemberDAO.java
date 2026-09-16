@@ -136,7 +136,29 @@ public class MemberDAO {
         }
         return vo;
     }
+    // 5. 전체 회원 수 조회
+    public int getMemberCount() {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        int count = 0;
 
+        try {
+            conn = getConnection();
+            String sql = "SELECT COUNT(*) FROM MEMBER";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            close(conn, pstmt, rs);
+        }
+        return count;
+    }
     private void close(Connection conn, PreparedStatement pstmt, ResultSet rs) {
         if (rs != null) try { rs.close(); } catch (Exception e) {}
         if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}

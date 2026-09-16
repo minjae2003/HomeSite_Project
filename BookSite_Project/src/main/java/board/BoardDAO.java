@@ -22,7 +22,7 @@ public class BoardDAO {
         return ds.getConnection();
     }
 
-    // 1. 카테고리별 게시글 수 조회
+ // 1. 카테고리별 게시글 수 조회
     public int getArticleCount(String category) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -32,11 +32,17 @@ public class BoardDAO {
         try {
             conn = getConnection();
             String sql = "SELECT COUNT(*) FROM BOARD";
-            if (category != null && !category.isEmpty() && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category)) {
+            boolean filter = category != null && !category.isEmpty() && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category);
+
+            if (filter) {
                 sql += " WHERE board_type = ?";
+            } else {
+                // 전체/인기글 탭에는 공지사항(NOTICE)이 섞여 나오지 않도록 제외
+                sql += " WHERE board_type <> 'NOTICE'";
             }
+
             pstmt = conn.prepareStatement(sql);
-            if (category != null && !category.isEmpty() && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category)) {
+            if (filter) {
                 pstmt.setString(1, category);
             }
             rs = pstmt.executeQuery();
@@ -63,8 +69,13 @@ public class BoardDAO {
             conn = getConnection();
 
             String sql = "SELECT b.*, (SELECT COUNT(*) FROM BOARD_COMMENT c WHERE c.board_num = b.num) AS comment_count FROM BOARD b";
-            if (category != null && !category.isEmpty() && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category)) {
+            boolean filter = category != null && !category.isEmpty() && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category);
+
+            if (filter) {
                 sql += " WHERE b.board_type = ?";
+            } else {
+                // 전체/인기글 탭에는 공지사항(NOTICE)이 섞여 나오지 않도록 제외
+                sql += " WHERE b.board_type <> 'NOTICE'";
             }
 
             if ("BEST".equalsIgnoreCase(category)) {
@@ -75,7 +86,7 @@ public class BoardDAO {
 
             pstmt = conn.prepareStatement(sql);
             int paramIdx = 1;
-            if (category != null && !category.isEmpty() && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category)) {
+            if (filter) {
                 pstmt.setString(paramIdx++, category);
             }
             pstmt.setInt(paramIdx++, start);

@@ -5,10 +5,14 @@
     <meta charset="UTF-8">
     <title>자취의 품격</title>
     <!-- external css 불러오기 -->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/index.css">
+    <link rel="stylesheet" href="../css/index.css">
 </head>
 <body>
-
+	<%
+    String sessionId = (String) session.getAttribute("id");
+    String sessionName = (String) session.getAttribute("name");
+    if (sessionName == null || sessionName.trim().isEmpty()) sessionName = sessionId;
+%>
     <!-- Header 모듈 불러오기 -->
     <jsp:include page="../module/header.jsp" flush="false"/>
 
@@ -193,41 +197,39 @@
                 </div>
             </div>
 
-            <div class="auth-buttons">
-                <a href="../member/loginForm.jsp" class="btn btn-login">LOGIN<small>로그인</small></a>
-                <a href="../member/memberForm.jsp" class="btn btn-signup">SIGN UP<small>회원가입</small></a>
-            </div>
-
-            <div class="sidebar-box">
-                <strong>POPULAR TAGS</strong>
-                <div class="tags">
-                    <span class="tag">원룸</span>
-                    <span class="tag">요리</span>
-                    <span class="tag">계약</span>
-                    <span class="tag">청소</span>
-                    <span class="tag">자취템</span>
-                    <span class="tag">야식</span>
-                </div>
-            </div>
+           <div class="auth-buttons">
+<%
+    if (sessionId == null) {
+%>
+    <a href="../member/loginForm.jsp" class="btn btn-login">LOGIN<small>로그인</small></a>
+    <a href="../member/memberForm.jsp" class="btn btn-signup">SIGN UP<small>회원가입</small></a>
+<%
+    } else {
+%>
+    <a href="../member/LogoutPro.jsp" class="btn btn-logout"><%= sessionName %>님<small>로그아웃</small></a>
+<%
+    }
+%>
+</div>
 
             <!-- 커뮤니티 현황 위젯 -->
-            <div class="status-card">
-                <div class="widget-title">커뮤니티 현황</div>
-                <div class="status-grid">
-                    <div class="status-item">
-                        <div class="status-value">4,281</div>
-                        <div class="status-label">전체 회원</div>
-                    </div>
-                    <div class="status-item">
-                        <div class="status-value">312</div>
-                        <div class="status-label">오늘 방문자</div>
-                    </div>
-                    <div class="status-item">
-                        <div class="status-value">47</div>
-                        <div class="status-label">오늘 등록글</div>
-                    </div>
-                </div>
-            </div>
+<%
+    int totalMemberCount = member.MemberDAO.getInstance().getMemberCount();
+    int todayVisitorCount = visit.VisitDAO.getInstance().getTodayVisitorCount();
+%>
+<div class="status-card">
+    <div class="widget-title">커뮤니티 현황</div>
+    <div class="status-grid">
+        <div class="status-item">
+            <div class="status-value"><%= String.format("%,d", totalMemberCount) %></div>
+            <div class="status-label">전체 회원</div>
+        </div>
+        <div class="status-item">
+            <div class="status-value"><%= String.format("%,d", todayVisitorCount) %></div>
+            <div class="status-label">오늘 방문자</div>
+        </div>
+    </div>
+</div>
 
             <!-- 첫 자취 체크리스트 배너 -->
             <div class="checklist-banner">
@@ -237,7 +239,7 @@
                     신규 회원을 위한<br>
                     자취 시작 체크리스트를 확인해보세요.
                 </div>
-                <button type="button" class="btn-checklist" onclick="location.href='${pageContext.request.contextPath}/checklist.do'">체크리스트 보기</button>
+                <button type="button" class="btn-checklist" onclick="location.href='../noticeboard/content.jsp?num=11&pageNum=1&category=FIX'">체크리스트 보기</button>
             </div>
         </aside>
     </div>

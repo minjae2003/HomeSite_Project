@@ -3,8 +3,13 @@
     // 세션 로그인 정보 확인
     String id = (String) session.getAttribute("id");
     String name = (String) session.getAttribute("name");
+
+
+    // 오늘 방문 기록 (세션당 하루 1번)
+    visit.VisitDAO.getInstance().recordVisit(session.getId());
 %>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
+
 
 <header>
     <div class="logo"><a href="${pageContext.request.contextPath}/main/index.jsp">🏠 자취의 품격</a></div>

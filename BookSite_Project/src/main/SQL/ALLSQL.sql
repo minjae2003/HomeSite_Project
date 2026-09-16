@@ -71,8 +71,15 @@ CREATE TABLE CHECKLIST (
     CONSTRAINT fk_checklist_member FOREIGN KEY (member_id) REFERENCES MEMBER(id) ON DELETE CASCADE
 );
 
+CREATE TABLE VISIT_LOG (
+    visit_date DATE NOT NULL,
+    session_id VARCHAR(100) NOT NULL,
+    first_visit_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (visit_date, session_id)
+);
 
 -- 관리자 계정 새로 생성
 INSERT INTO MEMBER (id, password, name, nickname, email, auth_status, role)
 VALUES ('admin', 'admin1234', '관리자', '관리자', 'admin@example.com', 'Y', 'ADMIN');
+
 

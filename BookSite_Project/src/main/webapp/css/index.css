@@ -33,9 +33,9 @@ a { text-decoration: none; color: inherit; }
 /* 4-Card Grid */
 .board-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .board-card { 
+	min-width:180px;
     background: #ffffff; 
     border-radius: 16px; 
-    
     padding: 20px 16px; 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); 
     border: 1px solid #f0f0f0; 
@@ -368,3 +368,6 @@ a { text-decoration: none; color: inherit; }
 .btn-checklist:hover {
     background-color: #3b6cd4;
 }
+
+.btn-logout { background-color: #4b5563; }
+.btn-logout small { font-weight: 500; font-size: 11px; color: #e5e7eb; display: block; margin-top: 2px; }
