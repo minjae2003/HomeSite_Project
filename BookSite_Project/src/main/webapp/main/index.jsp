@@ -115,7 +115,7 @@
                 </div>
 
                 <!-- 요리레시피 카드 -->
-                <div class="board-card" onclick="location.href='../qna/qnaList.jsp'">
+                <div class="board-card" onclick="location.href='../recipe/list.jsp'">
                     <div class="card-header">
                         <div class="card-icon">🍳</div>
                         <div class="card-title">요리레시피</div>

@@ -8,9 +8,7 @@
     // 오늘 방문 기록 (세션당 하루 1번)
     visit.VisitDAO.getInstance().recordVisit(session.getId());
 %>
-
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/layout.css">
 
 
 <header>

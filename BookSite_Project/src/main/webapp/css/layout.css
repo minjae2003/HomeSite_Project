@@ -1,0 +1,18 @@
+:root {
+    --content-max: 1200px;
+    --content-min: 320px;
+}
+
+/* 페이지 공통 래퍼: 기존 .container, #board_box, #top 등을 대체하거나 같이 사용 */
+.page-wrap {
+    width: 92%;
+    max-width: var(--content-max);
+    min-width: var(--content-min);
+    margin: 0 auto;
+}
+
+/* 모바일 기준선 통일: 768px */
+@media (max-width: 768px) {
+    .page-wrap { width: 100%; padding: 0 16px; }
+    .container { flex-direction: column; width: 100% !important; padding: 0 16px; }
+}
