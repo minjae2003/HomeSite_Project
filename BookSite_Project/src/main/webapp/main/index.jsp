@@ -114,19 +114,35 @@
                     </ul>
                 </div>
 
-                <!-- 요리레시피 카드 -->
-                <div class="board-card" onclick="location.href='../recipe/list.jsp'">
-                    <div class="card-header">
-                        <div class="card-icon">🍳</div>
-                        <div class="card-title">요리레시피</div>
-                    </div>
-                    <ul class="post-list">
-                        <li><a href="boardDetail.do?id=401" onclick="event.stopPropagation();">5분 완성! 마늘 볶음밥</a></li>
-                        <li><a href="boardDetail.do?id=402" onclick="event.stopPropagation();">냉장고 파먹기: 간단 김치찌개</a></li>
-                        <li><a href="boardDetail.do?id=403" onclick="event.stopPropagation();">초간단 간장계란밥 황금 레시피</a></li>
-                    </ul>
-                </div>
-            </div>
+                <!-- 요리레시피 카드 (DB 연동) -->
+<div class="board-card" onclick="location.href='../recipe/list.jsp'">
+    <div class="card-header">
+        <div class="card-icon">🍳</div>
+        <div class="card-title">요리레시피</div>
+    </div>
+    <ul class="post-list">
+        <%
+            board.BoardDAO recipeDao = board.BoardDAO.getInstance();
+            java.util.List<board.BoardVO> recipeList = recipeDao.getArticles(0, 3, "RECIPE");
+            if (recipeList == null || recipeList.isEmpty()) {
+        %>
+            <li style="color: #999; text-align: center; padding: 10px 0;">등록된 레시피가 없습니다.</li>
+        <%
+            } else {
+                for (board.BoardVO item : recipeList) {
+        %>
+            <li>
+                <a href="../recipe/content.jsp?num=<%= item.getNum() %>" onclick="event.stopPropagation();">
+                    <%= item.getSubject() %>
+                </a>
+            </li>
+        <%
+                }
+            }
+        %>
+    </ul>
+</div>
+</div>
 
             <!-- 실시간 인기글 섹션 (category=BEST 연동) -->
             <div class="hot-posts-section">
