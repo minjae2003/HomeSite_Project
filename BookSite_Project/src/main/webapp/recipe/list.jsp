@@ -31,7 +31,7 @@
         articleList = dao.getArticles(startRow, pageSize, CATEGORY, keyword);
     }
 
-    // 페이징 링크에 검색어를 그대로 이어붙이기 위한 쿼리스트링 조각
+    // 페이징 링크에 검색어를 그대로 이어붙이기 위한 쿼리스트링 조각 
     String keywordQuery = "";
     if (keyword != null && !keyword.isEmpty()) {
         try {
