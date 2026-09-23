@@ -88,6 +88,12 @@
         }
         savedJson = sb.append(']').toString();
     }
+
+    // 브라우저(localStorage) 저장 공간을 계정별로 분리하기 위한 접미사
+    // (URL 인코딩 → 영문/숫자/%만 남아 JS 문자열에 넣어도 안전)
+    String storageSuffix = isLogin
+        ? "u_" + java.net.URLEncoder.encode(loginId, "UTF-8")
+        : "guest";
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -119,42 +125,6 @@
   a{ text-decoration:none; color:inherit; }
   button{ font-family:inherit; }
   .wrap{ max-width:1180px; margin:0 auto; padding:0 24px; }
-
-  /* header (shared) */
-  header{ background:#fff; border-bottom:1px solid var(--card-border); }
-  .header-row{ display:flex; align-items:center; justify-content:space-between; padding:16px 0; }
-  .brand{ display:flex; align-items:center; gap:8px; }
-  .brand-icon{
-    width:30px; height:30px; border-radius:7px; background:#5C3A2E;
-    display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px;
-  }
-  .brand-name{ font-size:19px; font-weight:800; letter-spacing:-0.01em; }
-
-  nav{ display:flex; gap:38px; }
-  .nav-item{ text-align:center; }
-  .nav-en{ font-size:14px; font-weight:800; color:var(--text-soft); }
-  .nav-kr{ font-size:11px; color:var(--text-soft); margin-top:1px; opacity:.8; }
-
-  .header-search{
-    display:flex; align-items:center; gap:8px;
-    border:1px solid var(--card-border); border-radius:20px;
-    padding:9px 16px; background:#F7F7F9; width:220px;
-  }
-  .header-search input{ border:none; background:transparent; outline:none; font-size:13px; width:100%; }
-
-  .header-right{ display:flex; align-items:center; gap:12px; }
-
-  .notif-wrap{ position:relative; }
-  .notif-bell{
-    width:38px; height:38px; border-radius:50%; border:1px solid var(--card-border);
-    background:#fff; display:flex; align-items:center; justify-content:center;
-    font-size:16px; cursor:pointer; position:relative; flex-shrink:0;
-  }
-  .notif-badge{
-    position:absolute; top:-3px; right:-3px; background:var(--orange); color:#fff;
-    font-size:10px; font-weight:800; min-width:16px; height:16px; border-radius:8px;
-    display:flex; align-items:center; justify-content:center; padding:0 3px; border:2px solid #fff;
-  }
 
   /* page head */
   .breadcrumb{ font-size:12.5px; color:var(--text-soft); margin:26px 0 8px; }
@@ -228,7 +198,7 @@
   .tips-list li::before{ content:"💡"; flex-shrink:0; }
 
   .btn{ padding:11px 0; border-radius:10px; font-size:13.5px; font-weight:800; text-align:center; border:none; cursor:pointer; color:#fff; width:100%; }
-  .btn-signup{ background:var(--blue); }
+  .btn-save{ background:var(--blue); }
   .btn-outline{ background:#fff; color:var(--text); border:1px solid var(--card-border); }
 
   .btn:disabled{ opacity:.6; cursor:default; }
@@ -237,26 +207,19 @@
   .save-status.ok{ color:var(--green); font-weight:700; }
 
   @media (max-width:860px){
-    nav{ display:none; }
     .main-grid{ grid-template-columns:1fr; }
     .progress-hero{ flex-direction:column; align-items:flex-start; }
   }
 </style>
 </head>
 <body>
-<%
-java.util.Enumeration<String> names = session.getAttributeNames();
-while (names.hasMoreElements()) {
-    String n = names.nextElement();
-    out.println(n + " = " + session.getAttribute(n) + "<br>");
-}
-%>
+
 <jsp:include page="../module/header.jsp" flush="false" />
 
 <div class="wrap">
   <div class="breadcrumb">홈 &gt; <b>자취 시작 체크리스트</b></div>
   <h1 class="page-title">자취 시작 체크리스트</h1>
-  <p class="page-sub">처음 자취를 준비한다면 이 순서대로 하나씩 체크해보세요. 체크한 내용은 자동으로 저장돼요.</p>
+  <p class="page-sub">처음 자취를 준비한다면 이 순서대로 하나씩 체크해보세요. 체크한 내용은 이 브라우저에 자동으로 남고, 로그인 후 '내 계정에 저장하기'를 누르면 어디서든 불러올 수 있어요.</p>
 
   <div class="progress-hero">
     <div class="progress-hero-text">
@@ -330,12 +293,12 @@ while (names.hasMoreElements()) {
         <ul class="tips-list">
           <li>이사 2주 전부터 하나씩 체크하면 급하게 처리할 일이 줄어요</li>
           <li>전입신고와 확정일자는 보증금을 지키는 가장 중요한 절차예요</li>
-          <li>완료한 항목은 마이페이지에서 다시 확인할 수 있어요</li>
+          <li>다른 기기에서도 이어서 체크하려면 로그인 후 계정에 저장해두세요</li>
         </ul>
       </div>
 
       <div class="side-block">
-        <button type="button" class="btn btn-signup" id="btnSave">내 계정에 저장하기</button>
+        <button type="button" class="btn btn-save" id="btnSave">내 계정에 저장하기</button>
         <p class="save-status" id="saveStatus"></p>
       </div>
 
@@ -347,8 +310,10 @@ while (names.hasMoreElements()) {
 </div>
 
 <script>
-  const STORAGE_KEY = 'jpg_checklist_state_v1';
-  const SUMMARY_KEY = 'jpg_checklist_summary_v1';
+  // 계정마다 브라우저 저장 공간을 따로 사용 (비로그인은 guest)
+  const STORAGE_SUFFIX = '<%= storageSuffix %>';
+  const STORAGE_KEY = 'jpg_checklist_state_v1_' + STORAGE_SUFFIX;
+  const SUMMARY_KEY = 'jpg_checklist_summary_v1_' + STORAGE_SUFFIX;
 
   const categories = document.querySelectorAll('.cat-card');
   const ringFill = document.getElementById('ringFill');
@@ -523,7 +488,8 @@ while (names.hasMoreElements()) {
   });
 
   // ── 초기 상태 ──
-  // 로그인 + 계정 저장 기록 있음 → 계정 기준 / 그 외 → 브라우저(localStorage) 기준
+  // 로그인 + 계정 저장 기록 있음 → 계정(DB) 기준
+  // 그 외 → 이 계정(또는 guest) 전용 브라우저 저장값 기준
   if(IS_LOGIN && SERVER_KEYS){
     const st = {};
     SERVER_KEYS.forEach(k => st[k] = true);

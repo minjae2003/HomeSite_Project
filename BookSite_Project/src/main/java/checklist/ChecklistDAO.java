@@ -1,13 +1,16 @@
 package checklist;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
 
 /**
  * 자취 시작 체크리스트 - 계정별 체크 상태 저장/조회
@@ -16,8 +19,8 @@ import java.util.regex.Pattern;
  */
 public class ChecklistDAO {
 
-    /** 로그인 시 세션에 사용자 ID를 넣는 이름 — 프로젝트 로그인 처리와 반드시 맞출 것 */
-    public static final String SESSION_USER_KEY = "userId";
+    /** 로그인 시 세션에 사용자 ID를 넣는 이름 — member/loginPro.jsp와 동일 */
+    public static final String SESSION_USER_KEY = "id";
 
     /** 체크박스 키 형식: c{카테고리번호}_{항목번호} */
     private static final Pattern KEY_PATTERN = Pattern.compile("^c\\d{1,2}_\\d{1,2}$");
@@ -26,19 +29,12 @@ public class ChecklistDAO {
         return key != null && KEY_PATTERN.matcher(key).matches();
     }
 
-    /**
-     * TODO: 프로젝트에서 이미 쓰고 있는 DB 연결 방식(DBUtil, JNDI 커넥션 풀 등)으로 교체하세요.
-     */
+    /** 프로젝트 공통 커넥션 풀 (BoardFileDAO, MemberDAO와 동일) */
     private Connection getConnection() throws Exception {
-        // Oracle
-        Class.forName("oracle.jdbc.OracleDriver");
-        return DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "USER", "PASSWORD");
-
-        // MySQL 이라면:
-        // Class.forName("com.mysql.cj.jdbc.Driver");
-        // return DriverManager.getConnection(
-        //     "jdbc:mysql://localhost:3306/DB이름?serverTimezone=Asia/Seoul&characterEncoding=UTF-8",
-        //     "USER", "PASSWORD");
+        Context initCtx = new InitialContext();
+        Context envCtx = (Context) initCtx.lookup("java:comp/env");
+        DataSource ds = (DataSource) envCtx.lookup("jdbc/homesiteproject");
+        return ds.getConnection();
     }
 
     /**
