@@ -115,34 +115,34 @@
                 </div>
 
                 <!-- 요리레시피 카드 (DB 연동) -->
-<div class="board-card" onclick="location.href='../recipe/list.jsp'">
-    <div class="card-header">
-        <div class="card-icon">🍳</div>
-        <div class="card-title">요리레시피</div>
-    </div>
-    <ul class="post-list">
-        <%
-            board.BoardDAO recipeDao = board.BoardDAO.getInstance();
-            java.util.List<board.BoardVO> recipeList = recipeDao.getArticles(0, 3, "RECIPE");
-            if (recipeList == null || recipeList.isEmpty()) {
-        %>
-            <li style="color: #999; text-align: center; padding: 10px 0;">등록된 레시피가 없습니다.</li>
-        <%
-            } else {
-                for (board.BoardVO item : recipeList) {
-        %>
-            <li>
-                <a href="../recipe/content.jsp?num=<%= item.getNum() %>" onclick="event.stopPropagation();">
-                    <%= item.getSubject() %>
-                </a>
-            </li>
-        <%
-                }
-            }
-        %>
-    </ul>
-</div>
-</div>
+                <div class="board-card" onclick="location.href='../recipe/list.jsp'">
+                    <div class="card-header">
+                        <div class="card-icon">🍳</div>
+                        <div class="card-title">요리레시피</div>
+                    </div>
+                    <ul class="post-list">
+                        <%
+                            board.BoardDAO recipeDao = board.BoardDAO.getInstance();
+                            java.util.List<board.BoardVO> recipeList = recipeDao.getArticles(0, 3, "RECIPE");
+                            if (recipeList == null || recipeList.isEmpty()) {
+                        %>
+                            <li style="color: #999; text-align: center; padding: 10px 0;">등록된 레시피가 없습니다.</li>
+                        <%
+                            } else {
+                                for (board.BoardVO item : recipeList) {
+                        %>
+                            <li>
+                                <a href="../recipe/content.jsp?num=<%= item.getNum() %>" onclick="event.stopPropagation();">
+                                    <%= item.getSubject() %>
+                                </a>
+                            </li>
+                        <%
+                                }
+                            }
+                        %>
+                    </ul>
+                </div>
+            </div>
 
             <!-- 실시간 인기글 섹션 (category=BEST 연동) -->
             <div class="hot-posts-section">
@@ -207,11 +207,11 @@
         
         <!-- 사이드바 영역 -->
         <aside class="sidebar">
-            	<form class="search-bar" action="../freeboard/list.jsp" method="get">
+            	<form class="search-bar" action="search.jsp" method="get">
                     <input type="text" name="keyword" placeholder="SEARCH BAR">
                     <button type="submit">🔍</button>
                 </form>
-         
+            
 
            <div class="auth-buttons">
 <%
@@ -255,7 +255,7 @@
                     신규 회원을 위한<br>
                     자취 시작 체크리스트를 확인해보세요.
                 </div>
-                <button type="button" class="btn-checklist" onclick="location.href='../noticeboard/content.jsp?num=11&pageNum=1&category=FIX'">체크리스트 보기</button>
+                <button type="button" class="btn-checklist" onclick="location.href='../main/list.html'">체크리스트 보기</button>
             </div>
         </aside>
     </div>

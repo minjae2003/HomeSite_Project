@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="board.BoardDAO, board.BoardVO" %>
+<%@ page import="board.BoardDAO, board.BoardVO, upload.BoardFileDAO, upload.BoardFileVO, java.util.List" %>
 
 <%
     request.setCharacterEncoding("UTF-8");
@@ -14,6 +14,7 @@
     int num = Integer.parseInt(numStr);
     BoardDAO dao = BoardDAO.getInstance();
     BoardVO board = dao.getBoardDetail(num);
+    List<BoardFileVO> existingFiles = BoardFileDAO.getInstance().getFiles(num);
 
     String sessionUserId = (String) session.getAttribute("id");
     String sessionRole = (String) session.getAttribute("role");
@@ -47,9 +48,11 @@
 
 <div class="container">
     <h2>게시글 수정</h2>
-    <form action="updatePro.jsp" method="post">
+    <form action="${pageContext.request.contextPath}/board/upload" method="post" enctype="multipart/form-data">
         <input type="hidden" name="num" value="<%= num %>">
         <input type="hidden" name="pageNum" value="<%= pageNum %>">
+        <input type="hidden" name="category" value="<%= board.getCategory() %>">
+        <input type="hidden" name="redirectBoard" value="freeboard">
 
         <div class="form-group">
             <label>제목</label>
@@ -57,8 +60,25 @@
         </div>
 
         <div class="form-group">
-            <label>내용</label>
+            <label>내용 <small style="font-weight:normal;color:#888;">([img1], [video1]... 로 사진/동영상 위치 지정)</small></label>
             <textarea name="content" rows="12" required><%= board.getContent() %></textarea>
+        </div>
+
+        <% if (!existingFiles.isEmpty()) { %>
+        <div class="form-group">
+            <label>기존 첨부파일</label>
+            <p style="font-size: 13px; color: #666; margin: 0;">
+                <% for (int i = 0; i < existingFiles.size(); i++) {
+                       BoardFileVO f = existingFiles.get(i); %>
+                    <%= f.isImage() ? "🖼" : "🎬" %> <%= f.getOriginalName() %><%= i < existingFiles.size() - 1 ? ", " : "" %>
+                <% } %>
+            </p>
+        </div>
+        <% } %>
+
+        <div class="form-group">
+            <label>사진 / 동영상 추가 첨부</label>
+            <input type="file" name="files" accept="image/*,video/*" multiple>
         </div>
 
         <div class="btn-box">

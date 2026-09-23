@@ -14,6 +14,10 @@
         category = "ALL";
     }
 
+    // 검색어 파라미터
+    String keyword = request.getParameter("keyword");
+    if (keyword != null) keyword = keyword.trim();
+
     // 페이징 처리
     int pageSize = 10;
     String pageNum = request.getParameter("pageNum");
@@ -23,11 +27,27 @@
     int startRow = (currentPage - 1) * pageSize;
 
     BoardDAO dao = BoardDAO.getInstance();
-    int totalCount = dao.getNoticeCount(category);
+    int totalCount = dao.getNoticeCount(category, keyword);
 
     List<BoardVO> articleList = null;
     if (totalCount > 0) {
-        articleList = dao.getNotices(startRow, pageSize, category);
+        articleList = dao.getNotices(startRow, pageSize, category, keyword);
+    }
+
+    // 페이징/탭 링크에 검색어를 그대로 이어붙이기 위한 쿼리스트링 조각
+    String keywordQuery = "";
+    if (keyword != null && !keyword.isEmpty()) {
+        try {
+            keywordQuery = "&keyword=" + java.net.URLEncoder.encode(keyword, "UTF-8");
+        } catch (java.io.UnsupportedEncodingException e) {
+            keywordQuery = "";
+        }
+    }
+    // 검색창에 값 채워넣을 때 쓰는 이스케이프 처리 (XSS 방지)
+    String escapedKeyword = "";
+    if (keyword != null) {
+        escapedKeyword = keyword.replace("&", "&amp;").replace("<", "&lt;")
+                .replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
     }
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
@@ -82,6 +102,50 @@
         .pagination { display: flex; justify-content: center; gap: 5px; margin-top: 25px; }
         .page-link { padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; background: #fff; color: #555; font-size: 13px; font-weight: 600; }
         .page-link.active { background: #1e272e; color: #fff; border-color: #1e272e; }
+
+        /* 검색 */
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 20px;
+            background: #fff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 30px;
+            padding: 4px 4px 4px 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .search-box:focus-within {
+            border-color: #ff5722;
+            box-shadow: 0 4px 14px rgba(255, 87, 34, 0.15);
+        }
+        .search-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 10px 6px;
+            font-size: 14px;
+            background: transparent;
+        }
+        .search-box input::placeholder { color: #94a3b8; }
+        .search-box button {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #ff5722, #e64a19);
+            color: #fff;
+            border: none;
+            border-radius: 26px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s ease, transform 0.15s ease;
+        }
+        .search-box button:hover { opacity: 0.9; transform: translateY(-1px); }
+        .search-result-info { font-size: 14px; color: #64748b; margin-bottom: 12px; }
+        .search-result-info b { color: #ff5722; }
     </style>
 </head>
 <body>
@@ -93,10 +157,23 @@
         <p class="board-subtitle">운영진의 안내와 중요한 소식을 확인하는 공간입니다.</p>
     </div>
 
+    <!-- 검색창 -->
+    <form class="search-box" action="list.jsp" method="get">
+        <input type="hidden" name="category" value="<%= category %>">
+        <input type="text" name="keyword" placeholder="제목/내용으로 검색" value="<%= escapedKeyword %>">
+        <button type="submit">🔍 검색</button>
+    </form>
+    <% if (keyword != null && !keyword.isEmpty()) { %>
+        <div class="search-result-info">
+            '<b><%= escapedKeyword %></b>' 검색 결과 <b><%= totalCount %></b>건
+            <a href="list.jsp?category=<%= category %>" style="margin-left: 8px; color: #94a3b8; text-decoration: underline;">검색 초기화</a>
+        </div>
+    <% } %>
+
     <div class="category-tabs">
-        <a href="list.jsp?category=ALL" class="tab-item <%= "ALL".equals(category) ? "active" : "" %>">전체보기</a>
-        <a href="list.jsp?category=FIX" class="tab-item <%= "FIX".equals(category) ? "active" : "" %>">📌 고정공지</a>
-        <a href="list.jsp?category=NORMAL" class="tab-item <%= "NORMAL".equals(category) ? "active" : "" %>">📝 일반공지</a>
+        <a href="list.jsp?category=ALL<%= keywordQuery %>" class="tab-item <%= "ALL".equals(category) ? "active" : "" %>">전체보기</a>
+        <a href="list.jsp?category=FIX<%= keywordQuery %>" class="tab-item <%= "FIX".equals(category) ? "active" : "" %>">📌 고정공지</a>
+        <a href="list.jsp?category=NORMAL<%= keywordQuery %>" class="tab-item <%= "NORMAL".equals(category) ? "active" : "" %>">📝 일반공지</a>
     </div>
 
     <div class="top-bar">
@@ -165,15 +242,15 @@
     %>
     <div class="pagination">
         <% if (startPage > pageBlock) { %>
-            <a href="list.jsp?pageNum=<%= startPage - pageBlock %>&category=<%= category %>" class="page-link">이전</a>
+            <a href="list.jsp?pageNum=<%= startPage - pageBlock %>&category=<%= category %><%= keywordQuery %>" class="page-link">이전</a>
         <% } %>
 
         <% for (int i = startPage; i <= endPage; i++) { %>
-            <a href="list.jsp?pageNum=<%= i %>&category=<%= category %>" class="page-link <%= (i == currentPage) ? "active" : "" %>"><%= i %></a>
+            <a href="list.jsp?pageNum=<%= i %>&category=<%= category %><%= keywordQuery %>" class="page-link <%= (i == currentPage) ? "active" : "" %>"><%= i %></a>
         <% } %>
 
         <% if (endPage < pageCount) { %>
-            <a href="list.jsp?pageNum=<%= startPage + pageBlock %>&category=<%= category %>" class="page-link">다음</a>
+            <a href="list.jsp?pageNum=<%= startPage + pageBlock %>&category=<%= category %><%= keywordQuery %>" class="page-link">다음</a>
         <% } %>
     </div>
     <% } %>

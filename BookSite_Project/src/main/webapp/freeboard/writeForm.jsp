@@ -110,7 +110,8 @@
             <p class="form-subtitle">자취에 관한 소소한 이야기부터 꿀팁, 질문을 공유해 보세요.</p>
         </div>
 
-        <form action="writePro.jsp" method="post">
+        <form action="${pageContext.request.contextPath}/board/upload" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="redirectBoard" value="freeboard">
             <div class="form-group">
                 <label class="form-label">카테고리 선택</label>
                 <div class="category-select-group">
@@ -147,7 +148,13 @@
 
             <div class="form-group">
                 <label class="form-label">내용</label>
-                <textarea name="content" class="input-control" placeholder="자취생들과 나누고 싶은 이야기를 자유롭게 작성해 주세요." required></textarea>
+                <textarea name="content" class="input-control" placeholder="자취생들과 나누고 싶은 이야기를 자유롭게 작성해 주세요.&#10;&#10;사진/동영상을 넣고 싶은 위치에 [img1], [img2], [video1] 처럼 적어두면 그 자리에 삽입됩니다. (안 적으면 글 맨 아래에 순서대로 첨부돼요)" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">사진 / 동영상 첨부</label>
+                <input type="file" name="files" class="input-control" accept="image/*,video/*,.hwp,.hwpx,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar,.7z" multiple>
+                <p class="form-subtitle" style="margin-top: 6px;">여러 개 선택 가능 (이미지/동영상 + 한글(.hwp)/PDF/워드/엑셀/압축파일 등) · 본문에 [img1], [img2]... [video1], [video2]... 순서로 적어 사진·동영상은 원하는 위치에 넣을 수 있어요. 그 외 문서 파일은 본문 아래 첨부파일 목록에 자동으로 붙습니다.</p>
             </div>
 
             <div class="btn-group">

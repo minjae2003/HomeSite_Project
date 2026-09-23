@@ -1,6 +1,16 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="board.BoardDAO, board.BoardVO, board.CommentDAO, board.CommentVO, java.util.List, java.text.SimpleDateFormat" %>
-
+<%@ page import="board.BoardDAO, board.BoardVO, board.CommentDAO, board.CommentVO, upload.BoardFileDAO, upload.BoardFileVO, java.util.List, java.text.SimpleDateFormat" %>
+<%!
+    private String escAttr(String s) {
+        if (s == null) return "";
+        return s.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;");
+    }
+    private String formatSize(long bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
+        return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
+    }
+%>
 <%
     request.setCharacterEncoding("UTF-8");
 
@@ -35,6 +45,37 @@
     CommentDAO commentDao = CommentDAO.getInstance();
     List<CommentVO> commentList = commentDao.getComments(num);
 
+    // 첨부파일 가져오기 + 본문 [img1]/[video1] 위치에 삽입, 매칭 안 된 파일은 맨 아래에 모아서 첨부
+    // 일반 문서(FILE 타입: hwp/pdf/워드/압축파일 등)는 본문 삽입 없이 별도 첨부파일 목록으로만 표시
+    List<BoardFileVO> fileList = BoardFileDAO.getInstance().getFiles(num);
+    List<BoardFileVO> docFiles = new java.util.ArrayList<BoardFileVO>();
+    String processedContent = article.getContent() != null ? article.getContent() : "";
+    StringBuilder extraMedia = new StringBuilder();
+    int imgIdx = 0, vidIdx = 0;
+    for (BoardFileVO f : fileList) {
+        if (f.isFile()) {
+            docFiles.add(f);
+            continue;
+        }
+        String url = request.getContextPath() + f.getWebPath();
+        String tag;
+        String placeholder;
+        if (f.isImage()) {
+            imgIdx++;
+            placeholder = "[img" + imgIdx + "]";
+            tag = "<img src=\"" + url + "\" alt=\"" + escAttr(f.getOriginalName()) + "\" class=\"post-media\">";
+        } else {
+            vidIdx++;
+            placeholder = "[video" + vidIdx + "]";
+            tag = "<video src=\"" + url + "\" controls class=\"post-media\"></video>";
+        }
+        if (processedContent.contains(placeholder)) {
+            processedContent = processedContent.replace(placeholder, tag);
+        } else {
+            extraMedia.append(tag);
+        }
+    }
+
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm");
 %>
 
@@ -54,6 +95,12 @@
         .post-title { font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 12px; }
         .post-meta { display: flex; gap: 15px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; margin-bottom: 20px; }
         .post-content { font-size: 15px; color: #334155; min-height: 150px; line-height: 1.7; white-space: pre-line; margin-bottom: 30px; }
+        .post-media { max-width: 100%; border-radius: 10px; margin: 14px 0; display: block; background: #f1f5f9; }
+        .attach-list { list-style: none; border-top: 1px dashed #e2e8f0; padding-top: 14px; margin-bottom: 20px; }
+        .attach-list li { margin-bottom: 6px; }
+        .attach-list a { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: #2e7d32; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 7px 12px; }
+        .attach-list a:hover { border-color: #4caf50; color: #388e3c; }
+        .attach-size { color: #94a3b8; font-size: 12px; }
 
         .btn-box { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f0f0f0; padding-top: 20px; }
         .btn { padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; }
@@ -92,7 +139,19 @@
             <span>작성일: <%= article.getRegDate() != null ? sdf.format(article.getRegDate()) : "" %></span>
             <span>조회수: <%= article.getReadcount() %></span>
         </div>
-        <div class="post-content"><%= article.getContent() %></div>
+        <div class="post-content"><%= processedContent %><%= extraMedia.toString() %></div>
+
+        <% if (!docFiles.isEmpty()) { %>
+        <ul class="attach-list">
+            <% for (BoardFileVO f : docFiles) { %>
+            <li>
+                <a href="<%= request.getContextPath() + f.getWebPath() %>" download="<%= escAttr(f.getOriginalName()) %>">
+                    📎 <%= f.getOriginalName() %> <span class="attach-size">(<%= formatSize(f.getFileSize()) %>)</span>
+                </a>
+            </li>
+            <% } %>
+        </ul>
+        <% } %>
 
         <div class="btn-box">
             <!-- 추천 버튼 -->

@@ -60,7 +60,19 @@ CREATE TABLE BOARD_LIKE (
     CONSTRAINT fk_like_board FOREIGN KEY (board_num) REFERENCES BOARD(num) ON DELETE CASCADE,
     CONSTRAINT fk_like_user FOREIGN KEY (user_id) REFERENCES MEMBER(id) ON DELETE CASCADE
 );
-
+-- 5-1. 게시글 첨부파일 테이블 (BOARD_FILE) - 사진/동영상 첨부
+CREATE TABLE BOARD_FILE (
+    file_num INT AUTO_INCREMENT PRIMARY KEY,
+    board_num INT NOT NULL,
+    original_name VARCHAR(255) NOT NULL,
+    saved_name VARCHAR(255) NOT NULL,
+    file_type VARCHAR(20) NOT NULL,      -- IMAGE / VIDEO
+    file_size BIGINT DEFAULT 0,
+    upload_order INT DEFAULT 0,          -- 본문 내 [img1]/[video1] 매칭 순서
+    reg_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_boardfile_board FOREIGN KEY (board_num) REFERENCES BOARD(num) ON DELETE CASCADE
+);
+ 
 -- 6. 체크리스트 테이블 (CHECKLIST)
 CREATE TABLE CHECKLIST (
     check_id INT AUTO_INCREMENT PRIMARY KEY,

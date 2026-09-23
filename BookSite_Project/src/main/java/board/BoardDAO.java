@@ -3,6 +3,7 @@ package board;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import javax.naming.Context;
@@ -32,10 +33,15 @@ public class BoardDAO {
         try {
             conn = getConnection();
             String sql = "SELECT COUNT(*) FROM BOARD";
-            boolean filter = category != null && !category.isEmpty() && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category);
+            boolean freeboardScoped = "FREE_ALL".equalsIgnoreCase(category) || "FREE_BEST".equalsIgnoreCase(category);
+            boolean filter = category != null && !category.isEmpty() && !freeboardScoped
+                    && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category);
 
             if (filter) {
                 sql += " WHERE board_type = ?";
+            } else if (freeboardScoped) {
+                // 자유게시판(FREE/TIP/QNA) 전용 전체보기/인기글 - 공지사항, 요리레시피 등 다른 게시판 글은 제외
+                sql += " WHERE board_type IN ('FREE', 'TIP', 'QNA')";
             } else {
                 // 전체/인기글 탭에는 공지사항(NOTICE)이 섞여 나오지 않도록 제외
                 sql += " WHERE board_type <> 'NOTICE'";
@@ -71,10 +77,14 @@ public class BoardDAO {
         try {
             conn = getConnection();
             String sql = "SELECT COUNT(*) FROM BOARD";
-            boolean filter = category != null && !category.isEmpty() && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category);
+            boolean freeboardScoped = "FREE_ALL".equalsIgnoreCase(category) || "FREE_BEST".equalsIgnoreCase(category);
+            boolean filter = category != null && !category.isEmpty() && !freeboardScoped
+                    && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category);
 
             if (filter) {
                 sql += " WHERE board_type = ? AND (subject LIKE ? OR content LIKE ?)";
+            } else if (freeboardScoped) {
+                sql += " WHERE board_type IN ('FREE', 'TIP', 'QNA') AND (subject LIKE ? OR content LIKE ?)";
             } else {
                 sql += " WHERE board_type <> 'NOTICE' AND (subject LIKE ? OR content LIKE ?)";
             }
@@ -111,16 +121,21 @@ public class BoardDAO {
             conn = getConnection();
 
             String sql = "SELECT b.*, (SELECT COUNT(*) FROM BOARD_COMMENT c WHERE c.board_num = b.num) AS comment_count FROM BOARD b";
-            boolean filter = category != null && !category.isEmpty() && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category);
+            boolean freeboardScoped = "FREE_ALL".equalsIgnoreCase(category) || "FREE_BEST".equalsIgnoreCase(category);
+            boolean filter = category != null && !category.isEmpty() && !freeboardScoped
+                    && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category);
 
             if (filter) {
                 sql += " WHERE b.board_type = ?";
+            } else if (freeboardScoped) {
+                // 자유게시판(FREE/TIP/QNA) 전용 전체보기/인기글 - 공지사항, 요리레시피 등 다른 게시판 글은 제외
+                sql += " WHERE b.board_type IN ('FREE', 'TIP', 'QNA')";
             } else {
                 // 전체/인기글 탭에는 공지사항(NOTICE)이 섞여 나오지 않도록 제외
                 sql += " WHERE b.board_type <> 'NOTICE'";
             }
 
-            if ("BEST".equalsIgnoreCase(category)) {
+            if ("BEST".equalsIgnoreCase(category) || "FREE_BEST".equalsIgnoreCase(category)) {
                 sql += " ORDER BY b.readcount DESC, b.num DESC LIMIT ?, ?";
             } else {
                 sql += " ORDER BY b.num DESC LIMIT ?, ?";
@@ -178,15 +193,19 @@ public class BoardDAO {
             conn = getConnection();
 
             String sql = "SELECT b.*, (SELECT COUNT(*) FROM BOARD_COMMENT c WHERE c.board_num = b.num) AS comment_count FROM BOARD b";
-            boolean filter = category != null && !category.isEmpty() && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category);
+            boolean freeboardScoped = "FREE_ALL".equalsIgnoreCase(category) || "FREE_BEST".equalsIgnoreCase(category);
+            boolean filter = category != null && !category.isEmpty() && !freeboardScoped
+                    && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category);
 
             if (filter) {
                 sql += " WHERE b.board_type = ? AND (b.subject LIKE ? OR b.content LIKE ?)";
+            } else if (freeboardScoped) {
+                sql += " WHERE b.board_type IN ('FREE', 'TIP', 'QNA') AND (b.subject LIKE ? OR b.content LIKE ?)";
             } else {
                 sql += " WHERE b.board_type <> 'NOTICE' AND (b.subject LIKE ? OR b.content LIKE ?)";
             }
 
-            if ("BEST".equalsIgnoreCase(category)) {
+            if ("BEST".equalsIgnoreCase(category) || "FREE_BEST".equalsIgnoreCase(category)) {
                 sql += " ORDER BY b.readcount DESC, b.num DESC LIMIT ?, ?";
             } else {
                 sql += " ORDER BY b.num DESC LIMIT ?, ?";
@@ -232,15 +251,17 @@ public class BoardDAO {
         }
         return articleList;
     }
-    // 3. 게시글 작성
-    public void insertArticle(BoardVO article) {
+    // 3. 게시글 작성 (생성된 num을 반환 - 첨부파일을 이 글에 연결할 때 사용)
+    public int insertArticle(BoardVO article) {
         Connection conn = null;
         PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        int generatedNum = 0;
 
         try {
             conn = getConnection();
             String sql = "INSERT INTO BOARD (writer, writer_id, writer_nickname, subject, content, readcount, reg_date, board_type) VALUES (?, ?, ?, ?, ?, 0, NOW(), ?)";
-            pstmt = conn.prepareStatement(sql);
+            pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, article.getWriter());
             pstmt.setString(2, article.getWriterId());
             pstmt.setString(3, article.getWriterNickname());
@@ -248,11 +269,17 @@ public class BoardDAO {
             pstmt.setString(5, article.getContent());
             pstmt.setString(6, article.getCategory() != null ? article.getCategory() : "FREE");
             pstmt.executeUpdate();
+
+            rs = pstmt.getGeneratedKeys();
+            if (rs.next()) {
+                generatedNum = rs.getInt(1);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
-            close(conn, pstmt, null);
+            close(conn, pstmt, rs);
         }
+        return generatedNum;
     }
 
     // 4. 조회수 증가
@@ -458,7 +485,39 @@ public class BoardDAO {
         return count;
     }
 
-    // 11. 공지사항 목록 조회 (고정공지가 항상 위쪽에 오도록 정렬 + 댓글 수 포함)
+    // 10-1. 공지사항 개수 조회 (검색어 포함)
+    public int getNoticeCount(String noticeType, String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return getNoticeCount(noticeType);
+        }
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        int count = 0;
+
+        try {
+            conn = getConnection();
+            String sql = "SELECT COUNT(*) FROM BOARD WHERE board_type = 'NOTICE' AND (subject LIKE ? OR content LIKE ?)";
+            boolean filter = noticeType != null && !noticeType.isEmpty() && !"ALL".equalsIgnoreCase(noticeType);
+            if (filter) sql += " AND category = ?";
+
+            pstmt = conn.prepareStatement(sql);
+            String likeword = "%" + keyword.trim() + "%";
+            pstmt.setString(1, likeword);
+            pstmt.setString(2, likeword);
+            if (filter) pstmt.setString(3, noticeType);
+
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            close(conn, pstmt, rs);
+        }
+        return count;
+    }
     public List<BoardVO> getNotices(int start, int count, String noticeType) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -510,16 +569,75 @@ public class BoardDAO {
         return articleList;
     }
 
-    // 12. 공지사항 등록 (board_type을 항상 'NOTICE'로 저장)
-    public void insertNotice(BoardVO article) {
+    // 11-1. 공지사항 목록 조회 (검색어 포함, 고정공지 우선 정렬)
+    public List<BoardVO> getNotices(int start, int count, String noticeType, String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return getNotices(start, count, noticeType);
+        }
         Connection conn = null;
         PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<BoardVO> articleList = null;
+
+        try {
+            conn = getConnection();
+            String sql = "SELECT b.*, (SELECT COUNT(*) FROM BOARD_COMMENT c WHERE c.board_num = b.num) AS comment_count " +
+                         "FROM BOARD b WHERE b.board_type = 'NOTICE' AND (b.subject LIKE ? OR b.content LIKE ?)";
+            boolean filter = noticeType != null && !noticeType.isEmpty() && !"ALL".equalsIgnoreCase(noticeType);
+            if (filter) sql += " AND b.category = ?";
+
+            sql += " ORDER BY CASE WHEN b.category = 'FIX' THEN 0 ELSE 1 END, b.num DESC LIMIT ?, ?";
+
+            pstmt = conn.prepareStatement(sql);
+            int idx = 1;
+            String likeword = "%" + keyword.trim() + "%";
+            pstmt.setString(idx++, likeword);
+            pstmt.setString(idx++, likeword);
+            if (filter) pstmt.setString(idx++, noticeType);
+            pstmt.setInt(idx++, start);
+            pstmt.setInt(idx++, count);
+
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                articleList = new ArrayList<BoardVO>();
+                do {
+                    BoardVO article = new BoardVO();
+                    article.setNum(rs.getInt("num"));
+                    article.setWriter(rs.getString("writer"));
+                    article.setSubject(rs.getString("subject"));
+                    article.setContent(rs.getString("content"));
+                    article.setReadcount(rs.getInt("readcount"));
+                    article.setRegDate(rs.getTimestamp("reg_date"));
+
+                    try { article.setWriterId(rs.getString("writer_id")); } catch (Exception e) {}
+                    try { article.setWriterNickname(rs.getString("writer_nickname")); } catch (Exception e) {}
+                    try { article.setLikeCount(rs.getInt("like_count")); } catch (Exception e) {}
+                    try { article.setNoticeType(rs.getString("category")); } catch (Exception e) {}
+                    try { article.setCommentCount(rs.getInt("comment_count")); } catch (Exception e) {}
+
+                    articleList.add(article);
+                } while (rs.next());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            close(conn, pstmt, rs);
+        }
+        return articleList;
+    }
+
+    // 12. 공지사항 등록 (board_type을 항상 'NOTICE'로 저장, 생성된 num 반환)
+    public int insertNotice(BoardVO article) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        int generatedNum = 0;
 
         try {
             conn = getConnection();
             String sql = "INSERT INTO BOARD (writer, writer_id, writer_nickname, subject, content, readcount, reg_date, board_type, category) " +
                          "VALUES (?, ?, ?, ?, ?, 0, NOW(), 'NOTICE', ?)";
-            pstmt = conn.prepareStatement(sql);
+            pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, article.getWriter());
             pstmt.setString(2, article.getWriterId());
             pstmt.setString(3, article.getWriterNickname());
@@ -527,11 +645,17 @@ public class BoardDAO {
             pstmt.setString(5, article.getContent());
             pstmt.setString(6, article.getNoticeType() != null ? article.getNoticeType() : "NORMAL");
             pstmt.executeUpdate();
+
+            rs = pstmt.getGeneratedKeys();
+            if (rs.next()) {
+                generatedNum = rs.getInt(1);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
-            close(conn, pstmt, null);
+            close(conn, pstmt, rs);
         }
+        return generatedNum;
     }
 
     // 13. 공지사항 수정 (board_type은 그대로 두고 category(고정/일반)만 갱신)

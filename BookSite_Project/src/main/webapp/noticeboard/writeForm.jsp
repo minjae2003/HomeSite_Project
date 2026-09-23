@@ -110,7 +110,8 @@
             <p class="form-subtitle">회원들에게 전달할 안내 사항을 작성해 주세요.</p>
         </div>
 
-        <form action="writePro.jsp" method="post">
+        <form action="${pageContext.request.contextPath}/board/upload" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="redirectBoard" value="noticeboard">
             <div class="form-group">
                 <label class="form-label">공지 유형</label>
                 <% if ("ADMIN".equals(sessionRole)) { %>
@@ -142,7 +143,12 @@
 
             <div class="form-group">
                 <label class="form-label">내용</label>
-                <textarea name="content" class="input-control" placeholder="공지 내용을 작성해 주세요." required></textarea>
+                <textarea name="content" class="input-control" placeholder="공지 내용을 작성해 주세요.&#10;&#10;사진/동영상을 넣고 싶은 위치에 [img1], [video1] 처럼 적어두면 그 자리에 삽입됩니다." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">사진 / 동영상 첨부</label>
+                <input type="file" name="files" class="input-control" accept="image/*,video/*,.hwp,.hwpx,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar,.7z" multiple>
             </div>
 
             <div class="btn-group">

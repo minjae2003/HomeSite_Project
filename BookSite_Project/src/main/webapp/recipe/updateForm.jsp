@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="board.BoardDAO, board.BoardVO" %>
+<%@ page import="board.BoardDAO, board.BoardVO, upload.BoardFileDAO, upload.BoardFileVO, java.util.List" %>
 
 <%
     request.setCharacterEncoding("UTF-8");
@@ -14,6 +14,7 @@
     int num = Integer.parseInt(numStr);
     BoardDAO dao = BoardDAO.getInstance();
     BoardVO board = dao.getBoardDetail(num);
+    List<BoardFileVO> existingFiles = BoardFileDAO.getInstance().getFiles(num);
 
     String sessionUserId = (String) session.getAttribute("id");
     String sessionRole = (String) session.getAttribute("role");
@@ -57,9 +58,11 @@
 <div class="container">
     <div class="card">
         <h2>🍳 레시피 수정</h2>
-        <form action="updatePro.jsp" method="post">
+        <form action="${pageContext.request.contextPath}/board/upload" method="post" enctype="multipart/form-data">
             <input type="hidden" name="num" value="<%= num %>">
             <input type="hidden" name="pageNum" value="<%= pageNum %>">
+            <input type="hidden" name="category" value="RECIPE">
+            <input type="hidden" name="redirectBoard" value="recipe">
 
             <div class="form-group">
                 <label>요리 이름</label>
@@ -67,8 +70,25 @@
             </div>
 
             <div class="form-group">
-                <label>재료 &amp; 만드는 법</label>
+                <label>재료 &amp; 만드는 법 <small style="font-weight:normal;color:#888;">([img1], [video1]... 로 위치 지정)</small></label>
                 <textarea name="content" required><%= board.getContent() %></textarea>
+            </div>
+
+            <% if (!existingFiles.isEmpty()) { %>
+            <div class="form-group">
+                <label>기존 첨부파일</label>
+                <p style="font-size: 13px; color: #666; margin: 0;">
+                    <% for (int i = 0; i < existingFiles.size(); i++) {
+                           BoardFileVO f = existingFiles.get(i); %>
+                        <%= f.isImage() ? "🖼" : (f.isVideo() ? "🎬" : "📎") %> <%= f.getOriginalName() %><%= i < existingFiles.size() - 1 ? ", " : "" %>
+                    <% } %>
+                </p>
+            </div>
+            <% } %>
+
+            <div class="form-group">
+                <label>사진 / 동영상 추가 첨부</label>
+                <input type="file" name="files" accept="image/*,video/*,.hwp,.hwpx,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar,.7z" multiple>
             </div>
 
             <div class="btn-box">
