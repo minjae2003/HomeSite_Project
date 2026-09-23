@@ -90,6 +90,17 @@ CREATE TABLE VISIT_LOG (
     PRIMARY KEY (visit_date, session_id)
 );
 
+--계정별 체크리스트 상태 
+ CREATE TABLE USER_CHECKLIST (
+     USER_ID       VARCHAR(50)   PRIMARY KEY,
+     CHECKED_KEYS  VARCHAR(1000),
+     CHECKED_CNT   INT           DEFAULT 0,
+     TOTAL_CNT     INT           DEFAULT 0,
+     UPDATED_AT    DATETIME      DEFAULT CURRENT_TIMESTAMP
+ );
+ ALTER TABLE USER_CHECKLIST ADD CONSTRAINT FK_CHECKLIST_MEMBER
+     FOREIGN KEY (USER_ID) REFERENCES MEMBER(ID) ON DELETE CASCADE;
+
 -- 관리자 계정 새로 생성
 INSERT INTO MEMBER (id, password, name, nickname, email, auth_status, role)
 VALUES ('admin', 'admin1234', '관리자', '관리자', 'admin@example.com', 'Y', 'ADMIN');

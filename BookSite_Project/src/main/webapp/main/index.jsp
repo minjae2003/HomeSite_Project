@@ -255,7 +255,7 @@
                     신규 회원을 위한<br>
                     자취 시작 체크리스트를 확인해보세요.
                 </div>
-                <button type="button" class="btn-checklist" onclick="location.href='../main/list.html'">체크리스트 보기</button>
+                <button type="button" class="btn-checklist" onclick="location.href='../main/checklist.jsp'">체크리스트 보기</button>
             </div>
         </aside>
     </div>
