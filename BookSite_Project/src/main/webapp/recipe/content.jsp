@@ -84,47 +84,7 @@
 <head>
     <meta charset="UTF-8">
     <title><%= article.getSubject() %> - 자취의 품격</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; background-color: #f7f9fa; color: #333; line-height: 1.6; }
-        a { text-decoration: none; color: inherit; }
-
-        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
-        .card { background: #fff; border-radius: 12px; border: 1px solid #eaeaea; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-bottom: 25px; }
-
-        .post-title { font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 12px; }
-        .post-meta { display: flex; gap: 15px; font-size: 13px; color: #64748b; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; margin-bottom: 20px; }
-        .post-content { font-size: 15px; color: #334155; min-height: 150px; line-height: 1.7; white-space: pre-line; margin-bottom: 30px; }
-        .post-media { max-width: 100%; border-radius: 10px; margin: 14px 0; display: block; background: #f1f5f9; }
-        .attach-list { list-style: none; border-top: 1px dashed #e2e8f0; padding-top: 14px; margin-bottom: 20px; }
-        .attach-list li { margin-bottom: 6px; }
-        .attach-list a { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: #2e7d32; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 7px 12px; }
-        .attach-list a:hover { border-color: #4caf50; color: #388e3c; }
-        .attach-size { color: #94a3b8; font-size: 12px; }
-
-        .btn-box { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f0f0f0; padding-top: 20px; }
-        .btn { padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; }
-        .btn-like { background: #fff0f0; color: #e53935; border: 1px solid #ffcdd2; display: inline-flex; align-items: center; gap: 6px; }
-        .btn-like.active { background: #e53935; color: #fff; border-color: #e53935; }
-        .btn-list { background: #f1f5f9; color: #475569; }
-
-        /* 댓글 영역 */
-        .comment-section { background: #fff; border-radius: 12px; border: 1px solid #eaeaea; padding: 25px; }
-        .comment-header { font-size: 18px; font-weight: 700; margin-bottom: 18px; color: #1e293b; }
-        .comment-form { display: flex; gap: 10px; margin-bottom: 25px; }
-        .comment-textarea { flex: 1; height: 75px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; resize: none; font-size: 14px; font-family: inherit; }
-        .comment-textarea:focus { outline: none; border-color: #4caf50; }
-        .btn-comment-submit { background: #4caf50; color: #fff; border: none; border-radius: 8px; width: 90px; font-weight: 700; cursor: pointer; }
-
-        .comment-list { list-style: none; }
-        .comment-item { border-bottom: 1px solid #f1f5f9; padding: 15px 0; }
-        .comment-item:last-child { border-bottom: none; }
-        .comment-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
-        .comment-writer { font-weight: 700; font-size: 14px; color: #334155; }
-        .comment-date { font-size: 12px; color: #94a3b8; }
-        .comment-text { font-size: 14px; color: #475569; white-space: pre-line; }
-        .btn-comment-del { font-size: 11px; color: #ef4444; margin-left: 8px; cursor: pointer; background: none; border: none; }
-    </style>
+    <link rel="stylesheet" href="../css/recipe/content.css">
 </head>
 <body>
 

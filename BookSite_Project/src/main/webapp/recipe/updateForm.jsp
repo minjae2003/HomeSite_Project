@@ -31,27 +31,8 @@
 <head>
     <meta charset="UTF-8">
     <title>레시피 수정 - 자취의 품격</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; background-color: #f7f9fa; }
-        .container { max-width: 700px; margin: 40px auto; padding: 0 20px; }
-        .card { background: white; padding: 30px; border-radius: 12px; border: 1px solid #eaeaea; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-        h2 { font-size: 20px; font-weight: 800; color: #1e272e; border-bottom: 2px solid #f1f3f5; padding-bottom: 15px; margin-bottom: 22px; }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; font-weight: 700; font-size: 14px; color: #2d3436; margin-bottom: 8px; }
-        input[type="text"], textarea {
-            width: 100%; padding: 12px 15px; border: 1px solid #e1e4e8; border-radius: 8px;
-            font-size: 14px; outline: none; font-family: inherit; transition: border-color 0.2s;
-        }
-        input[type="text"]:focus, textarea:focus { border-color: #4caf50; }
-        textarea { resize: vertical; min-height: 260px; line-height: 1.6; }
-        .btn-box { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-        .btn { padding: 11px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 700; }
-        .btn-submit { background-color: #4caf50; color: white; }
-        .btn-submit:hover { background-color: #388e3c; }
-        .btn-cancel { background-color: #edf2f7; color: #4a5568; }
-        .btn-cancel:hover { background-color: #e2e8f0; }
-    </style>
+   
+    <link rel="stylesheet" href="../css/recipe/update.css">
 </head>
 <body>
 

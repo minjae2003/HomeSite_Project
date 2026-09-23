@@ -56,9 +56,6 @@
 <head>
     <meta charset="UTF-8">
     <title><%= (keyword != null && !keyword.isEmpty()) ? ("'" + keyword + "' 검색결과") : "통합검색" %> - 자취의 품격</title>
-    <style>
-        
-    </style>
     <link rel="stylesheet" href="../css/main/search.css">
 </head>
 <body>
