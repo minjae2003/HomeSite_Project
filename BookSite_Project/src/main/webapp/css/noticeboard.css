@@ -1,0 +1,58 @@
+@charset "UTF-8";
+
+/* 공지사항 전용 (고정/일반 공지 배지 등)
+   사용: noticeboard/list.jsp, noticeboard/content.jsp, noticeboard/writeForm.jsp */
+
+.board-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #eaeaea;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.board-table tr.fixed-row {
+    background-color: #fff8f6;
+}
+
+.cat-badge.FIX {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.cat-badge.NORMAL {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 20px;
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 30px;
+    padding: 4px 4px 4px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notice-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.notice-badge.FIX {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.notice-badge.NORMAL {
+    background: #e3f2fd;
+    color: #1565c0;
+}

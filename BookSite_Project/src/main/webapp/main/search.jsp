@@ -57,63 +57,9 @@
     <meta charset="UTF-8">
     <title><%= (keyword != null && !keyword.isEmpty()) ? ("'" + keyword + "' 검색결과") : "통합검색" %> - 자취의 품격</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; background-color: #f7f9fa; color: #333; line-height: 1.5; }
-        a { text-decoration: none; color: inherit; }
-
-        .container { max-width: 1000px; margin: 35px auto; padding: 0 20px; }
-
-        .board-header { margin-bottom: 24px; }
-        .board-title { font-size: 28px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-        .board-subtitle { font-size: 15px; color: #64748b; }
-
-        .search-box {
-            display: flex; align-items: center; gap: 0; margin-bottom: 28px;
-            background: #fff; border: 1.5px solid #e2e8f0; border-radius: 30px;
-            padding: 4px 4px 4px 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .search-box:focus-within { border-color: #ff5722; box-shadow: 0 4px 14px rgba(255, 87, 34, 0.15); }
-        .search-box input { flex: 1; border: none; outline: none; padding: 10px 6px; font-size: 14px; background: transparent; }
-        .search-box input::placeholder { color: #94a3b8; }
-        .search-box button {
-            display: flex; align-items: center; gap: 6px; padding: 10px 20px;
-            background: linear-gradient(135deg, #ff5722, #e64a19); color: #fff; border: none;
-            border-radius: 26px; font-weight: 700; font-size: 14px; cursor: pointer;
-        }
-        .search-box button:hover { opacity: 0.9; }
-
-        .result-section { margin-bottom: 36px; }
-        .result-section-title { font-size: 17px; font-weight: 800; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-        .result-section-title .count { color: #ff5722; }
-        .more-link { font-size: 13px; color: #94a3b8; font-weight: 600; }
-        .more-link:hover { color: #ff5722; }
-
-        .board-card { background: #fff; border-radius: 12px; border: 1px solid #eaeaea; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .board-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-        .board-table th { background: #f8f9fa; padding: 14px 16px; border-bottom: 1px solid #eaeaea; color: #555; font-weight: 700; }
-        .board-table td { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
-        .board-table tr:hover { background-color: #fdfdfd; }
-
-        .cat-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: #edf2f7; color: #4a5568; margin-right: 6px; }
-        .cat-badge.TIP { background: #e8f5e9; color: #2e7d32; }
-        .cat-badge.QNA { background: #fff3e0; color: #e65100; }
-        .cat-badge.RECIPE { background: #e8f5e9; color: #2e7d32; }
-        .cat-badge.NOTICE { background: #ffebee; color: #c62828; }
-
-        .subject-link { color: #2d3436; font-weight: 600; font-size: 15px; }
-        .subject-link:hover { color: #ff5722; text-decoration: underline; }
-
-        .notice-list { list-style: none; }
-        .notice-list li { padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
-        .notice-list li:last-child { border-bottom: none; }
-
-        .empty-msg { text-align: center; padding: 40px; color: #999; }
-
-        .pagination { display: flex; justify-content: center; gap: 5px; margin-top: 25px; }
-        .page-link { padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; background: #fff; color: #555; font-size: 13px; font-weight: 600; }
-        .page-link.active { background: #1e272e; color: #fff; border-color: #1e272e; }
+        
     </style>
+    <link rel="stylesheet" href="../css/main/search.css">
 </head>
 <body>
 <jsp:include page="../module/header.jsp" flush="false"/>

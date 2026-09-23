@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>자취의 품격</title>
     <!-- external css 불러오기 -->
-    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/main/index.css">
 </head>
 <body>
 	<%
