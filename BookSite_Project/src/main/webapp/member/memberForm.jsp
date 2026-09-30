@@ -6,90 +6,70 @@
     <title>회원가입 - 자취의 품격</title>
     <link rel="stylesheet" href="../css/member.css">
     
-    <script>
+   <script>
     function check_input() {
-        if (!document.member_form.id.value) {
-            alert("아이디를 입력하세요!");    
-            document.member_form.id.focus();
-            return;
-        }
+        var f = document.member_form;
 
-        if (!document.member_form.pass.value) {
-            alert("비밀번호를 입력하세요!");    
-            document.member_form.pass.focus();
-            return;
-        }
+        if (!f.id.value) { alert("아이디를 입력하세요!"); f.id.focus(); return; }
+        if (!f.pass.value) { alert("비밀번호를 입력하세요!"); f.pass.focus(); return; }
+        if (!f.pass_confirm.value) { alert("비밀번호확인을 입력하세요!"); f.pass_confirm.focus(); return; }
+        if (!f.name.value) { alert("이름을 입력하세요!"); f.name.focus(); return; }
 
-        if (!document.member_form.pass_confirm.value) {
-            alert("비밀번호확인을 입력하세요!");    
-            document.member_form.pass_confirm.focus();
-            return;
-        }
+        var nickname = f.nickname.value.trim();
+        if (nickname.length < 2) { alert("닉네임을 2자 이상 입력하세요!"); f.nickname.focus(); return; }
 
-        if (!document.member_form.name.value) {
-            alert("이름을 입력하세요!");    
-            document.member_form.name.focus();
-            return;
-        }
-
-        var nickname = document.member_form.nickname.value.trim();
-        if (nickname.length < 2) {
-            alert("닉네임을 2자 이상 입력하세요!");
-            document.member_form.nickname.focus();
-            return;
-        }
-
-        if (document.member_form.pass.value != document.member_form.pass_confirm.value) {
+        if (f.pass.value != f.pass_confirm.value) {
             alert("비밀번호가 일치하지 않습니다.\n다시 입력해 주세요!");
-            document.member_form.pass.focus();
-            document.member_form.pass.select();
+            f.pass.focus(); f.pass.select();
             return;
         }
-        var email = document.member_form.email.value.trim();
+
+        // 이메일은 선택 사항: 입력한 경우에만 형식 검사
+        var email = f.email.value.trim();
         if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             alert("이메일 형식이 올바르지 않습니다.\n예) example@email.com");
-            document.member_form.email.focus();
+            f.email.focus();
             return;
         }
 
-        document.member_form.submit();
+        // 전화번호는 선택 사항: 입력한 경우에만 형식 검사
+        var phone = f.phone.value.replace(/[^0-9]/g, "");
+        if (phone) {
+            var ok = phone.indexOf("02") === 0 ? (phone.length === 9 || phone.length === 10)
+                                               : (/^0\d+$/.test(phone) && (phone.length === 10 || phone.length === 11));
+            if (!ok) {
+                alert("전화번호 형식이 올바르지 않습니다.\n예) 010-1234-5678");
+                f.phone.focus();
+                return;
+            }
+        }
+
+        f.submit();
     }
 
     function reset_form() {
-        document.member_form.id.value = "";  
-        document.member_form.pass.value = "";
-        document.member_form.pass_confirm.value = "";
-        document.member_form.name.value = "";
-        document.member_form.id.focus();
+        var f = document.member_form;
+        f.id.value = "";
+        f.pass.value = "";
+        f.pass_confirm.value = "";
+        f.name.value = "";
+        f.nickname.value = "";
+        f.email.value = "";
+        f.phone.value = "";
+        f.id.focus();
     }
-    
+
     function check_id() {
         if (!document.member_form.id.value) {
             alert("아이디를 입력하세요!");
             document.member_form.id.focus();
             return;
         }
-        window.open("memberCheckId.jsp?id=" + document.member_form.id.value,
+        window.open("memberCheckId.jsp?id=" + encodeURIComponent(document.member_form.id.value),
                     "IDcheck",
                     "left=700,top=300,width=350,height=200,scrollbars=no,resizable=yes");
     }
-    function reset_form() {
-        document.member_form.id.value = "";  
-        document.member_form.pass.value = "";
-        document.member_form.pass_confirm.value = "";
-        document.member_form.name.value = "";
-        document.member_form.email.value = "";
-        document.member_form.id.focus();
-    }
-    function reset_form() {
-        document.member_form.id.value = "";  
-        document.member_form.pass.value = "";
-        document.member_form.pass_confirm.value = "";
-        document.member_form.name.value = "";
-        document.member_form.nickname.value = "";
-        document.member_form.email.value = "";
-        document.member_form.id.focus();
-    }
+
     // 전화번호 입력 시 하이픈 자동 입력 (02 지역번호도 처리)
     function formatPhone(input) {
         var d = input.value.replace(/[^0-9]/g, "").substring(0, 11);
@@ -106,17 +86,6 @@
             else out = d.substring(0, 3) + "-" + d.substring(3, 7) + "-" + d.substring(7);
         }
         input.value = out;
-    }
-    // 전화번호는 선택 사항: 입력한 경우에만 형식 검사
-    var phone = document.member_form.phone.value.replace(/[^0-9]/g, "");
-    if (phone) {
-        var ok = phone.indexOf("02") === 0 ? (phone.length === 9 || phone.length === 10)
-                                           : (/^0\d+$/.test(phone) && (phone.length === 10 || phone.length === 11));
-        if (!ok) {
-            alert("전화번호 형식이 올바르지 않습니다.\n예) 010-1234-5678");
-            document.member_form.phone.focus();
-            return;
-        }
     }
     </script>
 </head>

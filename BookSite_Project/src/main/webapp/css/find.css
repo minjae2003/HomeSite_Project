@@ -1,0 +1,81 @@
+@charset "UTF-8";
+
+/* 아이디/비밀번호 찾기 (member/findId.jsp, findPw.jsp, resetPw.jsp)
+   입력칸·버튼은 member.css의 #join_box 스타일을 그대로 사용 */
+
+.form-group input[type="email"] {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #1f2937;
+    outline: none;
+    box-sizing: border-box;
+}
+
+/* 탭 */
+.find-tabs {
+    display: flex;
+    border-bottom: 1px solid #e5e7eb;
+    margin: -8px 0 22px;
+}
+.find-tab {
+    flex: 1;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #9ca3af;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+.find-tab:hover { color: #374151; }
+.find-tab.active { color: #f95e07; border-bottom-color: #f95e07; }
+
+/* 안내 / 오류 */
+.find-desc { font-size: 13.5px; color: #4b5563; line-height: 1.6; margin: 0 0 18px; }
+.find-desc b { color: #1f2937; }
+.find-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    font-size: 13px;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+}
+.find-note { font-size: 12px; color: #9ca3af; margin: 12px 0 0; line-height: 1.5; text-align: center; }
+
+/* 아이디 찾기 결과 */
+.find-result {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 18px;
+    text-align: center;
+}
+.find-result-title { font-size: 13.5px; color: #4b5563; margin: 0 0 12px; }
+.find-id-list { list-style: none; margin: 0; padding: 0; }
+.find-id-list li {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    letter-spacing: 1px;
+    padding: 4px 0;
+}
+.find-result .find-note { margin-top: 10px; }
+
+/* 하단 링크 */
+.find-links {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    font-size: 13px;
+}
+.find-links a { color: #6b7280; text-decoration: none; }
+.find-links a:hover { color: #f95e07; }
+.find-links span { color: #d1d5db; }

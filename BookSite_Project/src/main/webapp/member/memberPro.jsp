@@ -10,6 +10,13 @@
         String pass = request.getParameter("pass");
         if (pass == null) pass = request.getParameter("password");
         String name = request.getParameter("name");
+        if (id == null || id.trim().isEmpty() || pass == null || pass.isEmpty()
+                || name == null || name.trim().isEmpty()) {
+            out.println("<script>alert('아이디, 비밀번호, 이름을 모두 입력해 주세요.'); history.go(-1);</script>");
+            return;
+        }
+        id = id.trim();
+        name = name.trim();
         // 닉네임은 필수 (2~50자) - 비어 있으면 실명이 대신 저장되지 않도록 여기서 막음
         String nickname = request.getParameter("nickname");
         nickname = (nickname == null) ? "" : nickname.trim();
@@ -54,9 +61,10 @@
 
         if (dao.idCheck(id) == 1) {
             out.println("<script>alert('이미 사용 중인 아이디입니다.'); history.go(-1);</script>");
-        } else {
-            dao.insertMember(member);
+        } else if (dao.insertMember(member)) {
             out.println("<script>alert('회원가입 성공!'); location.href='loginForm.jsp';</script>");
+        } else {
+            out.println("<script>alert('회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'); history.go(-1);</script>");
         }
     } catch (Exception e) {
         e.printStackTrace();

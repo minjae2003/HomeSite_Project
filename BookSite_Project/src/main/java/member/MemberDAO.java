@@ -20,7 +20,7 @@ public class MemberDAO {
     }
 
     // 1. 회원가입
-    public void insertMember(MemberVO member) {
+    public boolean insertMember(MemberVO member) {
         Connection conn = null;
         PreparedStatement pstmt = null;
 
@@ -33,11 +33,11 @@ public class MemberDAO {
             pstmt.setString(3, member.getName());
             pstmt.setString(4, (member.getNickname() != null && !member.getNickname().isEmpty()) ? member.getNickname() : member.getName());
             pstmt.setString(5, member.getEmail() != null ? member.getEmail() : "");
-            // 전화번호는 선택 사항: 입력하지 않았으면 NULL로 저장
             pstmt.setString(6, (member.getPhone() != null && !member.getPhone().isEmpty()) ? member.getPhone() : null);
-            pstmt.executeUpdate();
+            return pstmt.executeUpdate() == 1;
         } catch (Exception ex) {
             ex.printStackTrace();
+            return false;
         } finally {
             close(conn, pstmt, null);
         }
@@ -141,6 +141,73 @@ public class MemberDAO {
             close(conn, pstmt, rs);
         }
         return vo;
+    }
+    // 6-1. 아이디 찾기: 이름 + 이메일이 모두 일치하는 회원 아이디 목록 (같은 이메일로 여러 계정일 수 있음)
+    public java.util.List<String> findIds(String name, String email) {
+        java.util.List<String> ids = new java.util.ArrayList<String>();
+        if (isBlank(name) || isBlank(email)) return ids;   // 이메일 미등록 회원은 찾을 수 없음
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            conn = getConnection();
+            pstmt = conn.prepareStatement(
+                "SELECT id FROM MEMBER WHERE name = ? AND LOWER(email) = LOWER(?) AND email <> '' ORDER BY reg_date");
+            pstmt.setString(1, name.trim());
+            pstmt.setString(2, email.trim());
+            rs = pstmt.executeQuery();
+            while (rs.next()) ids.add(rs.getString(1));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            close(conn, pstmt, rs);
+        }
+        return ids;
+    }
+
+    // 6-2. 비밀번호 찾기 본인 확인: 아이디 + 이름 + 이메일이 모두 일치하는지
+    public boolean matchForReset(String id, String name, String email) {
+        if (isBlank(id) || isBlank(name) || isBlank(email)) return false;
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            conn = getConnection();
+            pstmt = conn.prepareStatement(
+                "SELECT 1 FROM MEMBER WHERE id = ? AND name = ? AND LOWER(email) = LOWER(?) AND email <> ''");
+            pstmt.setString(1, id.trim());
+            pstmt.setString(2, name.trim());
+            pstmt.setString(3, email.trim());
+            rs = pstmt.executeQuery();
+            return rs.next();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            close(conn, pstmt, rs);
+        }
+        return false;
+    }
+
+    // 6-3. 비밀번호 재설정 (마지막 변경일도 기록)
+    public boolean resetPassword(String id, String newPassword) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = getConnection();
+            pstmt = conn.prepareStatement("UPDATE MEMBER SET password = ?, pw_changed_at = NOW() WHERE id = ?");
+            pstmt.setString(1, newPassword);
+            pstmt.setString(2, id);
+            return pstmt.executeUpdate() == 1;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            close(conn, pstmt, null);
+        }
+        return false;
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
     }
     // 5-1. 회원 정보 수정 (닉네임/이름/이메일, 새 비밀번호가 있으면 비밀번호도 변경)
     public boolean updateMember(MemberVO member, String newPassword) {

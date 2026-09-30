@@ -87,3 +87,13 @@ section {
 #login_btn button:hover {
     background-color: #e05000;
 }
+.login-links {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    font-size: 13px;
+}
+.login-links a { color: #6b7280; text-decoration: none; }
+.login-links a:hover { color: #f95e07; }
+.login-links span { color: #d1d5db; }

@@ -42,7 +42,14 @@
                     </div>
                     <div id="login_btn">
                         <button type="button" onclick="check_input()">Log in</button>
-                    </div>            
+                    </div>
+
+                    <div class="login-links">
+                        <a href="findId.jsp">아이디 찾기</a><span>|</span>
+                        <a href="findPw.jsp">비밀번호 찾기</a><span>|</span>
+                        <a href="memberForm.jsp">회원가입</a>
+                    </div>
+                        
                 </form>
             </div>
         </div>

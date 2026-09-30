@@ -65,7 +65,7 @@
       </div>
       <div class="form-group">
         <label class="form-label" for="email">이메일</label>
-        <input type="email" id="email" name="email" class="input-control" maxlength="100" value="<%= esc(member.getEmail()) %>">
+        <input type="email" id="email" name="email" class="input-control" maxlength="100" placeholder="이메일 미설정시 계정 찾기가 불가능(현재 미설정)" value="<%= esc(member.getEmail()) %>">
       </div>
 
       <hr class="form-divider" id="password">
