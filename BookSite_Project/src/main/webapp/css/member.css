@@ -79,7 +79,9 @@ section {
 }
 
 .form-group input[type="text"],
-.form-group input[type="password"] {
+.form-group input[type="password"],
+.form-group input[type="email"],
+.form-group input[type="tel"] {
     width: 100%;
     padding: 13px 16px;
     border: 1px solid #d1d5db;
@@ -133,4 +135,10 @@ section {
 
 .btn-reset:hover {
     background-color: #d1d5db;
+}
+.label-optional {
+    font-size: 12px;
+    font-weight: 400;
+    color: #9ca3af;
+    margin-left: 2px;
 }

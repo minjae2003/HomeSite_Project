@@ -11,8 +11,20 @@ public class MemberVO {
     private String authStatus;
     private String role;
     private Timestamp regDate;
+    private String phone;
 
-    // Standard Getters & Setters
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+    
+    private Timestamp pwChangedAt;
+    private Timestamp infoChangedAt;
+
+    public Timestamp getPwChangedAt() { return pwChangedAt; }
+    public void setPwChangedAt(Timestamp pwChangedAt) { this.pwChangedAt = pwChangedAt; }
+
+    public Timestamp getInfoChangedAt() { return infoChangedAt; }
+    public void setInfoChangedAt(Timestamp infoChangedAt) { this.infoChangedAt = infoChangedAt; }
+    
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

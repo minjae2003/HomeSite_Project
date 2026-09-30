@@ -5,6 +5,7 @@
     request.setCharacterEncoding("UTF-8");
 
     String sessionUserId = (String) session.getAttribute("id");
+    String sessionRole = (String) session.getAttribute("role");
     String sessionUserNick = (String) session.getAttribute("nickname");
     if (sessionUserNick == null) sessionUserNick = (String) session.getAttribute("name");
 
@@ -92,7 +93,9 @@
         <span style="font-size: 14px; color: #666;">
             총 <b><%= totalCount %></b>개의 공지사항
         </span>
+        <% if ("ADMIN".equals(sessionRole)) { %>
         <a href="writeForm.jsp" class="btn-write">✏️ 글쓰기</a>
+        <% } %>
     </div>
 
     <div class="board-card">

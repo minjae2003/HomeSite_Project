@@ -25,7 +25,9 @@
     String category = request.getParameter("category");
 
     if (pageNum == null) pageNum = "1";
-    if (category == null) category = "ALL";
+    // 목록으로 돌아갈 때 쓰는 카테고리 - 허용된 값만 사용 (링크에 그대로 출력되므로)
+    category = (category == null) ? "ALL" : category.trim().toUpperCase();
+    if (!java.util.Arrays.asList("ALL", "BEST", "FREE", "TIP", "QNA", "RECIPE").contains(category)) category = "ALL";
 
     if (numParam == null || numParam.trim().isEmpty()) {
         response.sendRedirect("list.jsp");

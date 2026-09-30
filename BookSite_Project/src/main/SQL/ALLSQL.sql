@@ -1,7 +1,11 @@
 -- 1. 외래키 제약조건 비활성화 및 기존 테이블 삭제
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS NOTIFICATION;
+DROP TABLE IF EXISTS USER_CHECKLIST;
 DROP TABLE IF EXISTS CHECKLIST;
+DROP TABLE IF EXISTS BOARD_FILE;
+DROP TABLE IF EXISTS VISIT_LOG;
 DROP TABLE IF EXISTS BOARD_LIKE;
 DROP TABLE IF EXISTS BOARD_COMMENT;
 DROP TABLE IF EXISTS BOARD_REPLY;
@@ -90,7 +94,7 @@ CREATE TABLE VISIT_LOG (
     PRIMARY KEY (visit_date, session_id)
 );
 
---계정별 체크리스트 상태 
+-- 계정별 체크리스트 상태 
  CREATE TABLE USER_CHECKLIST (
      USER_ID       VARCHAR(50)   PRIMARY KEY,
      CHECKED_KEYS  VARCHAR(1000),
@@ -101,6 +105,34 @@ CREATE TABLE VISIT_LOG (
  ALTER TABLE USER_CHECKLIST ADD CONSTRAINT FK_CHECKLIST_MEMBER
      FOREIGN KEY (USER_ID) REFERENCES MEMBER(ID) ON DELETE CASCADE;
 
+-- 알림 테이블 (NOTIFICATION) - 헤더 알림 / 마이페이지 전체 알림
+-- type: COMMENT(내 글에 댓글) / LIKE(내 글 추천) / NOTICE(새 공지사항)
+CREATE TABLE NOTIFICATION (
+    noti_num        INT AUTO_INCREMENT PRIMARY KEY,
+    receiver_id     VARCHAR(50)  NOT NULL,              -- 알림 받는 회원
+    type            VARCHAR(20)  NOT NULL,
+    actor_id        VARCHAR(50),                         -- 알림을 발생시킨 회원
+    actor_nickname  VARCHAR(50),
+    board_num       INT,                                 -- 관련 게시글
+    board_subject   VARCHAR(200),
+    is_read         CHAR(1)      DEFAULT 'N',
+    reg_date        DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_noti_receiver (receiver_id, is_read),
+    CONSTRAINT fk_noti_receiver FOREIGN KEY (receiver_id) REFERENCES MEMBER(id) ON DELETE CASCADE,
+    CONSTRAINT fk_noti_board    FOREIGN KEY (board_num)   REFERENCES BOARD(num)  ON DELETE CASCADE
+);
+
+CREATE TABLE MEMBER_PROFILE (
+    user_id      VARCHAR(50)  PRIMARY KEY,
+    profile_img  VARCHAR(255) NULL,   -- uploads/profile/ 안의 저장 파일명
+    bio          VARCHAR(40)  NULL,   -- 한줄 소개
+    region       VARCHAR(50)  NULL,   -- 거주 지역 (예: 경상남도 양산시)
+    living_years VARCHAR(20)  NULL,   -- 자취 연차
+    tags         VARCHAR(200) NULL,   -- 관심 태그 (콤마 구분)
+    updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_profile_member FOREIGN KEY (user_id) REFERENCES MEMBER(id) ON DELETE CASCADE
+);
+ALTER TABLE MEMBER ADD COLUMN phone VARCHAR(20) NULL AFTER email;
 -- 관리자 계정 새로 생성
 INSERT INTO MEMBER (id, password, name, nickname, email, auth_status, role)
 VALUES ('admin', 'admin1234', '관리자', '관리자', 'admin@example.com', 'Y', 'ADMIN');

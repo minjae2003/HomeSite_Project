@@ -16,6 +16,12 @@
     if (sessionUserNick == null) sessionUserNick = "익명";
 
     String sessionRole = (String) session.getAttribute("role");
+
+    // 공지사항은 관리자만 작성 가능 (일반/고정 구분 없이)
+    if (!"ADMIN".equals(sessionRole)) {
+        out.println("<script>alert('공지사항은 관리자만 작성할 수 있습니다.'); location.href='list.jsp';</script>");
+        return;
+    }
 %>
 
 <!DOCTYPE html>
@@ -27,13 +33,7 @@
 </head>
 <body>
 
-<nav class="navbar">
-    <div class="nav-container">
-        <a href="list.jsp" class="logo">
-            <span class="logo-icon">🏠</span> 자취의 품격
-        </a>
-    </div>
-</nav>
+<jsp:include page="../module/header.jsp" flush="false" />
 
 <div class="container">
     <div class="card">
@@ -46,7 +46,6 @@
             <input type="hidden" name="redirectBoard" value="noticeboard">
             <div class="form-group">
                 <label class="form-label">공지 유형</label>
-                <% if ("ADMIN".equals(sessionRole)) { %>
                 <div class="category-select-group">
                     <label>
                         <input type="radio" name="noticeType" value="NORMAL" checked>
@@ -57,10 +56,6 @@
                         <span class="cat-btn">📌 고정공지</span>
                     </label>
                 </div>
-                <% } else { %>
-                <input type="hidden" name="noticeType" value="NORMAL">
-                <span style="font-size: 13px; color: #888;">📝 일반공지로 등록됩니다. (고정공지는 관리자만 등록 가능)</span>
-                <% } %>
             </div>
 
             <div class="form-group">

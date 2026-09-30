@@ -16,6 +16,11 @@
     if (sessionUserNick == null) sessionUserNick = "익명";
 
     String sessionRole = (String) session.getAttribute("role");
+
+    // 목록에서 넘어온 카테고리를 미리 선택 (FREE/TIP/QNA/RECIPE 외에는 FREE)
+    String selCat = request.getParameter("category");
+    selCat = (selCat == null) ? "FREE" : selCat.trim().toUpperCase();
+    if (!java.util.Arrays.asList("FREE", "TIP", "QNA", "RECIPE").contains(selCat)) selCat = "FREE";
 %>
 
 <!DOCTYPE html>
@@ -27,19 +32,14 @@
 </head>
 <body>
 
-<nav class="navbar">
-    <div class="nav-container">
-        <a href="list.jsp" class="logo">
-            <span class="logo-icon">🏠</span> 자취의 품격
-        </a>
-    </div>
-</nav>
+
+<jsp:include page="../module/header.jsp" flush="false" />
 
 <div class="container">
     <div class="card">
         <div class="form-header">
             <h1 class="form-title">✏️ 커뮤니티 글쓰기</h1>
-            <p class="form-subtitle">자취에 관한 소소한 이야기부터 꿀팁, 질문을 공유해 보세요.</p>
+            <p class="form-subtitle">자취에 관한 소소한 이야기부터 꿀팁, 질문, 요리레시피를 공유해 보세요.</p>
         </div>
 
         <form action="${pageContext.request.contextPath}/board/upload" method="post" enctype="multipart/form-data">
@@ -48,16 +48,20 @@
                 <label class="form-label">카테고리 선택</label>
                 <div class="category-select-group">
                     <label>
-                        <input type="radio" name="category" value="FREE" checked>
+                        <input type="radio" name="category" value="FREE" <%= "FREE".equals(selCat) ? "checked" : "" %>>
                         <span class="cat-btn">🏫 일상/수다</span>
                     </label>
                     <label>
-                        <input type="radio" name="category" value="TIP">
+                        <input type="radio" name="category" value="TIP" <%= "TIP".equals(selCat) ? "checked" : "" %>>
                         <span class="cat-btn">💡 자취꿀팁</span>
                     </label>
                     <label>
-                        <input type="radio" name="category" value="QNA">
+                        <input type="radio" name="category" value="QNA" <%= "QNA".equals(selCat) ? "checked" : "" %>>
                         <span class="cat-btn">❓ 질문/답변</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="category" value="RECIPE" <%= "RECIPE".equals(selCat) ? "checked" : "" %>>
+                        <span class="cat-btn">🍳 요리레시피</span>
                     </label>
                     <% if ("ADMIN".equals(sessionRole)) { %>
                     <label>
@@ -90,7 +94,7 @@
             </div>
 
             <div class="btn-group">
-                <button type="button" class="btn btn-cancel" onclick="location.href='list.jsp'">취소</button>
+                <button type="button" class="btn btn-cancel" onclick="location.href='list.jsp?category=<%= selCat %>'">취소</button>
                 <button type="submit" class="btn btn-submit">게시글 등록</button>
             </div>
         </form>

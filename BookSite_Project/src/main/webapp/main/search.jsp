@@ -15,7 +15,7 @@
 
     BoardDAO dao = BoardDAO.getInstance();
 
-    // 게시글 검색: 자유게시판(FREE/TIP/QNA) + 요리레시피(RECIPE) - "ALL"은 공지사항만 제외한 전체 카테고리
+    // 게시글 검색: 자유게시판(FREE/TIP/QNA/RECIPE) - "ALL"은 공지사항만 제외한 전체 카테고리
     int postTotal = 0;
     List<BoardVO> postList = null;
 
@@ -121,9 +121,8 @@
                             if ("TIP".equals(catCode)) catName = "꿀팁";
                             else if ("QNA".equals(catCode)) catName = "질문";
                             else if ("RECIPE".equals(catCode)) catName = "레시피";
-                            String contentUrl = "RECIPE".equals(catCode)
-                                    ? "../recipe/content.jsp?num=" + p.getNum()
-                                    : "../freeboard/content.jsp?num=" + p.getNum();
+                            // 요리레시피도 자유게시판으로 통합되어 같은 상세 페이지 사용
+                            String contentUrl = "../freeboard/content.jsp?num=" + p.getNum();
                             String dateStr = p.getRegDate() != null ? sdf.format(p.getRegDate()) : "";
                         %>
                         <tr>

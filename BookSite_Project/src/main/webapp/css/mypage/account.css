@@ -1,0 +1,85 @@
+@charset "UTF-8";
+
+/* 계정 관리 페이지 전용 (mypage/account.jsp)
+   공통 변수·버튼·그리드·사이드블록은 index.css를 함께 사용 */
+
+:root { --red: #D9534F; }
+
+/* ───── 상단 ───── */
+.acct-head { padding: 2px 0 6px; }
+.breadcrumb { font-size: 12.5px; color: var(--text-soft); margin-bottom: 8px; }
+.breadcrumb a:hover { color: var(--purple2); }
+.breadcrumb b { color: var(--text); font-weight: 700; }
+.acct-head .page-title { font-size: 22px; margin: 0; }
+.acct-grid { padding-top: 20px; padding-bottom: 60px; align-items: start; }
+
+/* ───── 카드 ───── */
+.acct-card { background: #fff; border: 1px solid var(--card-border); border-radius: 14px; margin-bottom: 20px; overflow: hidden; scroll-margin-top: 20px; }
+.acct-card-head { padding: 18px 22px; border-bottom: 1px solid var(--card-border); }
+.acct-card-head h3 { font-size: 15px; font-weight: 800; margin: 0; }
+.acct-card-head p { font-size: 12.5px; color: var(--text-soft); margin: 4px 0 0; }
+.acct-card-body { padding: 22px; }
+
+.field { margin-bottom: 20px; }
+.field:last-child { margin-bottom: 0; }
+.field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.field input[type=text], .field input[type=email], .field input[type=password] {
+    width: 100%; border: 1px solid var(--card-border); border-radius: 10px;
+    padding: 11px 14px; font-size: 13.5px; font-family: inherit; color: var(--text);
+    background: #F9F9FB; outline: none;
+}
+.field input[readonly] { color: var(--text-soft); }
+
+.row-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.row-sub { font-size: 13.5px; color: var(--text-soft); }
+.row-sub b { color: var(--text); font-weight: 700; }
+.divider { height: 1px; background: var(--card-border); margin: 20px 0; }
+
+.acct-btn { display: inline-block; padding: 11px 20px; }
+.btn-danger-outline { background: #fff; color: var(--red); border: 1px solid #F3D3D1; }
+.btn-danger-outline:hover { background: #FFF5F4; }
+
+/* ───── 알림 스위치 ───── */
+.toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; margin: 0; }
+.toggle-row + .toggle-row { border-top: 1px solid var(--card-border); }
+.toggle-label { font-size: 13.5px; font-weight: 700; }
+.toggle-desc { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
+.switch {
+    width: 40px; height: 22px; border-radius: 12px; background: var(--card-border);
+    position: relative; flex-shrink: 0; cursor: pointer; border: none; padding: 0; transition: background .2s;
+}
+.switch.on { background: var(--purple2); }
+.switch::after {
+    content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px;
+    border-radius: 50%; background: #fff; transition: left .2s; box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
+}
+.switch.on::after { left: 20px; }
+
+/* ───── 위험 구역 ───── */
+.danger-zone { border-color: #F3D3D1; }
+.danger-zone .acct-card-head { border-bottom-color: #F3D3D1; background: #FFF9F8; }
+.danger-zone .acct-card-head h3 { color: var(--red); }
+.withdraw-actions { display: flex; gap: 8px; align-items: center; }
+.withdraw-pass {
+    width: 150px; border: 1px solid var(--card-border); border-radius: 10px;
+    padding: 10px 12px; font-size: 13px; font-family: inherit; background: #F9F9FB; outline: none;
+}
+.withdraw-pass:focus { border-color: var(--red); background: #fff; }
+
+/* ───── 사이드바 ───── */
+.settings-list { list-style: none; margin: 0; padding: 0; }
+.settings-list li { border-bottom: 1px solid var(--card-border); }
+.settings-list li:last-child { border-bottom: none; }
+.settings-list li a {
+    display: flex; align-items: center; gap: 10px; padding: 10px 0;
+    font-size: 13px; font-weight: 700; color: var(--text-soft);
+}
+.settings-list li a:hover, .settings-list li.active a { color: var(--purple2); }
+.settings-list .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .5; flex-shrink: 0; }
+.info-box { background: var(--lav-bg); border-radius: 10px; padding: 14px; font-size: 12px; color: #4A4A5C; line-height: 1.6; }
+.info-box a { color: var(--purple2); }
+
+@media (max-width: 860px) {
+    .withdraw-actions { width: 100%; }
+    .withdraw-pass { flex: 1; }
+}

@@ -20,6 +20,8 @@
     String sessionRole = (String) session.getAttribute("role");
 
     boolean isOwnerOrAdmin = (sessionUserId != null && (sessionUserId.equals(board.getWriterId()) || "ADMIN".equals(sessionRole))) || (board.getWriterId() == null);
+    // 공지사항 글은 자유게시판 경로로 들어와도 관리자만 삭제 가능
+    if ("NOTICE".equals(board.getCategory()) && !"ADMIN".equals(sessionRole)) isOwnerOrAdmin = false;
     if (!isOwnerOrAdmin) {
         out.println("<script>alert('삭제 권한이 없습니다.'); history.go(-1);</script>");
         return;

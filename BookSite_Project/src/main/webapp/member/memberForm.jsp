@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <title>회원가입 - 자취의 품격</title>
-    <link rel="stylesheet" href="../css/index.css">
     <link rel="stylesheet" href="../css/member.css">
     
     <script>
@@ -33,10 +32,23 @@
             return;
         }
 
+        var nickname = document.member_form.nickname.value.trim();
+        if (nickname.length < 2) {
+            alert("닉네임을 2자 이상 입력하세요!");
+            document.member_form.nickname.focus();
+            return;
+        }
+
         if (document.member_form.pass.value != document.member_form.pass_confirm.value) {
             alert("비밀번호가 일치하지 않습니다.\n다시 입력해 주세요!");
             document.member_form.pass.focus();
             document.member_form.pass.select();
+            return;
+        }
+        var email = document.member_form.email.value.trim();
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            alert("이메일 형식이 올바르지 않습니다.\n예) example@email.com");
+            document.member_form.email.focus();
             return;
         }
 
@@ -60,7 +72,52 @@
         window.open("memberCheckId.jsp?id=" + document.member_form.id.value,
                     "IDcheck",
                     "left=700,top=300,width=350,height=200,scrollbars=no,resizable=yes");
-    }   
+    }
+    function reset_form() {
+        document.member_form.id.value = "";  
+        document.member_form.pass.value = "";
+        document.member_form.pass_confirm.value = "";
+        document.member_form.name.value = "";
+        document.member_form.email.value = "";
+        document.member_form.id.focus();
+    }
+    function reset_form() {
+        document.member_form.id.value = "";  
+        document.member_form.pass.value = "";
+        document.member_form.pass_confirm.value = "";
+        document.member_form.name.value = "";
+        document.member_form.nickname.value = "";
+        document.member_form.email.value = "";
+        document.member_form.id.focus();
+    }
+    // 전화번호 입력 시 하이픈 자동 입력 (02 지역번호도 처리)
+    function formatPhone(input) {
+        var d = input.value.replace(/[^0-9]/g, "").substring(0, 11);
+        var out;
+        if (d.indexOf("02") === 0) {
+            if (d.length <= 2) out = d;
+            else if (d.length <= 5) out = d.substring(0, 2) + "-" + d.substring(2);
+            else if (d.length <= 9) out = d.substring(0, 2) + "-" + d.substring(2, 5) + "-" + d.substring(5);
+            else out = d.substring(0, 2) + "-" + d.substring(2, 6) + "-" + d.substring(6, 10);
+        } else {
+            if (d.length <= 3) out = d;
+            else if (d.length <= 6) out = d.substring(0, 3) + "-" + d.substring(3);
+            else if (d.length <= 10) out = d.substring(0, 3) + "-" + d.substring(3, 6) + "-" + d.substring(6);
+            else out = d.substring(0, 3) + "-" + d.substring(3, 7) + "-" + d.substring(7);
+        }
+        input.value = out;
+    }
+    // 전화번호는 선택 사항: 입력한 경우에만 형식 검사
+    var phone = document.member_form.phone.value.replace(/[^0-9]/g, "");
+    if (phone) {
+        var ok = phone.indexOf("02") === 0 ? (phone.length === 9 || phone.length === 10)
+                                           : (/^0\d+$/.test(phone) && (phone.length === 10 || phone.length === 11));
+        if (!ok) {
+            alert("전화번호 형식이 올바르지 않습니다.\n예) 010-1234-5678");
+            document.member_form.phone.focus();
+            return;
+        }
+    }
     </script>
 </head>
 <body>
@@ -95,7 +152,22 @@
                         <label for="name">이름</label>
                         <input type="text" id="name" name="name" placeholder="이름 입력">
                     </div>
-
+                    
+                    <div class="form-group">
+                        <label for="nickname">닉네임</label>
+                        <input type="text" id="nickname" name="nickname" maxlength="50" placeholder="게시판에 표시될 이름 (2자 이상)">
+                    </div>
+                    
+                     <div class="form-group">
+                        <label for="email">이메일 <span class="label-optional">(선택)</span></label>
+                        <input type="email" id="email" name="email" maxlength="100" placeholder="example@email.com">
+                    </div>
+                    
+                                       <div class="form-group">
+                        <label for="phone">전화번호 <span class="label-optional">(선택)</span></label>
+                        <input type="tel" id="phone" name="phone" maxlength="13" placeholder="010-1234-5678" oninput="formatPhone(this)">
+                    </div>
+                    
                     <div class="button-group">
                         <button type="button" class="btn-submit" onclick="check_input()">가입하기</button>
                         <button type="button" class="btn-reset" onclick="reset_form()">초기화</button>

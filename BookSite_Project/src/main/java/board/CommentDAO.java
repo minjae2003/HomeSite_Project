@@ -38,9 +38,13 @@ public class CommentDAO {
             pstmt.executeUpdate();
         } catch (Exception ex) {
             ex.printStackTrace();
+            return;
         } finally {
             close(conn, pstmt, null);
         }
+        // 글 작성자에게 댓글 알림 (본인 글이면 생성되지 않음)
+        notification.NotificationDAO.getInstance()
+        .notifyComment(comment.getBoardNum(), comment.getWriterId(), comment.getWriterNickname(), comment.getContent());
     }
 
     // 2. 댓글 목록 조회

@@ -26,13 +26,15 @@ public class MemberDAO {
 
         try {
             conn = getConnection();
-            String sql = "INSERT INTO MEMBER (id, password, name, nickname, email, auth_status, role) VALUES (?, ?, ?, ?, ?, 'Y', 'USER')";
+            String sql = "INSERT INTO MEMBER (id, password, name, nickname, email, phone, auth_status, role) VALUES (?, ?, ?, ?, ?, ?, 'Y', 'USER')";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, member.getId());
             pstmt.setString(2, member.getPassword() != null ? member.getPassword() : member.getPass());
             pstmt.setString(3, member.getName());
             pstmt.setString(4, (member.getNickname() != null && !member.getNickname().isEmpty()) ? member.getNickname() : member.getName());
             pstmt.setString(5, member.getEmail() != null ? member.getEmail() : "");
+            // 전화번호는 선택 사항: 입력하지 않았으면 NULL로 저장
+            pstmt.setString(6, (member.getPhone() != null && !member.getPhone().isEmpty()) ? member.getPhone() : null);
             pstmt.executeUpdate();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -128,6 +130,10 @@ public class MemberDAO {
                 vo.setEmail(rs.getString("email"));
                 vo.setRole(rs.getString("role"));
                 vo.setRegDate(rs.getTimestamp("reg_date"));
+                vo.setEmail(rs.getString("email"));
+                try { vo.setPhone(rs.getString("phone")); } catch (Exception e) {}
+                try { vo.setPwChangedAt(rs.getTimestamp("pw_changed_at")); } catch (Exception e) {}
+                try { vo.setInfoChangedAt(rs.getTimestamp("info_changed_at")); } catch (Exception e) {}
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -135,6 +141,100 @@ public class MemberDAO {
             close(conn, pstmt, rs);
         }
         return vo;
+    }
+    // 5-1. 회원 정보 수정 (닉네임/이름/이메일, 새 비밀번호가 있으면 비밀번호도 변경)
+    public boolean updateMember(MemberVO member, String newPassword) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        boolean changePw = newPassword != null && !newPassword.isEmpty();
+
+        try {
+            conn = getConnection();
+            String sql = changePw
+            		? "UPDATE MEMBER SET nickname = ?, name = ?, email = ?, password = ?, info_changed_at = NOW(), pw_changed_at = NOW() WHERE id = ?"
+                            : "UPDATE MEMBER SET nickname = ?, name = ?, email = ?, info_changed_at = NOW() WHERE id = ?";
+            pstmt = conn.prepareStatement(sql);
+            int idx = 1;
+            pstmt.setString(idx++, member.getNickname());
+            pstmt.setString(idx++, member.getName());
+            pstmt.setString(idx++, member.getEmail());
+            if (changePw) pstmt.setString(idx++, newPassword);
+            pstmt.setString(idx, member.getId());
+            return pstmt.executeUpdate() == 1;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            close(conn, pstmt, null);
+        }
+        return false;
+    }
+    public boolean updateNickname(String id, String nickname) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = getConnection();
+            pstmt = conn.prepareStatement("UPDATE MEMBER SET nickname = ?, info_changed_at = NOW() WHERE id = ?");
+            pstmt.setString(1, nickname);
+            pstmt.setString(2, id);
+            return pstmt.executeUpdate() == 1;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            close(conn, pstmt, null);
+        }
+        return false;
+    }
+    // 5-2. 회원 탈퇴
+    //  - 내가 추천했던 다른 사람 글의 추천 수를 먼저 1씩 줄이고
+    //  - MEMBER 삭제 → 내 글/댓글/추천/알림/체크리스트는 FK(ON DELETE CASCADE)로 함께 삭제
+    //  - 성공하면 서버에서 지워야 할 첨부파일 이름 목록을 돌려줌 (실패 시 null)
+    public java.util.List<String> deleteMember(String id) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        java.util.List<String> savedNames = new java.util.ArrayList<String>();
+
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false);
+
+            // 1) 내 글에 붙은 첨부파일 이름 (DB 행은 CASCADE로 지워지지만 실제 파일은 직접 지워야 함)
+            pstmt = conn.prepareStatement(
+                "SELECT f.saved_name FROM BOARD_FILE f JOIN BOARD b ON b.num = f.board_num WHERE b.writer_id = ?");
+            pstmt.setString(1, id);
+            rs = pstmt.executeQuery();
+            while (rs.next()) savedNames.add(rs.getString(1));
+            rs.close(); rs = null;
+            pstmt.close();
+
+            // 2) 내가 추천한 (다른 사람) 글의 추천 수 감소
+            pstmt = conn.prepareStatement(
+                "UPDATE BOARD SET like_count = GREATEST(0, IFNULL(like_count, 0) - 1) "
+              + "WHERE num IN (SELECT board_num FROM BOARD_LIKE WHERE user_id = ?) AND (writer_id IS NULL OR writer_id <> ?)");
+            pstmt.setString(1, id);
+            pstmt.setString(2, id);
+            pstmt.executeUpdate();
+            pstmt.close();
+
+            // 3) 회원 삭제 (연결된 데이터는 FK CASCADE로 함께 삭제)
+            pstmt = conn.prepareStatement("DELETE FROM MEMBER WHERE id = ?");
+            pstmt.setString(1, id);
+            int deleted = pstmt.executeUpdate();
+
+            if (deleted != 1) {
+                conn.rollback();
+                return null;
+            }
+            conn.commit();
+            return savedNames;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            try { if (conn != null) conn.rollback(); } catch (Exception e) {}
+            return null;
+        } finally {
+            try { if (conn != null) conn.setAutoCommit(true); } catch (Exception e) {}
+            close(conn, pstmt, rs);
+        }
     }
     // 5. 전체 회원 수 조회
     public int getMemberCount() {

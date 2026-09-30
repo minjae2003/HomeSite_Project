@@ -115,7 +115,7 @@
                 </div>
 
                 <!-- 요리레시피 카드 (DB 연동) -->
-                <div class="board-card" onclick="location.href='../recipe/list.jsp'">
+                <div class="board-card" onclick="location.href='../freeboard/list.jsp?category=RECIPE'">
                     <div class="card-header">
                         <div class="card-icon">🍳</div>
                         <div class="card-title">요리레시피</div>
@@ -132,7 +132,7 @@
                                 for (board.BoardVO item : recipeList) {
                         %>
                             <li>
-                                <a href="../recipe/content.jsp?num=<%= item.getNum() %>" onclick="event.stopPropagation();">
+                                <a href="../freeboard/content.jsp?num=<%= item.getNum() %>&category=RECIPE" onclick="event.stopPropagation();">
                                     <%= item.getSubject() %>
                                 </a>
                             </li>

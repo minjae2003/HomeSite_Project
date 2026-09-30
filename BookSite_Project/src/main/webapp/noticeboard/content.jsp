@@ -45,7 +45,8 @@
     boolean isLiked = dao.hasUserLiked(num, sessionUserId);
     boolean isFixed = "FIX".equals(article.getNoticeType());
 
-    boolean canManage = (sessionUserId != null && sessionUserId.equals(article.getWriterId())) || "ADMIN".equals(sessionRole);
+    // 공지사항 수정/삭제 버튼은 관리자에게만 표시
+    boolean canManage = "ADMIN".equals(sessionRole);
 
     CommentDAO commentDao = CommentDAO.getInstance();
     List<CommentVO> commentList = commentDao.getComments(num);

@@ -21,8 +21,8 @@
     String sessionUserId = (String) session.getAttribute("id");
     String sessionRole = (String) session.getAttribute("role");
 
-    boolean isOwnerOrAdmin = (sessionUserId != null && (sessionUserId.equals(board.getWriterId()) || "ADMIN".equals(sessionRole))) || (board.getWriterId() == null);
-    if (!isOwnerOrAdmin) {
+    // 공지사항은 관리자만 수정 가능
+    if (!"ADMIN".equals(sessionRole)) {
         out.println("<script>alert('수정 권한이 없습니다.'); history.go(-1);</script>");
         return;
     }
@@ -47,15 +47,10 @@
 
         <div class="form-group">
             <label>공지 유형</label>
-            <% if ("ADMIN".equals(sessionRole)) { %>
             <div class="notice-type-group">
                 <label><input type="radio" name="noticeType" value="NORMAL" <%= !"FIX".equals(board.getNoticeType()) ? "checked" : "" %>> 📝 일반공지</label>
                 <label><input type="radio" name="noticeType" value="FIX" <%= "FIX".equals(board.getNoticeType()) ? "checked" : "" %>> 📌 고정공지</label>
             </div>
-            <% } else { %>
-                <input type="hidden" name="noticeType" value="<%= board.getNoticeType() %>">
-                <span><%= "FIX".equals(board.getNoticeType()) ? "📌 고정공지" : "📝 일반공지" %> (관리자만 변경 가능)</span>
-            <% } %>
         </div>
 
         <div class="form-group">

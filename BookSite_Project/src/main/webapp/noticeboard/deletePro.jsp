@@ -19,8 +19,8 @@
     String sessionUserId = (String) session.getAttribute("id");
     String sessionRole = (String) session.getAttribute("role");
 
-    boolean isOwnerOrAdmin = (sessionUserId != null && (sessionUserId.equals(board.getWriterId()) || "ADMIN".equals(sessionRole))) || (board.getWriterId() == null);
-    if (!isOwnerOrAdmin) {
+    // 공지사항은 관리자만 삭제 가능
+    if (!"ADMIN".equals(sessionRole)) {
         out.println("<script>alert('삭제 권한이 없습니다.'); history.go(-1);</script>");
         return;
     }

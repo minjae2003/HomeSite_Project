@@ -1,0 +1,80 @@
+@charset "UTF-8";
+
+/* 프로필 편집 페이지 전용 (mypage/profileEdit.jsp)
+   공통 변수·버튼·그리드·사이드블록은 index.css를 함께 사용 */
+
+/* ───── 상단 ───── */
+.pf-head { padding: 2px 0 6px; }
+.breadcrumb { font-size: 12.5px; color: var(--text-soft); margin-bottom: 8px; }
+.breadcrumb a:hover { color: var(--purple2); }
+.breadcrumb b { color: var(--text); font-weight: 700; }
+.pf-head .page-title { font-size: 22px; margin: 0; }
+.pf-grid { padding-top: 20px; padding-bottom: 60px; align-items: start; }
+
+/* ───── 카드 ───── */
+.pf-card { background: #fff; border: 1px solid var(--card-border); border-radius: 14px; margin-bottom: 20px; overflow: hidden; }
+.pf-card-head { padding: 18px 22px; border-bottom: 1px solid var(--card-border); }
+.pf-card-head h3 { font-size: 15px; font-weight: 800; margin: 0; }
+.pf-card-head p { font-size: 12.5px; color: var(--text-soft); margin: 4px 0 0; }
+.pf-card-body { padding: 22px; }
+
+.field { margin-bottom: 20px; }
+.field:last-child { margin-bottom: 0; }
+.field > label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.field .hint { font-size: 11.5px; color: var(--text-soft); font-weight: 400; margin-left: 4px; }
+.field input[type=text], .field textarea, .field select {
+    width: 100%; border: 1px solid var(--card-border); border-radius: 10px;
+    padding: 11px 14px; font-size: 13.5px; font-family: inherit; color: var(--text);
+    background: #F9F9FB; outline: none;
+}
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--purple2); background: #fff; }
+.field textarea { resize: vertical; min-height: 70px; }
+.char-count { text-align: right; font-size: 11px; color: var(--text-soft); margin-top: 4px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.field-row .field { margin-bottom: 0; }
+
+.pf-btn { display: inline-block; padding: 11px 20px; }
+
+/* ───── 프로필 사진 ───── */
+.photo-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.avatar-box {
+    border-radius: 50%; flex-shrink: 0; overflow: hidden;
+    background: linear-gradient(135deg, var(--purple1), var(--purple2));
+    display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800;
+}
+.avatar-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-preview { width: 72px; height: 72px; font-size: 26px; }
+.photo-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ───── 관심 태그 (체크박스를 칩 모양으로) ───── */
+.tag-select { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag-choice { cursor: pointer; }
+.tag-choice input { position: absolute; opacity: 0; pointer-events: none; }
+.tag-choice span {
+    display: inline-block; font-size: 12.5px; font-weight: 700; padding: 8px 14px; border-radius: 16px;
+    background: #F9F9FB; color: var(--text-soft); border: 1px solid var(--card-border); transition: all .15s;
+}
+.tag-choice:hover span { border-color: var(--lav-border); }
+.tag-choice input:checked + span { background: var(--lav-bg); color: #5C5CB0; border-color: var(--lav-border); }
+.tag-choice input:focus-visible + span { outline: 2px solid var(--purple2); outline-offset: 2px; }
+
+.pf-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 0; }
+.pf-actions .btn { flex: 0 0 auto; }   /* index.css의 .form-actions .btn { flex:1 } 덮어쓰기 */
+
+/* ───── 사이드바 미리보기 ───── */
+.preview-card { text-align: center; padding: 6px 0 4px; }
+.preview-avatar { width: 68px; height: 68px; margin: 0 auto 12px; font-size: 24px; }
+.preview-name { font-size: 15.5px; font-weight: 800; margin-bottom: 4px; word-break: break-all; }
+.preview-badge { display: inline-block; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 12px; background: var(--lav-bg); color: #5C5CB0; margin-bottom: 8px; }
+.preview-meta { font-size: 12px; color: var(--text-soft); margin: 0 0 6px; min-height: 0; }
+.preview-meta:empty { display: none; }
+.preview-bio { font-size: 12.5px; color: var(--text-soft); line-height: 1.5; margin: 0; word-break: break-all; }
+
+.tips-list { list-style: none; margin: 0; padding: 0; }
+.tips-list li { display: flex; gap: 8px; font-size: 12.5px; color: var(--text-soft); padding: 6px 0; }
+.tips-list li::before { content: "✓"; color: var(--purple2); font-weight: 800; flex-shrink: 0; }
+
+@media (max-width: 860px) {
+    .field-row { grid-template-columns: 1fr; gap: 0; }
+    .field-row .field { margin-bottom: 20px; }
+}

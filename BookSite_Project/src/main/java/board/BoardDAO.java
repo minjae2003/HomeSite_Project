@@ -40,8 +40,8 @@ public class BoardDAO {
             if (filter) {
                 sql += " WHERE board_type = ?";
             } else if (freeboardScoped) {
-                // 자유게시판(FREE/TIP/QNA) 전용 전체보기/인기글 - 공지사항, 요리레시피 등 다른 게시판 글은 제외
-                sql += " WHERE board_type IN ('FREE', 'TIP', 'QNA')";
+                // 자유게시판(FREE/TIP/QNA/RECIPE) 전용 전체보기/인기글 - 공지사항 등 다른 게시판 글은 제외
+                sql += " WHERE board_type IN ('FREE', 'TIP', 'QNA', 'RECIPE')";
             } else {
                 // 전체/인기글 탭에는 공지사항(NOTICE)이 섞여 나오지 않도록 제외
                 sql += " WHERE board_type <> 'NOTICE'";
@@ -84,7 +84,7 @@ public class BoardDAO {
             if (filter) {
                 sql += " WHERE board_type = ? AND (subject LIKE ? OR content LIKE ?)";
             } else if (freeboardScoped) {
-                sql += " WHERE board_type IN ('FREE', 'TIP', 'QNA') AND (subject LIKE ? OR content LIKE ?)";
+                sql += " WHERE board_type IN ('FREE', 'TIP', 'QNA', 'RECIPE') AND (subject LIKE ? OR content LIKE ?)";
             } else {
                 sql += " WHERE board_type <> 'NOTICE' AND (subject LIKE ? OR content LIKE ?)";
             }
@@ -128,8 +128,8 @@ public class BoardDAO {
             if (filter) {
                 sql += " WHERE b.board_type = ?";
             } else if (freeboardScoped) {
-                // 자유게시판(FREE/TIP/QNA) 전용 전체보기/인기글 - 공지사항, 요리레시피 등 다른 게시판 글은 제외
-                sql += " WHERE b.board_type IN ('FREE', 'TIP', 'QNA')";
+                // 자유게시판(FREE/TIP/QNA/RECIPE) 전용 전체보기/인기글 - 공지사항 등 다른 게시판 글은 제외
+                sql += " WHERE b.board_type IN ('FREE', 'TIP', 'QNA', 'RECIPE')";
             } else {
                 // 전체/인기글 탭에는 공지사항(NOTICE)이 섞여 나오지 않도록 제외
                 sql += " WHERE b.board_type <> 'NOTICE'";
@@ -200,7 +200,7 @@ public class BoardDAO {
             if (filter) {
                 sql += " WHERE b.board_type = ? AND (b.subject LIKE ? OR b.content LIKE ?)";
             } else if (freeboardScoped) {
-                sql += " WHERE b.board_type IN ('FREE', 'TIP', 'QNA') AND (b.subject LIKE ? OR b.content LIKE ?)";
+                sql += " WHERE b.board_type IN ('FREE', 'TIP', 'QNA', 'RECIPE') AND (b.subject LIKE ? OR b.content LIKE ?)";
             } else {
                 sql += " WHERE b.board_type <> 'NOTICE' AND (b.subject LIKE ? OR b.content LIKE ?)";
             }
@@ -408,6 +408,10 @@ public class BoardDAO {
             ex.printStackTrace();
         } finally {
             close(conn, pstmt, null);
+        }
+        // 추천했을 때만 글 작성자에게 알림 (같은 사람의 같은 글 추천 알림은 1번만)
+        if (isLikedNow) {
+            notification.NotificationDAO.getInstance().notifyLike(boardNum, userId, null);
         }
         return isLikedNow;
     }
@@ -654,6 +658,11 @@ public class BoardDAO {
             ex.printStackTrace();
         } finally {
             close(conn, pstmt, rs);
+        }
+        // 새 공지사항 → 작성자를 제외한 전체 회원에게 알림
+        if (generatedNum > 0) {
+            notification.NotificationDAO.getInstance()
+            .notifyNotice(generatedNum, article.getWriterId(), article.getWriterNickname(), article.getContent());
         }
         return generatedNum;
     }

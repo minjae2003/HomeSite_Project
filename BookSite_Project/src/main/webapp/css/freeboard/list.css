@@ -155,6 +155,11 @@ a {
 	color: #e65100;
 }
 
+.cat-badge.RECIPE {
+	background: #f3e5f5;
+	color: #7b1fa2;
+}
+
 .cat-badge.NOTICE {
 	background: #ffebee;
 	color: #c62828;

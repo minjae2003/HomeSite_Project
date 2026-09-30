@@ -11,11 +11,16 @@ String sessionUserNick = (String) session.getAttribute("nickname");
 if (sessionUserNick == null)
 	sessionUserNick = (String) session.getAttribute("name");
 
-// 카테고리 파라미터 (ALL, BEST, FREE, TIP, QNA, NOTICE)
+// 카테고리 파라미터 (ALL, BEST, FREE, TIP, QNA, RECIPE)
+// 목록에 없는 값은 ALL로 처리 (화면에 그대로 출력되므로 임의 값 차단)
 String category = request.getParameter("category");
-if (category == null || category.trim().isEmpty()) {
+category = (category == null) ? "ALL" : category.trim().toUpperCase();
+if (!java.util.Arrays.asList("ALL", "BEST", "FREE", "TIP", "QNA", "RECIPE").contains(category)) {
 	category = "ALL";
 }
+// 글쓰기 버튼에 현재 카테고리를 넘겨서 해당 카테고리가 미리 선택되도록 함
+String writeQuery = java.util.Arrays.asList("FREE", "TIP", "QNA", "RECIPE").contains(category)
+		? "?category=" + category : "";
 // 검색어 파라미터
 String keyword = request.getParameter("keyword");
 if (keyword != null)
@@ -30,7 +35,7 @@ int currentPage = Integer.parseInt(pageNum);
 int startRow = (currentPage - 1) * pageSize;
 
 BoardDAO dao = BoardDAO.getInstance();
-// 자유게시판 목록은 "전체보기/인기글" 탭이라도 FREE/TIP/QNA만 보여야 함 (공지사항, 요리레시피 등 다른 게시판 글 제외)
+// 자유게시판 목록은 "전체보기/인기글" 탭이라도 FREE/TIP/QNA/RECIPE만 보여야 함 (공지사항 제외)
 // 탭 강조/링크에 쓰는 category 값(ALL/BEST)은 그대로 두고, DB 조회에만 다른 값을 넘긴다.
 String queryCategory = category;
 if ("ALL".equalsIgnoreCase(category))
@@ -77,7 +82,7 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 		<!-- 게시판 헤더 -->
 		<div class="board-header">
 			<h1 class="board-title">💭 자취/자유게시판</h1>
-			<p class="board-subtitle">자취생들과 다양한 소식, 고민, 꿀팁을 나누는 공간입니다.</p>
+			<p class="board-subtitle">자취생들과 다양한 소식, 고민, 꿀팁, 요리레시피를 나누는 공간입니다.</p>
 		</div>
 		<!-- 검색창 -->
 		<form class="search-box" action="list.jsp" method="get">
@@ -110,13 +115,15 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 				class="tab-item <%="QNA".equals(category) ? "active" : ""%>">❓
 				질문/답변</a> <a href="list.jsp?category=FREE<%=keywordQuery%>"
 				class="tab-item <%="FREE".equals(category) ? "active" : ""%>">🏫
-				일상/수다</a>
+				일상/수다</a> <a href="list.jsp?category=RECIPE<%=keywordQuery%>"
+				class="tab-item <%="RECIPE".equals(category) ? "active" : ""%>">🍳
+				요리레시피</a>
 		</div>
 
 		<div class="top-bar">
 			<span style="font-size: 14px; color: #666;"> 총 <b><%=totalCount%></b>개의
 				게시글 <%="BEST".equals(category) ? "(조회수 높은 순)" : ""%>
-			</span> <a href="writeForm.jsp" class="btn-write">✏️ 글쓰기</a>
+			</span> <a href="writeForm.jsp<%=writeQuery%>" class="btn-write">✏️ 글쓰기</a>
 		</div>
 
 		<div class="board-card">
@@ -147,6 +154,8 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 							catName = "꿀팁";
 						else if ("QNA".equals(catCode))
 							catName = "질문";
+						else if ("RECIPE".equals(catCode))
+							catName = "레시피";
 
 						String dateStr = article.getRegDate() != null ? sdf.format(article.getRegDate()) : "";
 					%>
@@ -208,7 +217,7 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 			<%
 			for (int i = startPage; i <= endPage; i++) {
 			%>
-			<a href="list.jsp?pageNum=<%=i%>&category=<%=category%>"
+			<a href="list.jsp?pageNum=<%=i%>&category=<%=category%><%=keywordQuery%>"
 				class="page-link <%=(i == currentPage) ? "active" : ""%>"><%=i%></a>
 			<%
 			}
@@ -217,7 +226,7 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 			<%
 			if (endPage < pageCount) {
 			%>
-			a href="list.jsp?pageNum=<%=startPage + pageBlock%>&category=<%=category%><%=keywordQuery%>"
+			<a href="list.jsp?pageNum=<%=startPage + pageBlock%>&category=<%=category%><%=keywordQuery%>"
 			class="page-link">다음</a>
 			<%
 			}
