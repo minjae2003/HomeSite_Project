@@ -67,6 +67,10 @@
         <label class="form-label" for="email">이메일</label>
         <input type="email" id="email" name="email" class="input-control" maxlength="100" placeholder="이메일 미설정시 계정 찾기가 불가능(현재 미설정)" value="<%= esc(member.getEmail()) %>">
       </div>
+      <div class="form-group">
+        <label class="form-label" for="phone">전화번호</label>
+        <input type="phone" id="phone" name="phone" class="input-control" maxlength="100" placeholder="새로운 전화 번호 입력" value="<%= esc(member.getEmail()) %>">
+      </div>
 
       <hr class="form-divider" id="password">
 
