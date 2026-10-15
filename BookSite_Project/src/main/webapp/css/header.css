@@ -1,3 +1,24 @@
+/* ── 헤더 공통 초기화: 페이지 CSS와 상관없이 같은 모양 유지 ── */
+header,
+header * {
+    box-sizing: border-box;
+}
+header {
+    font-family: 'Noto Sans KR', 'Malgun Gothic', -apple-system, sans-serif;
+    line-height: 1.5;
+}
+header ul,
+header li,
+header h1,
+header p,
+header form {
+    margin: 0;
+    padding: 0;
+}
+header ul {
+    list-style: none;
+}
+
 header {
     background: #ffffff;
     padding: 16px 10%;
@@ -19,7 +40,19 @@ header {
     gap: 8px; 
     white-space: nowrap; 
 }
-
+/* 로고 링크: 페이지 CSS와 상관없이 밑줄·파란색 없이 표시 */
+.logo a,
+.logo a:visited {
+    color: inherit;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.logo a:hover {
+    text-decoration: none;
+    opacity: .85;
+}
 nav ul { display: flex; flex-wrap: wrap; list-style: none; gap: 12px 24px; }
 nav a { font-weight: 700; font-size: 18px; color: #4b5563; text-align: center; display: block; transition: color 0.2s; text-decoration: none; }
 nav a:hover { color: #f97316; }
