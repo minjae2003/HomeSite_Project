@@ -32,7 +32,7 @@
     <section>
         <div id="main_content">
             <div id="login_box">
-                <form name="login_form" method="post" action="loginPro.jsp">    
+                <form name="login_form" method="post" action="loginPro.jsp"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">    
                     <h2>로그인</h2>    
                     <div class="form">
                         <input type="text" name="id" placeholder="아이디">

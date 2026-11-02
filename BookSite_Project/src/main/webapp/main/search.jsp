@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="util.HtmlUtil" %>
 <%@ page import="board.BoardDAO, board.BoardVO, java.util.List, java.text.SimpleDateFormat" %>
 
 <%
@@ -9,8 +10,8 @@
 
     int pageSize = 10;
     String pageNum = request.getParameter("pageNum");
-    if (pageNum == null) pageNum = "1";
-    int currentPage = Integer.parseInt(pageNum);
+    if (pageNum == null || !pageNum.matches("\\d{1,9}")) pageNum = "1";   // 숫자가 아니면 500 에러 대신 1페이지
+    int currentPage = Math.max(1, Integer.parseInt(pageNum));
     int startRow = (currentPage - 1) * pageSize;
 
     BoardDAO dao = BoardDAO.getInstance();
@@ -55,7 +56,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title><%= (keyword != null && !keyword.isEmpty()) ? ("'" + keyword + "' 검색결과") : "통합검색" %> - 자취의 품격</title>
+    <title><%= (keyword != null && !keyword.isEmpty()) ? ("'" + escapedKeyword + "' 검색결과") : "통합검색" %> - 자취의 품격</title>
     <link rel="stylesheet" href="../css/main/search.css">
 </head>
 <body>
@@ -91,7 +92,7 @@
                     %>
                     <li>
                         <span class="cat-badge NOTICE"><%= isFixed ? "📌 고정" : "일반" %></span>
-                        <a href="../noticeboard/content.jsp?num=<%= n.getNum() %>&category=ALL" class="subject-link"><%= n.getSubject() %></a>
+                        <a href="../noticeboard/content.jsp?num=<%= n.getNum() %>&category=ALL" class="subject-link"><%= HtmlUtil.esc(n.getSubject()) %></a>
                     </li>
                     <% } %>
                 </ul>
@@ -128,9 +129,9 @@
                         <tr>
                             <td>
                                 <span class="cat-badge <%= catCode %>"><%= catName %></span>
-                                <a href="<%= contentUrl %>" class="subject-link"><%= p.getSubject() %></a>
+                                <a href="<%= contentUrl %>" class="subject-link"><%= HtmlUtil.esc(p.getSubject()) %></a>
                             </td>
-                            <td><%= p.getWriterNickname() != null ? p.getWriterNickname() : p.getWriter() %></td>
+                            <td><%= HtmlUtil.esc(p.getWriterNickname() != null ? p.getWriterNickname() : p.getWriter()) %></td>
                             <td><%= dateStr %></td>
                             <td style="text-align: center;">👁️ <%= p.getReadcount() %></td>
                         </tr>

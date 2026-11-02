@@ -1,10 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="board.BoardDAO, board.BoardVO, board.CommentDAO, board.CommentVO, upload.BoardFileDAO, upload.BoardFileVO, java.util.List, java.text.SimpleDateFormat" %>
 <%!
+    // HTML 본문/속성 안에 안전하게 넣기 위한 이스케이프 (XSS 방지)
     private String escAttr(String s) {
         if (s == null) return "";
-        return s.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;");
+        return s.replace("&", "&amp;").replace("\"", "&quot;").replace("'", "&#39;")
+                .replace("<", "&lt;").replace(">", "&gt;");
     }
+    // 파일 크기를 KB/MB 단위로 보기 좋게 표시
     private String formatSize(long bytes) {
         if (bytes < 1024) return bytes + " B";
         if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
@@ -17,24 +20,28 @@
     String sessionUserId = (String) session.getAttribute("id");
     if (sessionUserId == null) sessionUserId = (String) session.getAttribute("userId");
     if (sessionUserId == null) sessionUserId = (String) session.getAttribute("memberId");
-    String sessionRole = (String) session.getAttribute("role");
+    boolean isAdminUser = "ADMIN".equals(session.getAttribute("role"));
 
     String numParam = request.getParameter("num");
     String pageNum = request.getParameter("pageNum");
     String category = request.getParameter("category");
 
-    if (pageNum == null) pageNum = "1";
-    if (category == null) category = "ALL";
+    // pageNum은 숫자만 허용 (링크/스크립트에 그대로 출력되므로 반사형 XSS 방지)
+    if (pageNum == null || !pageNum.matches("\\d{1,9}")) pageNum = "1";
+    // 목록으로 돌아갈 때 쓰는 카테고리 - 허용된 값만 사용 (링크에 그대로 출력되므로)
+    category = (category == null) ? "ALL" : category.trim().toUpperCase();
+    if (!java.util.Arrays.asList("ALL", "FIX", "NORMAL").contains(category)) category = "ALL";
 
-    if (numParam == null || numParam.trim().isEmpty()) {
+    // 글 번호도 숫자만 허용 (문자가 들어오면 500 에러 대신 목록으로)
+    if (numParam == null || !numParam.trim().matches("\\d{1,9}")) {
         response.sendRedirect("list.jsp");
         return;
     }
 
-    int num = Integer.parseInt(numParam);
+    int num = Integer.parseInt(numParam.trim());
 
     BoardDAO dao = BoardDAO.getInstance();
-    dao.updateReadcount(num);
+    dao.updateReadcount(num); // 조회수 증가
     BoardVO article = dao.getBoardDetail(num);
 
     if (article == null) {
@@ -46,8 +53,9 @@
     boolean isFixed = "FIX".equals(article.getNoticeType());
 
     // 공지사항 수정/삭제 버튼은 관리자에게만 표시
-    boolean canManage = "ADMIN".equals(sessionRole);
+    boolean canManage = isAdminUser;
 
+    // 댓글 목록 가져오기
     CommentDAO commentDao = CommentDAO.getInstance();
     List<CommentVO> commentList = commentDao.getComments(num);
 
@@ -55,7 +63,8 @@
     // 일반 문서(FILE 타입: hwp/pdf/워드/압축파일 등)는 본문 삽입 없이 별도 첨부파일 목록으로만 표시
     List<BoardFileVO> fileList = BoardFileDAO.getInstance().getFiles(num);
     List<BoardFileVO> docFiles = new java.util.ArrayList<BoardFileVO>();
-    String processedContent = article.getContent() != null ? article.getContent() : "";
+    // 본문은 먼저 이스케이프한 뒤 [img1] 같은 자리표시자만 태그로 바꿈 (저장형 XSS 방지)
+    String processedContent = escAttr(article.getContent());
     StringBuilder extraMedia = new StringBuilder();
     int imgIdx = 0, vidIdx = 0;
     for (BoardFileVO f : fileList) {
@@ -69,11 +78,11 @@
         if (f.isImage()) {
             imgIdx++;
             placeholder = "[img" + imgIdx + "]";
-            tag = "<img src=\"" + url + "\" alt=\"" + escAttr(f.getOriginalName()) + "\" class=\"post-media\">";
+            tag = "<img src=\"" + escAttr(url) + "\" alt=\"" + escAttr(f.getOriginalName()) + "\" class=\"post-media\">";
         } else {
             vidIdx++;
             placeholder = "[video" + vidIdx + "]";
-            tag = "<video src=\"" + url + "\" controls class=\"post-media\"></video>";
+            tag = "<video src=\"" + escAttr(url) + "\" controls class=\"post-media\"></video>";
         }
         if (processedContent.contains(placeholder)) {
             processedContent = processedContent.replace(placeholder, tag);
@@ -82,6 +91,7 @@
         }
     }
 
+    String articleWriter = article.getWriterNickname() != null ? article.getWriterNickname() : article.getWriter();
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm");
 %>
 
@@ -89,7 +99,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title><%= article.getSubject() %> - 자취의 품격</title>
+    <title><%= escAttr(article.getSubject()) %> - 자취의 품격</title>
     <link rel="stylesheet" href="../css/noticeboard/content.css">
 </head>
 <body>
@@ -97,11 +107,12 @@
 <jsp:include page="../module/header.jsp" flush="false"/>
 
 <div class="container">
+    <!-- 본문 카드 -->
     <div class="card">
         <span class="notice-badge <%= isFixed ? "FIX" : "NORMAL" %>"><%= isFixed ? "📌 고정공지" : "📝 일반공지" %></span>
-        <h1 class="post-title"><%= article.getSubject() %></h1>
+        <h1 class="post-title"><%= escAttr(article.getSubject()) %></h1>
         <div class="post-meta">
-            <span>작성자: <b><%= article.getWriterNickname() != null ? article.getWriterNickname() : article.getWriter() %></b></span>
+            <span>작성자: <b><%= escAttr(articleWriter) %></b></span>
             <span>작성일: <%= article.getRegDate() != null ? sdf.format(article.getRegDate()) : "" %></span>
             <span>조회수: <%= article.getReadcount() %></span>
         </div>
@@ -111,8 +122,8 @@
         <ul class="attach-list">
             <% for (BoardFileVO f : docFiles) { %>
             <li>
-                <a href="<%= request.getContextPath() + f.getWebPath() %>" download="<%= escAttr(f.getOriginalName()) %>">
-                    📎 <%= f.getOriginalName() %> <span class="attach-size">(<%= formatSize(f.getFileSize()) %>)</span>
+                <a href="<%= escAttr(request.getContextPath() + f.getWebPath()) %>" download="<%= escAttr(f.getOriginalName()) %>">
+                    📎 <%= escAttr(f.getOriginalName()) %> <span class="attach-size">(<%= formatSize(f.getFileSize()) %>)</span>
                 </a>
             </li>
             <% } %>
@@ -120,25 +131,40 @@
         <% } %>
 
         <div class="btn-box">
-            <button class="btn btn-like <%= isLiked ? "active" : "" %>" 
-                    onclick="location.href='likePro.jsp?num=<%= num %>&pageNum=<%= pageNum %>&category=<%= category %>'">
-                <%= isLiked ? "❤️ 추천취소" : "🤍 추천하기" %> <b><%= article.getLikeCount() %></b>
-            </button>
+            <!-- 추천 버튼 -->
+            <!-- 상태를 바꾸는 요청이라 GET 링크가 아닌 POST 폼 + CSRF 토큰으로 전송 -->
+            <form method="post" action="likePro.jsp" style="display:inline; margin:0;">
+                <input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
+                <input type="hidden" name="num" value="<%= num %>">
+                <input type="hidden" name="pageNum" value="<%= pageNum %>">
+                <input type="hidden" name="category" value="<%= category %>">
+                <button type="submit" class="btn btn-like <%= isLiked ? "active" : "" %>">
+                    <%= isLiked ? "❤️ 추천취소" : "🤍 추천하기" %> <b><%= article.getLikeCount() %></b>
+                </button>
+            </form>
 
             <div>
                 <% if (canManage) { %>
                     <button class="btn" style="background:#f1f5f9;" onclick="location.href='updateForm.jsp?num=<%= num %>&pageNum=<%= pageNum %>&category=<%= category %>'">수정</button>
-                    <button class="btn" style="background:#fee2e2; color:#dc2626;" onclick="if(confirm('정말 삭제하시겠습니까?')) location.href='deletePro.jsp?num=<%= num %>&pageNum=<%= pageNum %>&category=<%= category %>'">삭제</button>
+                    <form method="post" action="deletePro.jsp" style="display:inline; margin:0;"
+                          onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                        <input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
+                        <input type="hidden" name="num" value="<%= num %>">
+                        <input type="hidden" name="pageNum" value="<%= pageNum %>">
+                        <button type="submit" class="btn" style="background:#fee2e2; color:#dc2626;">삭제</button>
+                    </form>
                 <% } %>
                 <button class="btn btn-list" onclick="location.href='list.jsp?pageNum=<%= pageNum %>&category=<%= category %>'">목록</button>
             </div>
         </div>
     </div>
 
+    <!-- 댓글 카드 -->
     <div class="comment-section">
         <h3 class="comment-header">💬 댓글 <span>(<%= commentList.size() %>)</span></h3>
 
-        <form action="commentWritePro.jsp" method="post" class="comment-form">
+        <!-- 댓글 작성 폼 -->
+        <form action="commentWritePro.jsp" method="post" class="comment-form"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
             <input type="hidden" name="boardNum" value="<%= num %>">
             <input type="hidden" name="pageNum" value="<%= pageNum %>">
             <input type="hidden" name="category" value="<%= category %>">
@@ -146,29 +172,39 @@
             <button type="submit" class="btn-comment-submit" <%= sessionUserId == null ? "disabled" : "" %>>등록</button>
         </form>
 
+        <!-- 댓글 목록 -->
         <ul class="comment-list">
             <% if (commentList.isEmpty()) { %>
                 <li style="text-align: center; color: #94a3b8; padding: 20px 0; font-size: 14px;">첫 번째 댓글을 작성해 보세요!</li>
-            <% } else { 
-                for (CommentVO comment : commentList) { 
+            <% } else {
+                for (CommentVO comment : commentList) {
+                    String cWriter = comment.getWriterNickname() != null ? comment.getWriterNickname() : comment.getWriter();
+                    // 본인 댓글이거나 관리자면 삭제 버튼 표시 (실제 권한 확인은 commentDeletePro.jsp + DAO에서 다시 함)
+                    boolean canDeleteComment = sessionUserId != null
+                            && (sessionUserId.equals(comment.getWriterId()) || isAdminUser);
             %>
                 <li class="comment-item">
                     <div class="comment-top">
-                        <span class="comment-writer">
-                            <%= comment.getWriterNickname() != null ? comment.getWriterNickname() : comment.getWriter() %>
-                        </span>
+                        <span class="comment-writer"><%= escAttr(cWriter) %></span>
                         <div>
-                            <span class="comment-date"><%= sdf.format(comment.getRegDate()) %></span>
-                            <% if (sessionUserId != null && sessionUserId.equals(comment.getWriterId())) { %>
-                                <button class="btn-comment-del" onclick="if(confirm('댓글을 삭제하시겠습니까?')) location.href='commentDeletePro.jsp?commentNum=<%= comment.getCommentNum() %>&boardNum=<%= num %>&pageNum=<%= pageNum %>&category=<%= category %>'">삭제</button>
+                            <span class="comment-date"><%= comment.getRegDate() != null ? sdf.format(comment.getRegDate()) : "" %></span>
+                            <% if (canDeleteComment) { %>
+                                <form method="post" action="commentDeletePro.jsp" style="display:inline"
+                                      onsubmit="return confirm('댓글을 삭제하시겠습니까?');"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
+                                    <input type="hidden" name="commentNum" value="<%= comment.getCommentNum() %>">
+                                    <input type="hidden" name="boardNum" value="<%= num %>">
+                                    <input type="hidden" name="pageNum" value="<%= pageNum %>">
+                                    <input type="hidden" name="category" value="<%= category %>">
+                                    <button type="submit" class="btn-comment-del">삭제</button>
+                                </form>
                             <% } %>
                         </div>
                     </div>
-                    <div class="comment-text"><%= comment.getContent() %></div>
+                    <div class="comment-text"><%= escAttr(comment.getContent()) %></div>
                 </li>
-            <% 
-                } 
-            } 
+            <%
+                }   // for 끝
+            }       // else 끝
             %>
         </ul>
     </div>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    자취의 품격 - 배포 설정
+    metadata-complete="false" : @WebServlet / @WebFilter 어노테이션도 계속 사용
+-->
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0" metadata-complete="false">
+
+    <display-name>HomeSite_Project</display-name>
+
+    <!-- ===== 세션 / 쿠키 보안 ===== -->
+    <session-config>
+        <!-- 30분 동안 아무 요청이 없으면 로그아웃 -->
+        <session-timeout>30</session-timeout>
+        <cookie-config>
+            <!-- 자바스크립트(document.cookie)로 세션 쿠키를 읽지 못하게 → XSS가 생겨도 세션 탈취가 어려움 -->
+            <http-only>true</http-only>
+            <!-- HTTPS를 적용한 뒤에는 true로 바꿀 것 (HTTPS 연결에서만 쿠키 전송). HTTP 상태에서 true면 로그인이 안 됨 -->
+            <secure>false</secure>
+        </cookie-config>
+        <!-- 세션 ID를 URL(;jsessionid=...)에 붙이지 않고 쿠키로만 사용 → 주소 복사/Referer로 세션 ID가 새는 것 방지 -->
+        <tracking-mode>COOKIE</tracking-mode>
+    </session-config>
+
+    <!-- ===== 에러 페이지 =====
+         Tomcat 기본 에러 화면은 서버 버전과 스택 트레이스(코드 경로, 클래스 이름, SQL 등)를 보여주므로
+         모든 에러를 자체 페이지로 돌린다. 자세한 원인은 서버 로그에만 남는다. -->
+    <error-page>
+        <error-code>400</error-code>
+        <location>/error/error.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>403</error-code>
+        <location>/error/error.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/error/error.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>405</error-code>
+        <location>/error/error.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/error/error.jsp</location>
+    </error-page>
+    <error-page>
+        <exception-type>java.lang.Throwable</exception-type>
+        <location>/error/error.jsp</location>
+    </error-page>
+
+</web-app>

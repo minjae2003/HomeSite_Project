@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ page import="util.HtmlUtil" %>
 <%@ page
 	import="board.BoardDAO, board.BoardVO, java.util.List, java.text.SimpleDateFormat"%>
 
@@ -28,10 +29,10 @@ if (keyword != null)
 // 페이징 처리
 int pageSize = 10;
 String pageNum = request.getParameter("pageNum");
-if (pageNum == null)
+if (pageNum == null || !pageNum.matches("\\d{1,9}"))
 	pageNum = "1";
 
-int currentPage = Integer.parseInt(pageNum);
+int currentPage = Math.max(1, Integer.parseInt(pageNum));
 int startRow = (currentPage - 1) * pageSize;
 
 BoardDAO dao = BoardDAO.getInstance();
@@ -163,7 +164,7 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 						<td><span class="cat-badge <%=catCode%>"><%=catName%></span>
 							<a
 							href="content.jsp?num=<%=article.getNum()%>&pageNum=<%=pageNum%>&category=<%=category%><%=keywordQuery%>"
-							class="subject-link"> <%=article.getSubject()%>
+							class="subject-link"> <%=HtmlUtil.esc(article.getSubject())%>
 						</a> <!-- 댓글 수 표시 --> <%
  if (article.getCommentCount() > 0) {
  %> <span
@@ -178,7 +179,7 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 						</span> <%
  }
  %></td>
-						<td><%=article.getWriterNickname() != null ? article.getWriterNickname() : article.getWriter()%></td>
+						<td><%=HtmlUtil.esc(article.getWriterNickname() != null ? article.getWriterNickname() : article.getWriter())%></td>
 						<td><%=dateStr%></td>
 						<td style="text-align: center;"><span
 							class="<%="BEST".equals(category) ? "readcount-text" : ""%>">

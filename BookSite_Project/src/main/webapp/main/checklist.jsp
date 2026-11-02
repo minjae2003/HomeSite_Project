@@ -336,7 +336,10 @@
 
     fetch(SAVE_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        'X-CSRF-Token': '<%= util.CsrfUtil.token(session) %>'   // CSRF 토큰 (CsrfFilter에서 검사)
+      },
       body: body
     })
     .then(res => res.json().then(data => ({ status: res.status, data })))

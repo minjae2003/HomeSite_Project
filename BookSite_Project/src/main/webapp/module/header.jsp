@@ -64,7 +64,7 @@
                 <div class="notif-panel-head">
                     <h4>알림</h4>
                     <% if (hdrUnread > 0) { %>
-                    <form method="post" action="${pageContext.request.contextPath}/mypage/notiReadAll.jsp" style="margin:0;">
+                    <form method="post" action="${pageContext.request.contextPath}/mypage/notiReadAll.jsp" style="margin:0;"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
                         <input type="hidden" name="returnUrl" value="<%= hdrReturnUrl %>">
                         <button type="submit" class="notif-mark-read">모두 읽음 처리</button>
                     </form>
@@ -103,7 +103,7 @@
         <a href="${pageContext.request.contextPath}/member/memberForm.jsp" class="btn-auth btn-signup">회원가입</a>
     <% } else { %>
         <a href="${pageContext.request.contextPath}/member/LogoutPro.jsp" class="btn-auth btn-logout">로그아웃</a>
-        <a href="${pageContext.request.contextPath}/mypage/index.jsp" class="user-nickname"><strong><%= hdrNick %></strong> 님</a>
+        <a href="${pageContext.request.contextPath}/mypage/index.jsp" class="user-nickname"><strong><%= util.HtmlUtil.esc(hdrNick) %></strong> 님</a>
     <% } %>
     </div>
 </header>

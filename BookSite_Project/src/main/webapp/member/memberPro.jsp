@@ -1,9 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="member.MemberDAO" %>
+<%@ page import="member.MemberDAO, util.PasswordUtil" %>
 <%@ page import="member.MemberVO" %>
 
 <%
     request.setCharacterEncoding("UTF-8");
+
+    // 상태를 바꾸는 요청은 POST만 허용 (GET 링크/이미지 태그로 몰래 호출되는 것 방지, 토큰 검사는 CsrfFilter)
+    if (!"POST".equalsIgnoreCase(request.getMethod())) {
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+        return;
+    }
 
     try {
         String id = request.getParameter("id");
@@ -17,6 +23,12 @@
         }
         id = id.trim();
         name = name.trim();
+        // 비밀번호 규칙 (8자 이상, 영문+숫자, 아이디와 다르게)
+        String policyError = PasswordUtil.checkPolicy(pass, id);
+        if (policyError != null) {
+            out.println("<script>alert('" + policyError + "'); history.go(-1);</script>");
+            return;
+        }
         // 닉네임은 필수 (2~50자) - 비어 있으면 실명이 대신 저장되지 않도록 여기서 막음
         String nickname = request.getParameter("nickname");
         nickname = (nickname == null) ? "" : nickname.trim();

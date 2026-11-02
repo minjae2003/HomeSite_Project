@@ -15,7 +15,7 @@
 
     String error = null;
     List<String> found = null;
-    int locked = FindLimiter.lockedMinutes(session);
+    int locked = FindLimiter.lockedMinutes(request);
 
     if (submitted) {
         if (locked > 0) {
@@ -25,13 +25,13 @@
         } else {
             found = MemberDAO.getInstance().findIds(name, email);
             if (found.isEmpty()) {
-                int left = FindLimiter.fail(session);
+                int left = FindLimiter.fail(request);
                 error = left > 0
                     ? "일치하는 회원 정보가 없어요. (남은 시도 " + left + "회)"
                     : "확인에 여러 번 실패해서 10분 동안 찾기를 이용할 수 없어요.";
                 found = null;
             } else {
-                FindLimiter.success(session);
+                FindLimiter.success(request);
             }
         }
     }
@@ -75,7 +75,7 @@
                     <button type="button" class="btn-reset" onclick="location.href='findPw.jsp'">비밀번호 찾기</button>
                 </div>
                 <% } else { %>
-                <form name="find_form" method="post" action="findId.jsp" onsubmit="return checkFind(this);">
+                <form name="find_form" method="post" action="findId.jsp" onsubmit="return checkFind(this);"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
                     <p class="find-desc">회원가입 때 입력한 <b>이름</b>과 <b>이메일</b>을 입력해 주세요.</p>
 
                     <% if (error != null) { %><div class="find-error"><%= esc(error) %></div><% } %>

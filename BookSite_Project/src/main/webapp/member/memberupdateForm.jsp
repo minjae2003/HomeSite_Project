@@ -32,6 +32,9 @@
         if (!f.nickname.value.trim()) { alert('닉네임을 입력하세요.'); f.nickname.focus(); return false; }
         if (!f.name.value.trim()) { alert('이름을 입력하세요.'); f.name.focus(); return false; }
         if (!f.email.value.trim()) { alert('이메일을 입력하세요.'); f.email.focus(); return false; }
+        if (f.newPass.value && (f.newPass.value.length < 8 || !/[A-Za-z]/.test(f.newPass.value) || !/[0-9]/.test(f.newPass.value))) {
+            alert('새 비밀번호는 8자 이상, 영문과 숫자를 모두 포함해야 합니다.'); f.newPass.focus(); return false;
+        }
         if (f.newPass.value !== f.newPassConfirm.value) {
             alert('새 비밀번호가 서로 일치하지 않습니다.'); f.newPassConfirm.focus(); return false;
         }
@@ -49,7 +52,7 @@
     <h1 class="page-title">⚙️ 회원정보 수정</h1>
     <p class="page-sub" style="margin-bottom:22px;">닉네임·이름·이메일과 비밀번호를 변경할 수 있어요.</p>
 
-    <form method="post" action="memberUpdatePro.jsp" onsubmit="return checkForm(this);">
+    <form method="post" action="memberUpdatePro.jsp" onsubmit="return checkForm(this);"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
       <div class="form-group">
         <label class="form-label">아이디</label>
         <input type="text" class="input-control" value="<%= esc(member.getId()) %>" readonly>

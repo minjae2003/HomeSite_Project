@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="util.HtmlUtil" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -46,7 +47,7 @@
         %>
             <li>
                 <a href="../noticeboard/content.jsp?num=<%= item.getNum() %>" onclick="event.stopPropagation();">
-                    <%= isFixed ? "📌 " : "" %><%= item.getSubject() %>
+                    <%= isFixed ? "📌 " : "" %><%= HtmlUtil.esc(item.getSubject()) %>
                 </a>
             </li>
         <%
@@ -75,7 +76,7 @@
                         %>
                             <li>
                                 <a href="../freeboard/content.jsp?num=<%= item.getNum() %>" onclick="event.stopPropagation();">
-                                    <%= item.getSubject() %>
+                                    <%= HtmlUtil.esc(item.getSubject()) %>
                                 </a>
                             </li>
                         <%
@@ -104,7 +105,7 @@
                         %>
                             <li>
                                 <a href="../freeboard/content.jsp?num=<%= item.getNum() %>" onclick="event.stopPropagation();">
-                                    <%= item.getSubject() %>
+                                    <%= HtmlUtil.esc(item.getSubject()) %>
                                 </a>
                             </li>
                         <%
@@ -133,7 +134,7 @@
                         %>
                             <li>
                                 <a href="../freeboard/content.jsp?num=<%= item.getNum() %>&category=RECIPE" onclick="event.stopPropagation();">
-                                    <%= item.getSubject() %>
+                                    <%= HtmlUtil.esc(item.getSubject()) %>
                                 </a>
                             </li>
                         <%
@@ -184,12 +185,12 @@
                             <div class="post-title-group">
                                 <span class="post-icon"><%= icon %></span>
                                 <a href="../freeboard/content.jsp?num=<%= item.getNum() %>" class="post-title">
-                                    <%= item.getSubject() %>
+                                    <%= HtmlUtil.esc(item.getSubject()) %>
                                 </a>
                             </div>
                             <div class="post-author-group">
                                 <span class="author-avatar" style="background-color: <%= color %>;"></span>
-                                <span class="author-name"><%= item.getWriter() %></span>
+                                <span class="author-name"><%= HtmlUtil.esc(item.getWriter()) %></span>
                             </div>
                             <div class="post-stats">
                                 <span>조회 <strong><%= item.getReadcount() %></strong></span>
@@ -222,7 +223,7 @@
 <%
     } else {
 %>
-    <a href="../member/LogoutPro.jsp" class="btn btn-logout"><%= sessionName %>님<small>로그아웃</small></a>
+    <a href="../member/LogoutPro.jsp" class="btn btn-logout"><%= HtmlUtil.esc(sessionName) %>님<small>로그아웃</small></a>
 <%
     }
 %>

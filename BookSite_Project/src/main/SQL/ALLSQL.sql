@@ -137,4 +137,4 @@ ALTER TABLE MEMBER ADD COLUMN phone VARCHAR(20) NULL AFTER email;
 INSERT INTO MEMBER (id, password, name, nickname, email, auth_status, role)
 VALUES ('admin', 'admin1234', '관리자', '관리자', 'admin@example.com', 'Y', 'ADMIN');
 
-
+UPDATE BOARD SET writer_id = NULL WHERE num = 6;

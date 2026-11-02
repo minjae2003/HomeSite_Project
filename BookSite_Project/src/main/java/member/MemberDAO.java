@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
+import util.PasswordUtil;
 
 public class MemberDAO {
     private static MemberDAO instance = new MemberDAO();
@@ -29,7 +30,8 @@ public class MemberDAO {
             String sql = "INSERT INTO MEMBER (id, password, name, nickname, email, phone, auth_status, role) VALUES (?, ?, ?, ?, ?, ?, 'Y', 'USER')";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, member.getId());
-            pstmt.setString(2, member.getPassword() != null ? member.getPassword() : member.getPass());
+            // 비밀번호는 평문이 아니라 해시로 저장
+            pstmt.setString(2, PasswordUtil.hash(member.getPassword() != null ? member.getPassword() : member.getPass()));
             pstmt.setString(3, member.getName());
             pstmt.setString(4, (member.getNickname() != null && !member.getNickname().isEmpty()) ? member.getNickname() : member.getName());
             pstmt.setString(5, member.getEmail() != null ? member.getEmail() : "");
@@ -74,37 +76,96 @@ public class MemberDAO {
         return idCheck(id);
     }
 
-    // 3. 로그인 인증
+    // 3. 로그인 인증 (1 = 성공, 0 = 비밀번호 불일치, -1 = 회원 없음)
     public int userCheck(String id, String password) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         int x = -1;
+        String loginId = id != null ? id.trim() : "";
+        boolean needUpgrade = false;
 
         try {
             conn = getConnection();
             String sql = "SELECT password FROM MEMBER WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, id != null ? id.trim() : "");
+            pstmt.setString(1, loginId);
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
                 String dbPassword = rs.getString("password");
-                
-                if (dbPassword != null && password != null && dbPassword.trim().equals(password.trim())) {
-                    x = 1; // 로그인 성공
+
+                if (PasswordUtil.isHashed(dbPassword)) {
+                    // 해시로 저장된 계정
+                    x = PasswordUtil.verify(password, dbPassword) ? 1 : 0;
+                } else if (dbPassword != null && password != null
+                        && java.security.MessageDigest.isEqual(
+                            dbPassword.trim().getBytes("UTF-8"), password.trim().getBytes("UTF-8"))) {
+                    // 예전에 평문으로 저장된 계정 → 로그인 성공 시 해시로 바꿔서 다시 저장
+                    x = 1;
+                    needUpgrade = true;
                 } else {
                     x = 0; // 비밀번호 불일치
                 }
             } else {
                 x = -1; // 회원 없음
+                PasswordUtil.dummyVerify(password);   // 없는 아이디도 응답 시간을 비슷하게 (아이디 존재 여부 노출 방지)
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
             close(conn, pstmt, rs);
         }
+
+        if (needUpgrade) upgradePassword(loginId, password);
         return x;
+    }
+
+    /** 평문 비밀번호를 해시로 교체 (로그인 때 입력한 값 그대로 해시. pw_changed_at은 건드리지 않음 - 사용자가 바꾼 게 아니므로) */
+    private void upgradePassword(String id, String rawPassword) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = getConnection();
+            pstmt = conn.prepareStatement("UPDATE MEMBER SET password = ? WHERE id = ? AND password NOT LIKE 'pbkdf2$%'");
+            pstmt.setString(1, PasswordUtil.hash(rawPassword));
+            pstmt.setString(2, id);
+            pstmt.executeUpdate();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            close(conn, pstmt, null);
+        }
+    }
+
+    /** 아직 평문으로 남아 있는 비밀번호를 한 번에 해시로 변환 (배포 직후 관리자가 1회 실행) - 변환한 개수 반환 */
+    public int migratePlainPasswords() {
+        Connection conn = null;
+        PreparedStatement sel = null, upd = null;
+        ResultSet rs = null;
+        int count = 0;
+        try {
+            conn = getConnection();
+            sel = conn.prepareStatement("SELECT id, password FROM MEMBER WHERE password NOT LIKE 'pbkdf2$%'");
+            upd = conn.prepareStatement("UPDATE MEMBER SET password = ? WHERE id = ? AND password = ?");
+            rs = sel.executeQuery();
+            while (rs.next()) {
+                String id = rs.getString("id");
+                String plain = rs.getString("password");
+                if (plain == null) continue;
+                // 예전 로그인은 앞뒤 공백을 무시하고 비교했으므로 trim한 값으로 해시
+                upd.setString(1, PasswordUtil.hash(plain.trim()));
+                upd.setString(2, id);
+                upd.setString(3, plain);
+                count += upd.executeUpdate();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            if (upd != null) try { upd.close(); } catch (Exception e) {}
+            close(conn, sel, rs);
+        }
+        return count;
     }
 
     // 4. 회원 상세 정보 조회
@@ -195,7 +256,7 @@ public class MemberDAO {
         try {
             conn = getConnection();
             pstmt = conn.prepareStatement("UPDATE MEMBER SET password = ?, pw_changed_at = NOW() WHERE id = ?");
-            pstmt.setString(1, newPassword);
+            pstmt.setString(1, PasswordUtil.hash(newPassword));
             pstmt.setString(2, id);
             return pstmt.executeUpdate() == 1;
         } catch (Exception ex) {
@@ -225,7 +286,7 @@ public class MemberDAO {
             pstmt.setString(idx++, member.getNickname());
             pstmt.setString(idx++, member.getName());
             pstmt.setString(idx++, member.getEmail());
-            if (changePw) pstmt.setString(idx++, newPassword);
+            if (changePw) pstmt.setString(idx++, PasswordUtil.hash(newPassword));
             pstmt.setString(idx, member.getId());
             return pstmt.executeUpdate() == 1;
         } catch (Exception ex) {

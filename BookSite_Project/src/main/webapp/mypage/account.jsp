@@ -91,7 +91,7 @@
         </div>
         <div class="acct-card-body">
           <% for (int i = 0; i < settingRows.length; i++) { %>
-          <form method="post" action="notiSetting.jsp" class="toggle-row">
+          <form method="post" action="notiSetting.jsp" class="toggle-row"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
             <div>
               <div class="toggle-label"><%= settingRows[i][1] %></div>
               <div class="toggle-desc"><%= settingRows[i][2] %></div>
@@ -128,7 +128,7 @@
           </div>
           <% } else { %>
           <form method="post" action="withdrawPro.jsp"
-                onsubmit="return confirm('정말 탈퇴하시겠어요?\n작성한 글과 댓글이 모두 삭제되며 복구할 수 없어요.');">
+                onsubmit="return confirm('정말 탈퇴하시겠어요?\n작성한 글과 댓글이 모두 삭제되며 복구할 수 없어요.');"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
             <div class="row-between">
               <div>
                 <div class="toggle-label" style="color:var(--red);">회원 탈퇴</div>

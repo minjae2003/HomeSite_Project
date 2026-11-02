@@ -55,8 +55,8 @@
     <h1 class="page-title">프로필 편집</h1>
   </div>
 
-  <form method="post" action="${pageContext.request.contextPath}/mypage/profileSave" enctype="multipart/form-data"
-        id="profileForm" onsubmit="return checkProfile(this);">
+  <form method="post" action="${pageContext.request.contextPath}/mypage/profileSave?_csrf=<%= util.CsrfUtil.token(session) %>" enctype="multipart/form-data"
+        id="profileForm" onsubmit="return checkProfile(this);"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
   <input type="hidden" name="removePhoto" id="removePhoto" value="N">
 
   <div class="main-grid pf-grid">

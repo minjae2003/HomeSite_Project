@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="util.HtmlUtil" %>
 <%@ page import="board.BoardDAO, board.BoardVO, upload.BoardFileDAO, upload.BoardFileVO, java.util.List" %>
 
 <%
@@ -6,16 +7,23 @@
     String numStr = request.getParameter("num");
     String pageNum = request.getParameter("pageNum");
     String category = request.getParameter("category");
-    if (category == null) category = "ALL";
+    // 폼/버튼에 그대로 출력되므로 숫자/허용된 값만 사용
+    if (pageNum == null || !pageNum.matches("\\d{1,9}")) pageNum = "1";
+    category = (category == null) ? "ALL" : category.trim().toUpperCase();
+    if (!java.util.Arrays.asList("ALL", "FIX", "NORMAL").contains(category)) category = "ALL";
 
-    if (numStr == null || numStr.trim().isEmpty()) {
+    if (numStr == null || !numStr.trim().matches("\\d{1,9}")) {
         out.println("<script>alert('잘못된 접근입니다.'); history.go(-1);</script>");
         return;
     }
 
-    int num = Integer.parseInt(numStr);
+    int num = Integer.parseInt(numStr.trim());
     BoardDAO dao = BoardDAO.getInstance();
     BoardVO board = dao.getBoardDetail(num);
+    if (board == null) {
+        out.println("<script>alert('존재하지 않는 게시글입니다.'); location.href='list.jsp';</script>");
+        return;
+    }
     List<BoardFileVO> existingFiles = BoardFileDAO.getInstance().getFiles(num);
 
     String sessionUserId = (String) session.getAttribute("id");
@@ -39,7 +47,7 @@
 
 <div class="container">
     <h2>공지사항 수정</h2>
-    <form action="${pageContext.request.contextPath}/board/upload" method="post" enctype="multipart/form-data">
+    <form action="${pageContext.request.contextPath}/board/upload?_csrf=<%= util.CsrfUtil.token(session) %>" method="post" enctype="multipart/form-data"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
         <input type="hidden" name="num" value="<%= num %>">
         <input type="hidden" name="pageNum" value="<%= pageNum %>">
         <input type="hidden" name="category" value="<%= category %>">
@@ -55,12 +63,12 @@
 
         <div class="form-group">
             <label>제목</label>
-            <input type="text" name="subject" value="<%= board.getSubject() %>" required>
+            <input type="text" name="subject" value="<%= HtmlUtil.esc(board.getSubject()) %>" required>
         </div>
 
         <div class="form-group">
             <label>내용</label>
-            <textarea name="content" rows="12" required><%= board.getContent() %></textarea>
+            <textarea name="content" rows="12" required><%= HtmlUtil.esc(board.getContent()) %></textarea>
         </div>
 
         <% if (!existingFiles.isEmpty()) { %>
@@ -69,7 +77,7 @@
             <p style="font-size: 13px; color: #666; margin: 0;">
                 <% for (int i = 0; i < existingFiles.size(); i++) {
                        BoardFileVO f = existingFiles.get(i); %>
-                    <%= f.isImage() ? "🖼" : (f.isVideo() ? "🎬" : "📎") %> <%= f.getOriginalName() %><%= i < existingFiles.size() - 1 ? ", " : "" %>
+                    <%= f.isImage() ? "🖼" : (f.isVideo() ? "🎬" : "📎") %> <%= HtmlUtil.esc(f.getOriginalName()) %><%= i < existingFiles.size() - 1 ? ", " : "" %>
                 <% } %>
             </p>
         </div>

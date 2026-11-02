@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="member.MemberDAO, member.FindLimiter" %>
+<%@ page import="member.MemberDAO, member.FindLimiter, util.PasswordUtil" %>
 <%!
     private String esc(String s) {
         if (s == null) return "";
@@ -20,8 +20,9 @@
     if ("POST".equalsIgnoreCase(request.getMethod())) {
         String pass = request.getParameter("pass");
         String passConfirm = request.getParameter("pass_confirm");
-        if (pass == null || pass.length() < 4 || pass.length() > 100) {
-            error = "새 비밀번호는 4자 이상 입력해 주세요.";
+        String policyError = PasswordUtil.checkPolicy(pass, resetId);
+        if (policyError != null) {
+            error = policyError;
         } else if (!pass.equals(passConfirm)) {
             error = "새 비밀번호가 서로 일치하지 않아요.";
         } else if (MemberDAO.getInstance().resetPassword(resetId, pass)) {
@@ -51,7 +52,7 @@
             <div id="join_box">
                 <h2>새 비밀번호 설정</h2>
 
-                <form name="reset_form" method="post" action="resetPw.jsp" onsubmit="return checkReset(this);">
+                <form name="reset_form" method="post" action="resetPw.jsp" onsubmit="return checkReset(this);"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
                     <p class="find-desc"><b><%= esc(FindLimiter.mask(resetId)) %></b> 계정의 새 비밀번호를 입력해 주세요.<br>
                         10분 안에 변경을 완료해야 해요.</p>
 
@@ -59,7 +60,7 @@
 
                     <div class="form-group">
                         <label for="pass">새 비밀번호</label>
-                        <input type="password" id="pass" name="pass" maxlength="100" placeholder="4자 이상" autocomplete="new-password">
+                        <input type="password" id="pass" name="pass" maxlength="100" placeholder="8자 이상, 영문+숫자" autocomplete="new-password">
                     </div>
                     <div class="form-group">
                         <label for="pass_confirm">새 비밀번호 확인</label>
@@ -79,7 +80,9 @@
 
 <script>
 function checkReset(f) {
-    if (f.pass.value.length < 4) { alert("새 비밀번호는 4자 이상 입력하세요!"); f.pass.focus(); return false; }
+    if (f.pass.value.length < 8 || !/[A-Za-z]/.test(f.pass.value) || !/[0-9]/.test(f.pass.value)) {
+        alert("새 비밀번호는 8자 이상, 영문과 숫자를 모두 포함해야 합니다."); f.pass.focus(); return false;
+    }
     if (f.pass.value !== f.pass_confirm.value) {
         alert("새 비밀번호가 일치하지 않습니다.\n다시 입력해 주세요!");
         f.pass_confirm.focus(); return false;

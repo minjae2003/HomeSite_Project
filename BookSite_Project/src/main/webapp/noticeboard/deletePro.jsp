@@ -4,17 +4,29 @@
 <%
     request.setCharacterEncoding("UTF-8");
 
-    String numStr = request.getParameter("num");
-    String pageNum = request.getParameter("pageNum");
-
-    if (numStr == null || numStr.trim().isEmpty()) {
-        out.println("<script>alert('잘못된 접근입니다.'); history.go(-1);</script>");
+    // 상태를 바꾸는 요청은 POST만 허용 (GET 링크/이미지 태그로 몰래 호출되는 것 방지, 토큰 검사는 CsrfFilter)
+    if (!"POST".equalsIgnoreCase(request.getMethod())) {
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
         return;
     }
 
-    int num = Integer.parseInt(numStr);
+    String numStr = request.getParameter("num");
+    String pageNum = request.getParameter("pageNum");
+
+    // 글 번호는 숫자만, pageNum도 숫자만 허용 (문자가 오면 500 에러 / 스크립트 삽입 방지)
+    if (numStr == null || !numStr.trim().matches("\\d{1,9}")) {
+        out.println("<script>alert('잘못된 접근입니다.'); history.go(-1);</script>");
+        return;
+    }
+    if (pageNum == null || !pageNum.matches("\\d{1,9}")) pageNum = "1";
+
+    int num = Integer.parseInt(numStr.trim());
     BoardDAO dao = BoardDAO.getInstance();
     BoardVO board = dao.getBoardDetail(num);
+    if (board == null) {
+        out.println("<script>alert('존재하지 않는 게시글입니다.'); location.href='list.jsp';</script>");
+        return;
+    }
 
     String sessionUserId = (String) session.getAttribute("id");
     String sessionRole = (String) session.getAttribute("role");

@@ -67,7 +67,7 @@
     </div>
     <div class="page-head-actions">
       <a href="#notiSetting" class="btn btn-outline">알림 설정</a>
-      <form method="post" action="notiReadAll.jsp" style="margin:0;">
+      <form method="post" action="notiReadAll.jsp" style="margin:0;"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
         <input type="hidden" name="returnUrl" value="<%= esc(selfUrl) %>">
         <button type="submit" class="btn btn-ghost-purple" <%= unreadAll == 0 ? "disabled" : "" %>>모두 읽음 처리</button>
       </form>
@@ -118,7 +118,7 @@
           </a>
           <div class="notif-row-side">
             <% if (!n.isRead()) { %><span class="notif-row-dot" title="읽지 않음"></span><% } %>
-            <form method="post" action="notiDelete.jsp" style="margin:0;" onsubmit="return confirm('이 알림을 삭제할까요?');">
+            <form method="post" action="notiDelete.jsp" style="margin:0;" onsubmit="return confirm('이 알림을 삭제할까요?');"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
               <input type="hidden" name="num" value="<%= n.getNotiNum() %>">
               <input type="hidden" name="returnUrl" value="<%= esc(selfUrl) %>">
               <button type="submit" class="notif-row-close" aria-label="알림 삭제">✕</button>
@@ -153,7 +153,7 @@
       <div class="side-block" id="notiSetting">
         <p class="side-title">알림 수신 설정</p>
         <% for (int i = 0; i < settingRows.length; i++) { %>
-        <form method="post" action="notiSetting.jsp" class="toggle-row">
+        <form method="post" action="notiSetting.jsp" class="toggle-row"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
           <span class="toggle-label"><%= settingRows[i][1] %></span>
           <input type="hidden" name="type" value="<%= settingRows[i][0] %>">
           <input type="hidden" name="on" value="<%= settings[i] ? "N" : "Y" %>">

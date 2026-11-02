@@ -13,7 +13,7 @@
     String name = request.getParameter("name");
     String email = request.getParameter("email");
     String error = null;
-    int locked = FindLimiter.lockedMinutes(session);
+    int locked = FindLimiter.lockedMinutes(request);
 
     if ("POST".equalsIgnoreCase(request.getMethod())) {
         if (locked > 0) {
@@ -23,12 +23,12 @@
             error = "아이디, 이름, 이메일을 모두 입력해 주세요.";
         } else if (MemberDAO.getInstance().matchForReset(id, name, email)) {
             // 본인 확인 성공 → 10분 동안 이 아이디의 비밀번호 재설정 허가
-            FindLimiter.success(session);
+            FindLimiter.success(request);
             FindLimiter.allowReset(session, id.trim());
             response.sendRedirect("resetPw.jsp");
             return;
         } else {
-            int left = FindLimiter.fail(session);
+            int left = FindLimiter.fail(request);
             error = left > 0
                 ? "입력하신 정보와 일치하는 회원이 없어요. (남은 시도 " + left + "회)"
                 : "확인에 여러 번 실패해서 10분 동안 찾기를 이용할 수 없어요.";
@@ -58,7 +58,7 @@
                     <a href="findPw.jsp" class="find-tab active">비밀번호 찾기</a>
                 </div>
 
-                <form name="find_form" method="post" action="findPw.jsp" onsubmit="return checkFind(this);">
+                <form name="find_form" method="post" action="findPw.jsp" onsubmit="return checkFind(this);"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
                     <p class="find-desc"><b>아이디, 이름, 이메일</b>이 모두 일치하면 새 비밀번호를 설정할 수 있어요.</p>
 
                     <% if (error != null) { %><div class="find-error"><%= esc(error) %></div><% } %>

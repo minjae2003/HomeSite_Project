@@ -97,7 +97,31 @@ public class CommentDAO {
             close(conn, pstmt, null);
         }
     }
-
+    /**
+     * 댓글 삭제 - 작성자 본인 또는 관리자만 가능
+     * @return 실제로 삭제됐으면 true (권한 없음/없는 댓글이면 false)
+     */
+    public boolean deleteComment(int commentNum, int boardNum, String userId, boolean isAdmin) {
+        if (userId == null) return false;
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = getConnection();
+            String sql = isAdmin
+                ? "DELETE FROM BOARD_COMMENT WHERE comment_num = ? AND board_num = ?"
+                : "DELETE FROM BOARD_COMMENT WHERE comment_num = ? AND board_num = ? AND writer_id = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, commentNum);
+            pstmt.setInt(2, boardNum);
+            if (!isAdmin) pstmt.setString(3, userId);
+            return pstmt.executeUpdate() == 1;   // 0이면 남의 댓글이거나 없는 댓글
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        } finally {
+            close(conn, pstmt, null);
+        }
+    }
     private void close(Connection conn, PreparedStatement pstmt, ResultSet rs) {
         if (rs != null) try { rs.close(); } catch (Exception e) {}
         if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}

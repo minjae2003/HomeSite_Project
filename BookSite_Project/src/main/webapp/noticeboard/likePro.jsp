@@ -4,6 +4,12 @@
 <%
     request.setCharacterEncoding("UTF-8");
 
+    // 상태를 바꾸는 요청은 POST만 허용 (GET 링크/이미지 태그로 몰래 호출되는 것 방지, 토큰 검사는 CsrfFilter)
+    if (!"POST".equalsIgnoreCase(request.getMethod())) {
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+        return;
+    }
+
     // 세션에서 사용자 ID 가져오기 (프로젝트 환경에 따라 key값이 다를 수 있어 여러 개 체크)
     String sessionUserId = (String) session.getAttribute("id");
     if (sessionUserId == null) sessionUserId = (String) session.getAttribute("userId");
@@ -13,8 +19,10 @@
     String pageNum = request.getParameter("pageNum");
     String category = request.getParameter("category");
 
-    if (pageNum == null) pageNum = "1";
-    if (category == null) category = "ALL";
+    // <script> 안에 그대로 출력되므로 숫자/허용된 값만 사용 (반사형 XSS 방지)
+    if (pageNum == null || !pageNum.matches("\\d{1,9}")) pageNum = "1";
+    category = (category == null) ? "ALL" : category.trim().toUpperCase();
+    if (!java.util.Arrays.asList("ALL", "FIX", "NORMAL").contains(category)) category = "ALL";
 
     // 1. 로그인 여부 확인
     if (sessionUserId == null || sessionUserId.trim().isEmpty()) {
@@ -25,8 +33,8 @@
         return;
     }
 
-    if (numParam != null && !numParam.trim().isEmpty()) {
-        int num = Integer.parseInt(numParam);
+    if (numParam != null && numParam.trim().matches("\\d{1,9}")) {
+        int num = Integer.parseInt(numParam.trim());
         BoardDAO dao = BoardDAO.getInstance();
         
         // 2. 추천 / 취소 토글 수행

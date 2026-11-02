@@ -1,9 +1,11 @@
 package member;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import util.AttemptLimiter;
 
 /**
- * 아이디/비밀번호 찾기 시도 제한 + 비밀번호 재설정 허가 관리 (세션 기반)
+ * 아이디/비밀번호 찾기 시도 제한(서버, IP 기준) + 비밀번호 재설정 허가 관리(세션 기반)
  *  - 본인 확인에 5번 실패하면 10분 동안 찾기 기능을 막음 (무작위 대입 방지)
  *  - 비밀번호 찾기 본인 확인에 성공하면 10분 동안만 그 아이디의 비밀번호를 재설정할 수 있음
  */
@@ -12,39 +14,24 @@ public class FindLimiter {
     private static final long LOCK_MS = 10 * 60 * 1000L;
     private static final long RESET_MS = 10 * 60 * 1000L;
 
-    private static final String FAIL = "FIND_FAIL_COUNT";
-    private static final String LOCK_UNTIL = "FIND_LOCK_UNTIL";
     private static final String RESET_ID = "RESET_PW_ID";
     private static final String RESET_UNTIL = "RESET_PW_UNTIL";
 
+    // 실패 횟수는 세션이 아니라 서버에 IP별로 기록 (쿠키를 지워도 초기화되지 않도록)
+    private static final AttemptLimiter BY_IP = new AttemptLimiter(MAX_FAIL, LOCK_MS, LOCK_MS);
+
     /** 잠겨 있으면 남은 분(1 이상), 아니면 0 */
-    public static int lockedMinutes(HttpSession session) {
-        Long until = (Long) session.getAttribute(LOCK_UNTIL);
-        if (until == null) return 0;
-        long remain = until - System.currentTimeMillis();
-        if (remain <= 0) {
-            session.removeAttribute(LOCK_UNTIL);
-            session.removeAttribute(FAIL);
-            return 0;
-        }
-        return (int) Math.ceil(remain / 60000.0);
+    public static int lockedMinutes(HttpServletRequest request) {
+        return BY_IP.lockedMinutes(request.getRemoteAddr());
     }
 
     /** 실패 1회 기록, 남은 시도 횟수 반환 (0이면 방금 잠김) */
-    public static int fail(HttpSession session) {
-        Integer cnt = (Integer) session.getAttribute(FAIL);
-        cnt = (cnt == null ? 0 : cnt) + 1;
-        if (cnt >= MAX_FAIL) {
-            session.setAttribute(LOCK_UNTIL, System.currentTimeMillis() + LOCK_MS);
-            session.setAttribute(FAIL, 0);
-            return 0;
-        }
-        session.setAttribute(FAIL, cnt);
-        return MAX_FAIL - cnt;
+    public static int fail(HttpServletRequest request) {
+        return BY_IP.fail(request.getRemoteAddr());
     }
 
-    public static void success(HttpSession session) {
-        session.removeAttribute(FAIL);
+    /** 성공해도 실패 기록은 지우지 않음 (내 정보로 한 번 성공해서 기록을 초기화한 뒤 다시 대입하는 것 방지 - 10분 지나면 자동 초기화) */
+    public static void success(HttpServletRequest request) {
     }
 
     /** 비밀번호 재설정 허가 (본인 확인 성공 시) */

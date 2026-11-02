@@ -18,6 +18,9 @@
         var nickname = f.nickname.value.trim();
         if (nickname.length < 2) { alert("닉네임을 2자 이상 입력하세요!"); f.nickname.focus(); return; }
 
+        if (f.pass.value.length < 8 || !/[A-Za-z]/.test(f.pass.value) || !/[0-9]/.test(f.pass.value)) {
+            alert("비밀번호는 8자 이상, 영문과 숫자를 모두 포함해야 합니다."); f.pass.focus(); return;
+        }
         if (f.pass.value != f.pass_confirm.value) {
             alert("비밀번호가 일치하지 않습니다.\n다시 입력해 주세요!");
             f.pass.focus(); f.pass.select();
@@ -96,7 +99,7 @@
     <section>
         <div id="main_content">
             <div id="join_box">
-                <form name="member_form" method="post" action="memberPro.jsp">
+                <form name="member_form" method="post" action="memberPro.jsp"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
                     <h2>회원가입</h2>
                     
                     <div class="form-group">
@@ -109,7 +112,7 @@
 
                     <div class="form-group">
                         <label for="pass">비밀번호</label>
-                        <input type="password" id="pass" name="pass" placeholder="비밀번호 입력">
+                        <input type="password" id="pass" name="pass" placeholder="8자 이상, 영문+숫자">
                     </div>
 
                     <div class="form-group">

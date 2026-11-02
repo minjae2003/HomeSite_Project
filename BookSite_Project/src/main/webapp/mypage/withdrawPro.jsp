@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="member.MemberDAO, member.MemberVO, java.util.List,mypage.ProfileDAO, java.io.File" %>
+<%@ page import="member.MemberDAO, member.MemberVO, member.LoginLimiter, java.util.List,mypage.ProfileDAO, java.io.File" %>
 <%
     // 회원 탈퇴 처리 (POST + 현재 비밀번호 확인)
     request.setCharacterEncoding("UTF-8");
@@ -28,12 +28,19 @@
         return;
     }
 
-    // 본인 확인
+    // 본인 확인 (로그인과 같은 시도 제한 적용 - 세션을 탈취한 사람이 비밀번호를 대입해 보는 것 방지)
+    int locked = LoginLimiter.lockedMinutes(request, sessionUserId);
+    if (locked > 0) {
+        out.println("<script>alert('비밀번호 확인 실패가 너무 많아요. " + locked + "분 뒤에 다시 시도해 주세요.'); history.back();</script>");
+        return;
+    }
     String password = request.getParameter("password");
     if (password == null || dao.userCheck(sessionUserId, password) != 1) {
+        LoginLimiter.fail(request, sessionUserId);
         out.println("<script>alert('비밀번호가 일치하지 않습니다.'); history.back();</script>");
         return;
     }
+    LoginLimiter.success(request, sessionUserId);
     // 프로필 사진 파일 이름 (DB 행은 CASCADE로 지워지므로 미리 기억)
     String profileImg = ProfileDAO.getInstance().get(sessionUserId).getProfileImg();
     List<String> savedNames = dao.deleteMember(sessionUserId);

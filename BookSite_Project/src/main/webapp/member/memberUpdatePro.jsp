@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="member.MemberDAO, member.MemberVO" %>
+<%@ page import="member.MemberDAO, member.MemberVO, member.LoginLimiter, util.PasswordUtil" %>
 <%
     request.setCharacterEncoding("UTF-8");
 
@@ -38,13 +38,28 @@
         out.println("<script>alert('새 비밀번호가 서로 일치하지 않습니다.'); history.back();</script>");
         return;
     }
+    // 새 비밀번호를 정한 경우에만 규칙 검사 (비워 두면 비밀번호는 그대로)
+    if (!newPass.isEmpty()) {
+        String policyError = PasswordUtil.checkPolicy(newPass, sessionUserId);
+        if (policyError != null) {
+            out.println("<script>alert('" + policyError + "'); history.back();</script>");
+            return;
+        }
+    }
 
     // 본인 확인: 현재 비밀번호 검사 (MemberDAO.userCheck: 1 = 일치)
     MemberDAO dao = MemberDAO.getInstance();
+    int locked = LoginLimiter.lockedMinutes(request, sessionUserId);
+    if (locked > 0) {
+        out.println("<script>alert('비밀번호 확인 실패가 너무 많아요. " + locked + "분 뒤에 다시 시도해 주세요.'); history.back();</script>");
+        return;
+    }
     if (currentPass == null || dao.userCheck(sessionUserId, currentPass) != 1) {
+        LoginLimiter.fail(request, sessionUserId);
         out.println("<script>alert('현재 비밀번호가 일치하지 않습니다.'); history.back();</script>");
         return;
     }
+    LoginLimiter.success(request, sessionUserId);
 
     MemberVO member = new MemberVO();
     member.setId(sessionUserId);

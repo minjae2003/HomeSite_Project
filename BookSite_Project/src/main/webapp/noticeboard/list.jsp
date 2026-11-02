@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="util.HtmlUtil" %>
 <%@ page import="board.BoardDAO, board.BoardVO, java.util.List, java.text.SimpleDateFormat" %>
 
 <%
@@ -11,9 +12,9 @@
 
     // 공지사항 카테고리 파라미터 (ALL, FIX, NORMAL)
     String category = request.getParameter("category");
-    if (category == null || category.trim().isEmpty()) {
-        category = "ALL";
-    }
+    // 링크/폼에 그대로 출력되므로 허용된 값만 사용 (반사형 XSS 방지)
+    category = (category == null) ? "ALL" : category.trim().toUpperCase();
+    if (!java.util.Arrays.asList("ALL", "FIX", "NORMAL").contains(category)) category = "ALL";
 
     // 검색어 파라미터
     String keyword = request.getParameter("keyword");
@@ -22,9 +23,9 @@
     // 페이징 처리
     int pageSize = 10;
     String pageNum = request.getParameter("pageNum");
-    if (pageNum == null) pageNum = "1";
+    if (pageNum == null || !pageNum.matches("\\d{1,9}")) pageNum = "1";
 
-    int currentPage = Integer.parseInt(pageNum);
+    int currentPage = Math.max(1, Integer.parseInt(pageNum));
     int startRow = (currentPage - 1) * pageSize;
 
     BoardDAO dao = BoardDAO.getInstance();
@@ -128,14 +129,14 @@
                     <td>
                         <span class="cat-badge <%= catCode %>"><%= (isFixed ? "📌 " : "") + catName %></span>
                         <a href="content.jsp?num=<%= article.getNum() %>&pageNum=<%= pageNum %>&category=<%= category %>" class="subject-link">
-                            <%= article.getSubject() %>
+                            <%= HtmlUtil.esc(article.getSubject()) %>
                         </a>
 
                         <% if (article.getCommentCount() > 0) { %>
                             <span class="comment-cnt">[💬 <%= article.getCommentCount() %>]</span>
                         <% } %>
                     </td>
-                    <td><%= article.getWriterNickname() != null ? article.getWriterNickname() : article.getWriter() %></td>
+                    <td><%= HtmlUtil.esc(article.getWriterNickname() != null ? article.getWriterNickname() : article.getWriter()) %></td>
                     <td><%= dateStr %></td>
                     <td style="text-align: center;">👁️ <%= article.getReadcount() %></td>
                 </tr>

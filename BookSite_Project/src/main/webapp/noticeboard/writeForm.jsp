@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="util.HtmlUtil" %>
 <%
     request.setCharacterEncoding("UTF-8");
 
@@ -42,7 +43,7 @@
             <p class="form-subtitle">회원들에게 전달할 안내 사항을 작성해 주세요.</p>
         </div>
 
-        <form action="${pageContext.request.contextPath}/board/upload" method="post" enctype="multipart/form-data">
+        <form action="${pageContext.request.contextPath}/board/upload?_csrf=<%= util.CsrfUtil.token(session) %>" method="post" enctype="multipart/form-data"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
             <input type="hidden" name="redirectBoard" value="noticeboard">
             <div class="form-group">
                 <label class="form-label">공지 유형</label>
@@ -60,7 +61,7 @@
 
             <div class="form-group">
                 <label class="form-label">작성자</label>
-                <input type="text" class="input-control input-readonly" value="<%= sessionUserNick %>" readonly>
+                <input type="text" class="input-control input-readonly" value="<%= HtmlUtil.esc(sessionUserNick) %>" readonly>
             </div>
 
             <div class="form-group">

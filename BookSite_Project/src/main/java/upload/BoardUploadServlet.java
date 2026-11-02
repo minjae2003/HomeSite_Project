@@ -47,7 +47,7 @@ public class BoardUploadServlet extends HttpServlet {
     // 확장자 기반 화이트리스트 판별 (한글 hwp 등은 브라우저가 Content-Type을 제대로 안 보내는 경우가 많아
     // Content-Type이 아니라 확장자로 분류한다 - 목록에 없는 확장자는 보안을 위해 아예 업로드를 거부한다)
     private static final Set<String> IMAGE_EXT = new HashSet<String>(Arrays.asList(
-            "jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"));
+            "jpg", "jpeg", "png", "gif", "bmp", "webp"));   // svg는 내부에 스크립트를 넣을 수 있어(XSS) 제외
     private static final Set<String> VIDEO_EXT = new HashSet<String>(Arrays.asList(
             "mp4", "mov", "avi", "wmv", "mkv", "webm", "flv", "m4v"));
     private static final Set<String> DOC_EXT = new HashSet<String>(Arrays.asList(
@@ -149,14 +149,18 @@ public class BoardUploadServlet extends HttpServlet {
             }
         } else {
             // 수정 (권한 체크: 작성자 본인 또는 ADMIN)
-            boardNum = Integer.parseInt(numParam);
+            if (!numParam.trim().matches("\\d{1,9}")) {
+                alertAndRedirect(response, "잘못된 접근입니다.", null);
+                return;
+            }
+            boardNum = Integer.parseInt(numParam.trim());
             BoardVO existing = boardDao.getBoardDetail(boardNum);
             if (existing == null) {
                 alertAndRedirect(response, "존재하지 않는 게시글입니다.", null);
                 return;
             }
-            boolean isOwnerOrAdmin = sessionUserId.equals(existing.getWriterId())
-                    || isAdmin || existing.getWriterId() == null;
+            // 작성자 정보가 없는 예전 글은 관리자만 수정 가능
+            boolean isOwnerOrAdmin = sessionUserId.equals(existing.getWriterId()) || isAdmin;
             // 기존 글이 공지사항이면 관리자만 수정 가능 (자유게시판 수정 폼으로 우회하는 것도 차단)
             if ("NOTICE".equals(existing.getCategory()) && !isAdmin) isOwnerOrAdmin = false;
             if (!isOwnerOrAdmin) {
