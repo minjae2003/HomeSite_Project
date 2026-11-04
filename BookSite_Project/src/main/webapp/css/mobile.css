@@ -1,0 +1,143 @@
+/* ==================================================================
+   모바일 공통 스타일 (768px 이하)
+   - header.jsp에서 불러오므로 헤더가 있는 모든 페이지에 적용됨
+   - 페이지별 CSS보다 나중에 로드되어 같은 선택자는 이 파일이 우선함
+   ================================================================== */
+@media (max-width: 768px) {
+
+    /* 화면 밖으로 넘치는 이미지/영상 방지 */
+    img, video { max-width: 100%; height: auto; }
+
+    /* iOS 사파리는 글자 크기 16px 미만 입력창을 누르면 화면을 확대함 → 16px로 고정 */
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+    select,
+    textarea { font-size: 16px !important; }
+
+    /* ── 카테고리 탭: 여러 줄로 흩어지지 않고 가로로 밀어서 넘기기 ── */
+    .category-tabs {
+        flex-wrap: nowrap !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 6px !important;
+        margin-bottom: 16px !important;
+        padding: 2px 2px 6px;
+    }
+    .category-tabs::-webkit-scrollbar { display: none; }
+    .category-tabs .tab-item {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        padding: 8px 14px;
+        background: #f1f5f9;
+    }
+    /* 선택된 탭은 원래의 진한 배경 유지 (위 회색 배경이 덮어쓰지 않도록) */
+    .category-tabs .tab-item.active { background: #2b374e; }
+
+    /* ── 게시판 목록 표 → 카드형 목록 ──
+       PC: 제목 | 작성자 | 작성일 | 조회수 (4칸 표)
+       모바일: 제목 한 줄 + 아래에 "작성자 · 작성일 · 👁 조회수" */
+    .board-table thead { display: none; }
+    .board-table,
+    .board-table tbody,
+    .board-table tr { display: block; width: 100%; }
+    .board-table tr {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 10px;
+        padding: 14px 16px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .board-table tr:last-child { border-bottom: none; }
+    .board-table td {
+        display: block;
+        padding: 0 !important;
+        border: none !important;
+        width: auto !important;
+        text-align: left !important;
+        font-size: 12px;
+        color: #94a3b8;
+    }
+    .board-table td:first-child {
+        flex: 1 1 100%;
+        font-size: 15px;
+        color: inherit;
+        line-height: 1.5;
+        margin-bottom: 2px;
+    }
+    .board-table td:nth-child(3)::before,
+    .board-table td:nth-child(4)::before { content: "·"; margin-right: 10px; color: #cbd5e1; }
+    /* 글이 없을 때 안내 문구 칸 */
+    .board-table td[colspan] {
+        flex: 1 1 100%;
+        text-align: center !important;
+        padding: 32px 0 !important;
+        font-size: 14px;
+    }
+    .board-table td[colspan]::before { content: none; }
+
+    /* 목록 위 "총 N개 / 글쓰기" 줄 */
+    .top-bar { gap: 10px; }
+    .btn-write { white-space: nowrap; }
+
+    /* 페이지 번호가 많아도 줄바꿈 */
+    .pagination { flex-wrap: wrap; }
+
+    /* 게시글 본문 안 이미지/영상 */
+    .post-content img, .post-content video, .post-media { max-width: 100%; height: auto; }
+}
+
+/* ── 카테고리 탭 슬라이더 (자유게시판) : js/category-slider.js 와 함께 동작 ── */
+.tab-arrow { display: none; }
+
+@media (max-width: 768px) {
+    .tab-slider { position: relative; margin-bottom: 16px; }
+    .tab-slider .category-tabs {
+        position: relative;
+        margin-bottom: 0 !important;
+        scroll-snap-type: x proximity;   /* 손으로 밀면 탭 위치에 맞춰 멈춤 */
+        scroll-behavior: smooth;
+        padding: 4px 4px 8px;
+    }
+    .tab-slider .tab-item { scroll-snap-align: center; }
+
+    /* 좌우 화살표 버튼 */
+    .tab-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-58%);
+        z-index: 2;
+        width: 34px;
+        height: 34px;
+        padding: 0 0 3px;
+        border-radius: 50%;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+        color: #334155;
+        font-size: 22px;
+        line-height: 1;
+        cursor: pointer;
+    }
+    .tab-arrow.prev { left: -6px; }
+    .tab-arrow.next { right: -6px; }
+    .tab-arrow[hidden] { display: none; }
+
+    /* 더 넘길 수 있는 쪽 가장자리를 흐리게 → "옆에 더 있다"는 표시 */
+    .tab-slider.can-next .category-tabs {
+        -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent);
+                mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent);
+    }
+    .tab-slider.can-prev .category-tabs {
+        -webkit-mask-image: linear-gradient(to right, transparent, #000 56px);
+                mask-image: linear-gradient(to right, transparent, #000 56px);
+    }
+    .tab-slider.can-prev.can-next .category-tabs {
+        -webkit-mask-image: linear-gradient(to right, transparent, #000 56px, #000 calc(100% - 56px), transparent);
+                mask-image: linear-gradient(to right, transparent, #000 56px, #000 calc(100% - 56px), transparent);
+    }
+}
+

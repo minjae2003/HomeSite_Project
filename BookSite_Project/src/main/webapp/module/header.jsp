@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
     // 세션 로그인 정보 확인
-    // (finalPage/index.jsp는 이 파일을 정적 include 하므로 변수 이름이 겹치지 않도록 hdr 접두사 사용)
+    // (다른 페이지에 include되므로 변수 이름이 겹치지 않도록 hdr 접두사 사용)
     String id = (String) session.getAttribute("id");
     String hdrNick = (String) session.getAttribute("nickname");
     if (hdrNick == null || hdrNick.isEmpty()) hdrNick = (String) session.getAttribute("name");
@@ -31,10 +31,14 @@
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/layout.css">
+<!-- 모바일 공통 스타일 (모든 페이지에 적용, 페이지 CSS보다 나중에 불러와야 덮어쓸 수 있음) -->
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/mobile.css">
 
 
-<header>
+<header id="siteHeader">
     <div class="logo"><a href="${pageContext.request.contextPath}/main/index.jsp">🏠 자취의 품격</a></div>
+    <!-- 모바일 전용 메뉴 버튼 (PC에서는 숨김) -->
+    <button type="button" class="nav-toggle" id="navToggle" aria-label="메뉴 열기" aria-expanded="false" onclick="hdrToggleMenu()">☰</button>
     <nav>
         <ul>
             <li><a href="${pageContext.request.contextPath}/main/index.jsp">HOME</a></li>
@@ -51,6 +55,11 @@
             <span class="header-search-icon">🔍</span>
             <input type="text" name="keyword" placeholder="검색어를 입력하세요" aria-label="검색어">
         </form>
+
+        <!-- 모바일 전용 작은 로그인 버튼 (로그아웃 상태에서만, PC에서는 숨김) -->
+        <% if (id == null) { %>
+        <a href="${pageContext.request.contextPath}/member/loginForm.jsp" class="btn-mini-login">로그인</a>
+        <% } %>
 
         <!-- 알림 (비로그인 상태에서도 종은 보이고, 누르면 로그인 안내) -->
         <div class="notif-wrap">
@@ -114,6 +123,15 @@
         e.stopPropagation();
         var panel = document.getElementById('notifPanel');
         if (panel) panel.classList.toggle('open');
+    }
+    // 모바일 메뉴 열기/닫기
+    function hdrToggleMenu() {
+        var header = document.getElementById('siteHeader');
+        var btn = document.getElementById('navToggle');
+        var open = header.classList.toggle('menu-open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        btn.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        btn.textContent = open ? '✕' : '☰';
     }
     document.addEventListener('click', function (e) {
         var panel = document.getElementById('notifPanel');

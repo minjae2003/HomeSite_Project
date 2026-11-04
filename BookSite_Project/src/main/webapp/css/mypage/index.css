@@ -184,7 +184,7 @@ button { font-family: inherit; }
 .form-actions .btn { flex: 1; }
 
 @media (max-width: 860px) {
-    .main-grid { grid-template-columns: 1fr; }
+    .main-grid { grid-template-columns: minmax(0, 1fr); }   /* 1fr만 쓰면 긴 제목 때문에 화면 밖으로 넘침 */
     .profile-card { flex-direction: column; text-align: center; }
     .profile-name-row { justify-content: center; }
     .profile-actions { width: 100%; }
@@ -195,4 +195,12 @@ button { font-family: inherit; }
     .post-date { display: none; }
     .post-stats { width: auto; }
     .post-cat-label { width: auto; }
+}
+
+/* 휴대폰 화면: 바깥 여백 줄이기 */
+@media (max-width: 480px) {
+    .wrap { padding: 16px 16px 0; }
+    .post-row { padding: 14px 16px; gap: 8px; }
+    .post-cat-label { display: none; }
+    .tab { padding: 12px 12px; }
 }

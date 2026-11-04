@@ -371,8 +371,42 @@ a { text-decoration: none; color: inherit; }
 .btn-logout { background-color: #4b5563; }
 .btn-logout small { font-weight: 500; font-size: 11px; color: #e5e7eb; display: block; margin-top: 2px; }
 
-/* 좁은 창/모바일 대응: 사이드바를 아래로 내리고 폭 제한 해제 */
 @media (max-width: 900px) {
     .container { flex-direction: column; width: 92%; }
     .sidebar { min-width: 0; width: 100%; }
+}
+
+@media (max-width: 760px) {
+    .sidebar .search-bar,
+    .sidebar .auth-buttons .btn-logout { display: none; }
+    .sidebar .auth-buttons:has(> .btn-logout) { display: none; }
+}
+
+@media (max-width: 760px) {
+    .hot-post-item { padding: 12px 14px; gap: 10px; }
+    .hot-post-item .post-author-group { display: none; }
+    .hot-post-item .post-title-group { min-width: 0; }
+    .hot-post-item .post-title {
+        white-space: normal;             
+        display: -webkit-box;             
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.45;
+    }
+    .hot-post-item .post-stats { width: auto; flex-shrink: 0; }
+}
+
+.hot-post-item { position: relative; cursor: pointer; }
+.hot-post-item .post-title::after {
+    content: "";
+    position: absolute;
+    inset: 0;              
+    border-radius: 12px;
+}
+
+.hot-post-item:hover .post-title { color: #f97316; }
+
+@media (max-width: 760px) {
+    .sidebar .auth-buttons { display: none; }
 }

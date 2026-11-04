@@ -79,7 +79,8 @@
             out.println("<script>alert('회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'); history.go(-1);</script>");
         }
     } catch (Exception e) {
-        e.printStackTrace();
-        out.println("<script>alert('DB 에러 발생: " + e.getMessage().replace("'", "") + "'); history.go(-1);</script>");
+        e.printStackTrace();   // 자세한 원인은 서버 로그(Console/catalina.out)에만 남김
+        // 사용자에게는 DB 에러 내용(테이블/컬럼 이름, SQL 등)을 보여주지 않음
+        out.println("<script>alert('회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'); history.go(-1);</script>");
     }
 %>

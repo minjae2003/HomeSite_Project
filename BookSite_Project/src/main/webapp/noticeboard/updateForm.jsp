@@ -40,8 +40,10 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>공지사항 수정</title>
     <link rel="stylesheet" href="../css/noticeboard/update.css">
+    <link rel="stylesheet" href="../css/mobile.css">
 </head>
 <body>
 

@@ -349,3 +349,114 @@ nav li { margin-right: 20px; }
     .header-search { width: 150px; }
     nav a { font-size: 16px; }
 }
+
+/* ================================================== */
+/* 모바일 헤더 (760px 이하): 로고 + 알림 + 메뉴 버튼 한 줄,   */
+/* 메뉴·검색·로그인 버튼은 ☰ 버튼을 눌렀을 때만 펼쳐짐          */
+/* ================================================== */
+.nav-toggle { display: none; }
+
+@media (max-width: 760px) {
+    header {
+        padding: 10px 16px;
+        gap: 0;
+        flex-wrap: wrap;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+    header .logo { order: 1; flex: 1 1 auto; font-size: 19px; }
+
+    /* .header-auth 안의 요소들을 header의 직접 자식처럼 배치 */
+    .header-auth { display: contents; }
+
+    .notif-wrap { order: 2; margin-right: 8px; }
+    .notif-bell { width: 40px; height: 40px; }
+
+    .nav-toggle {
+        order: 4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        background: #ffffff;
+        font-size: 20px;
+        line-height: 1;
+        color: #374151;
+        cursor: pointer;
+    }
+
+    /* 접혀 있을 때는 숨김 */
+    nav,
+    .header-search,
+    .header-auth .btn-auth,
+    .header-auth .user-nickname { display: none; }
+
+    /* 펼쳤을 때 */
+    header.menu-open nav {
+        display: block;
+        order: 4;
+        width: 100%;
+        margin-top: 10px;
+        border-top: 1px solid #f1f5f9;
+    }
+    header.menu-open nav ul { flex-direction: column; gap: 0; }
+    header.menu-open nav li { margin: 0; }
+    header.menu-open nav a {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        text-align: left;
+        padding: 13px 4px;
+        font-size: 16px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    header.menu-open nav a small { display: inline; margin: 0; }
+
+    header.menu-open .header-search {
+        display: flex;
+        order: 5;
+        width: 100%;
+        flex: 1 1 100%;
+        margin-top: 12px;
+    }
+    header.menu-open .header-auth .btn-auth,
+    header.menu-open .header-auth .user-nickname {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        order: 6;
+        flex: 1 1 0;
+        margin: 12px 4px 4px;
+        padding: 10px 12px;
+    }
+
+    /* 알림 패널: 화면 폭에 맞춰 오른쪽 정렬 */
+    .notif-panel { position: fixed; top: 60px; left: 12px; right: 12px; width: auto; max-width: none; }
+}
+
+/* 모바일 헤더의 작은 로그인 버튼 (로그아웃 상태에서만 출력됨) */
+.btn-mini-login { display: none; }
+@media (max-width: 760px) {
+    .btn-mini-login {
+        display: inline-flex;
+        align-items: center;
+        order: 3;                 /* 오른쪽: 알림 종(2)과 메뉴 버튼(4) 사이 */
+        height: 32px;
+        padding: 0 12px;
+        margin-right: 8px;
+        border-radius: 999px;
+        background: #f97316;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    .btn-mini-login:visited { color: #ffffff; }
+    /* ☰ 메뉴를 펼치면 큰 로그인/회원가입 버튼이 나오므로 작은 버튼은 숨김 */
+    header.menu-open .btn-mini-login { display: none; }
+}

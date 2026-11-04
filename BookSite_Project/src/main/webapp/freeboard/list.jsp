@@ -73,6 +73,7 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>자취게시판 - 자취의 품격</title>
 <link rel="stylesheet" href="../css/freeboard/list.css">
 </head>
@@ -82,7 +83,7 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 	<div class="container">
 		<!-- 게시판 헤더 -->
 		<div class="board-header">
-			<h1 class="board-title">💭 자취/자유게시판</h1>
+			<h1 class="board-title">💭 생활 꿀팁/자유 게시판</h1>
 			<p class="board-subtitle">자취생들과 다양한 소식, 고민, 꿀팁, 요리레시피를 나누는 공간입니다.</p>
 		</div>
 		<!-- 검색창 -->
@@ -104,7 +105,9 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 		<%
 		}
 		%>
-		<!-- 카테고리 탭 -->
+		<!-- 카테고리 탭 (모바일에서는 좌우 화살표가 있는 슬라이드로 동작: js/category-slider.js) -->
+		<div class="tab-slider">
+		<button type="button" class="tab-arrow prev" aria-label="이전 카테고리" hidden>‹</button>
 		<div class="category-tabs">
 			<a href="list.jsp?category=ALL<%=keywordQuery%>"
 				class="tab-item <%="ALL".equals(category) ? "active" : ""%>">전체보기</a>
@@ -119,6 +122,8 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 				일상/수다</a> <a href="list.jsp?category=RECIPE<%=keywordQuery%>"
 				class="tab-item <%="RECIPE".equals(category) ? "active" : ""%>">🍳
 				요리레시피</a>
+		</div>
+		<button type="button" class="tab-arrow next" aria-label="다음 카테고리" hidden>›</button>
 		</div>
 
 		<div class="top-bar">
@@ -238,5 +243,6 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 		%>
 	</div>
 
+<script src="../js/category-slider.js"></script>
 </body>
 </html>

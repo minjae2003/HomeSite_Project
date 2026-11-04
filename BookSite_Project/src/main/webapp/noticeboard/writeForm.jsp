@@ -29,6 +29,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>공지사항 작성 - 자취의 품격</title>
     <link rel="stylesheet" href="../css/noticeboard/write.css">
 </head>

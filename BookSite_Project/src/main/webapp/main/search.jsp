@@ -56,6 +56,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><%= (keyword != null && !keyword.isEmpty()) ? ("'" + escapedKeyword + "' 검색결과") : "통합검색" %> - 자취의 품격</title>
     <link rel="stylesheet" href="../css/main/search.css">
 </head>

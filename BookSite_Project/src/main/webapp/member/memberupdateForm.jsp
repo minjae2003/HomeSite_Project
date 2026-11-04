@@ -32,9 +32,6 @@
         if (!f.nickname.value.trim()) { alert('닉네임을 입력하세요.'); f.nickname.focus(); return false; }
         if (!f.name.value.trim()) { alert('이름을 입력하세요.'); f.name.focus(); return false; }
         if (!f.email.value.trim()) { alert('이메일을 입력하세요.'); f.email.focus(); return false; }
-        if (f.newPass.value && (f.newPass.value.length < 8 || !/[A-Za-z]/.test(f.newPass.value) || !/[0-9]/.test(f.newPass.value))) {
-            alert('새 비밀번호는 8자 이상, 영문과 숫자를 모두 포함해야 합니다.'); f.newPass.focus(); return false;
-        }
         if (f.newPass.value !== f.newPassConfirm.value) {
             alert('새 비밀번호가 서로 일치하지 않습니다.'); f.newPassConfirm.focus(); return false;
         }
