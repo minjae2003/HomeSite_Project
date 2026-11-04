@@ -22,12 +22,10 @@ public final class LoginLimiter {
         return id == null ? null : id.trim().toLowerCase();
     }
 
-    /** 잠겨 있으면 남은 분, 아니면 0 */
     public static int lockedMinutes(HttpServletRequest request, String id) {
         return Math.max(BY_IP.lockedMinutes(request.getRemoteAddr()), BY_ID.lockedMinutes(idKey(id)));
     }
 
-    /** 실패 기록. 이 아이디의 남은 시도 횟수 반환 (0이면 잠김) */
     public static int fail(HttpServletRequest request, String id) {
         int ipLeft = BY_IP.fail(request.getRemoteAddr());
         int idLeft = BY_ID.fail(idKey(id));

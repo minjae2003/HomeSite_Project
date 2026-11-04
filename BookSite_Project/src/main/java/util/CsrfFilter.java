@@ -42,7 +42,6 @@ public class CsrfFilter implements Filter {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         String msg = "요청이 만료되었거나 올바르지 않습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.";
 
-        // fetch 요청(헤더로 토큰을 보내는 방식)은 JSON으로 응답
         if (request.getHeader(CsrfUtil.HEADER) != null) {
             response.setContentType("application/json; charset=UTF-8");
             response.getWriter().write("{\"ok\":false,\"message\":\"" + msg + "\"}");

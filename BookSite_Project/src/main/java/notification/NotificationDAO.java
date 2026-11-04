@@ -20,7 +20,6 @@ public class NotificationDAO {
     public static NotificationDAO getInstance() { return instance; }
     private NotificationDAO() {}
 
-    /** 알림 종류 (필터 탭 / 수신 설정에 사용) */
     public static final String[] TYPES = { "COMMENT", "LIKE", "NOTICE" };
 
     public static boolean isValidType(String type) {
@@ -43,9 +42,6 @@ public class NotificationDAO {
         return ds.getConnection();
     }
 
-    // ───────────────────────── 알림 생성 ─────────────────────────
-
-    /** 내 글에 댓글이 달렸을 때 → 글 작성자에게 알림 (본인 댓글, 댓글 알림 끈 회원은 제외) */
     public void notifyComment(int boardNum, String actorId, String actorNickname, String commentContent) {
         String sql = "INSERT INTO NOTIFICATION (receiver_id, type, actor_id, actor_nickname, board_num, board_subject, preview) "
                    + "SELECT b.writer_id, 'COMMENT', ?, ?, b.num, b.subject, ? FROM BOARD b "
@@ -69,7 +65,6 @@ public class NotificationDAO {
         execute(sql, actorId, actorNickname, actorId, boardNum, actorId, actorId);
     }
 
-    /** 새 공지사항 등록 → 작성자와 공지 알림을 끈 회원을 제외한 전체 회원에게 알림 */
     public void notifyNotice(int boardNum, String actorId, String actorNickname, String noticeContent) {
         String sql = "INSERT INTO NOTIFICATION (receiver_id, type, actor_id, actor_nickname, board_num, board_subject, preview) "
                    + "SELECT m.id, 'NOTICE', ?, ?, b.num, b.subject, ? FROM MEMBER m JOIN BOARD b ON b.num = ? "
@@ -78,7 +73,6 @@ public class NotificationDAO {
         execute(sql, actorId, actorNickname, makePreview(noticeContent), boardNum, actorId == null ? "" : actorId);
     }
 
-    /** 미리보기 문구: [img1] 같은 첨부 표시 제거, 줄바꿈 정리, 100자 제한 */
     private static String makePreview(String content) {
         if (content == null) return null;
         String p = content.replaceAll("\\[(img|video)\\d+\\]", " ").replaceAll("\\s+", " ").trim();
@@ -86,14 +80,10 @@ public class NotificationDAO {
         return p.length() > 100 ? p.substring(0, 100) : p;
     }
 
-    // ───────────────────────── 조회 ─────────────────────────
-
-    /** 읽지 않은 알림 수 (헤더 배지용) */
     public int getUnreadCount(String userId) {
         return getUnreadCount(userId, null);
     }
 
-    /** 종류별 읽지 않은 알림 수 (type이 null이면 전체) */
     public int getUnreadCount(String userId, String type) {
         if (userId == null) return 0;
         boolean byType = isValidType(type);
@@ -102,7 +92,6 @@ public class NotificationDAO {
         return byType ? queryInt(sql, userId, type) : queryInt(sql, userId);
     }
 
-    /** 전체 알림 수 (type이 null이면 전체) - 페이징용 */
     public int getCount(String userId, String type) {
         if (userId == null) return 0;
         boolean byType = isValidType(type);
@@ -110,12 +99,10 @@ public class NotificationDAO {
         return byType ? queryInt(sql, userId, type) : queryInt(sql, userId);
     }
 
-    /** 최근 알림 목록 (헤더 드롭다운용) */
     public List<NotificationVO> getList(String userId, int start, int count) {
         return getList(userId, null, start, count);
     }
 
-    /** 종류별 알림 목록, 최신순 (type이 null이면 전체) */
     public List<NotificationVO> getList(String userId, String type, int start, int count) {
         List<NotificationVO> list = new ArrayList<NotificationVO>();
         if (userId == null) return list;
@@ -179,14 +166,11 @@ public class NotificationDAO {
         return vo;
     }
 
-    // ───────────────────────── 읽음 / 삭제 ─────────────────────────
-
     /** 알림 1건 읽음 처리 (본인 알림만) */
     public void markRead(int notiNum, String userId) {
         execute("UPDATE NOTIFICATION SET is_read = 'Y' WHERE noti_num = ? AND receiver_id = ?", notiNum, userId);
     }
 
-    /** 내 알림 모두 읽음 처리 */
     public void markAllRead(String userId) {
         execute("UPDATE NOTIFICATION SET is_read = 'Y' WHERE receiver_id = ? AND is_read = 'N'", userId);
     }
@@ -196,9 +180,6 @@ public class NotificationDAO {
         execute("DELETE FROM NOTIFICATION WHERE noti_num = ? AND receiver_id = ?", notiNum, userId);
     }
 
-    // ───────────────────────── 수신 설정 ─────────────────────────
-
-    /** 수신 설정 {댓글, 추천, 공지} - 저장된 설정이 없으면 모두 켜짐 */
     public boolean[] getSettings(String userId) {
         boolean[] on = { true, true, true };
         if (userId == null) return on;
@@ -222,7 +203,6 @@ public class NotificationDAO {
         return on;
     }
 
-    /** 알림 종류 하나를 켜거나 끔 (설정 행이 없으면 새로 만듦) */
     public void setSetting(String userId, String type, boolean on) {
         String col = settingColumn(type);
         if (userId == null || col == null) return;
@@ -230,8 +210,6 @@ public class NotificationDAO {
                    + "ON DUPLICATE KEY UPDATE " + col + " = VALUES(" + col + ")";
         execute(sql, userId, on ? "Y" : "N");
     }
-
-    // ───────────────────────── 공통 ─────────────────────────
 
     private int queryInt(String sql, String... params) {
         Connection conn = null; PreparedStatement pstmt = null; ResultSet rs = null;

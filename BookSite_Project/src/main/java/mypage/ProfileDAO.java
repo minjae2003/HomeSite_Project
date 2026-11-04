@@ -23,13 +23,10 @@ public class ProfileDAO {
     public static final int BIO_MAX = 40;
     public static final int TAG_MAX = 5;
 
-    /** 자취 연차 선택지 ("" = 설정 안 함) */
     public static final List<String> YEARS = Arrays.asList("1년 미만", "1~3년", "4~9년", "10년 이상");
 
-    /** 관심 태그 선택지 */
     public static final List<String> TAGS = Arrays.asList("청소", "요리", "원룸", "인테리어", "자취템", "전세계약", "야식", "반려동물");
 
-    /** 거주 지역 선택지: 시·도별 도시 목록 (특별시·광역시·특별자치시 + 도 소속 시 전체) */
     public static final Map<String, List<String>> REGIONS = new LinkedHashMap<String, List<String>>();
     static {
         REGIONS.put("특별시·광역시", Arrays.asList(
@@ -55,7 +52,6 @@ public class ProfileDAO {
         REGIONS.put("제주특별자치도", withProvince("제주특별자치도", "제주시", "서귀포시"));
     }
 
-    /** "경상남도" + "양산시" → "경상남도 양산시" 형태로 저장, 도마다 군 지역 선택지도 추가 */
     private static List<String> withProvince(String province, String... cities) {
         String[] full = new String[cities.length + 1];
         for (int i = 0; i < cities.length; i++) full[i] = province + " " + cities[i];
@@ -68,7 +64,6 @@ public class ProfileDAO {
         return false;
     }
 
-    /** 선택지 표시용: "경상남도 양산시" → "양산시" (특별시·광역시는 그대로) */
     public static String shortRegion(String region) {
         if (region == null) return "";
         int sp = region.indexOf(' ');
@@ -82,7 +77,6 @@ public class ProfileDAO {
         return ds.getConnection();
     }
 
-    /** 프로필 조회 - 저장된 적이 없으면 빈 프로필(모두 설정 안 함) */
     public ProfileVO get(String userId) {
         ProfileVO vo = new ProfileVO();
         vo.setUserId(userId);
@@ -109,7 +103,6 @@ public class ProfileDAO {
         return vo;
     }
 
-    /** 프로필 저장 (없으면 새로 만들고, 있으면 덮어씀) */
     public boolean save(ProfileVO vo) {
         String sql = "INSERT INTO MEMBER_PROFILE (user_id, profile_img, bio, region, living_years, tags) "
                    + "VALUES (?, ?, ?, ?, ?, ?) "

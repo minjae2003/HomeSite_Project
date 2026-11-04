@@ -5,7 +5,6 @@
 
     String sessionUserId = (String) session.getAttribute("id");
 
-    // 로그인하지 않은 사용자는 글쓰기 폼에 접근할 수 없도록 차단
     if (sessionUserId == null) {
         out.println("<script>alert('로그인이 필요합니다.'); location.href='../member/loginForm.jsp';</script>");
         return;

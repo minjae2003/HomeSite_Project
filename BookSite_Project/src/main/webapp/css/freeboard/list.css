@@ -46,7 +46,6 @@ a {
 	padding: 0 20px;
 }
 
-/* 1. 게시판 상단 제목 & 설명 헤더 영역 */
 .board-header {
 	margin-bottom: 24px;
 }
@@ -67,7 +66,6 @@ a {
 	font-weight: 400;
 }
 
-/* 2. 카테고리 탭 */
 .category-tabs {
 	display: flex;
 	align-items: center;
@@ -100,7 +98,6 @@ a {
 	box-shadow: 0 4px 12px rgba(43, 55, 78, 0.25);
 }
 
-/* 3. 게시글 목록 영역 */
 .board-card {
 	background: #fff;
 	border-radius: 12px;
@@ -208,7 +205,6 @@ a {
 	background: #e64a19;
 }
 
-/* 페이징 */
 .pagination {
 	display: flex;
 	justify-content: center;
@@ -232,7 +228,6 @@ a {
 	border-color: #1e272e;
 }
 
-/* 검색 */
 .search-box {
 	display: flex;
 	align-items: center;

@@ -13,7 +13,6 @@
         var next = slider.querySelector('.tab-arrow.next');
         if (!track) return;
 
-        // 넘길 수 있는 방향 표시 갱신
         function update() {
             var max = track.scrollWidth - track.clientWidth;
             var canPrev = track.scrollLeft > 16;   // 16px 이하로 남으면 끝에 도달한 것으로 봄
@@ -24,7 +23,6 @@
             if (next) next.hidden = !canNext;
         }
 
-        // 화살표: 보이는 폭의 70%씩 이동
         function step(dir) {
             track.scrollBy({ left: dir * track.clientWidth * 0.7, behavior: 'smooth' });
         }
@@ -34,7 +32,6 @@
         track.addEventListener('scroll', update, { passive: true });
         window.addEventListener('resize', update);
 
-        // 선택된 탭을 가운데로
         var active = track.querySelector('.tab-item.active');
         if (active) {
             track.scrollLeft = active.offsetLeft - (track.clientWidth - active.offsetWidth) / 2;

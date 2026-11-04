@@ -61,7 +61,6 @@
                 </div>
 
                 <% if (found != null) { %>
-                <!-- 찾기 결과 -->
                 <div class="find-result">
                     <p class="find-result-title">입력하신 정보와 일치하는 아이디예요.</p>
                     <ul class="find-id-list">

@@ -31,7 +31,6 @@ public class AttemptLimiter {
         this.lockMs = lockMs;
     }
 
-    /** 잠겨 있으면 남은 분(1 이상), 아니면 0 */
     public int lockedMinutes(String key) {
         if (key == null) return 0;
         Entry e = map.get(key);
@@ -42,14 +41,13 @@ public class AttemptLimiter {
         }
     }
 
-    /** 실패 1회 기록. 남은 시도 횟수 반환 (0이면 방금 잠김) */
     public int fail(String key) {
         if (key == null) return maxFail;
         cleanupIfLarge();
         long now = System.currentTimeMillis();
         Entry e = map.computeIfAbsent(key, k -> new Entry());
         synchronized (e) {
-            if (now - e.windowStart > windowMs) {   // 기록 기간이 지났으면 새로 셈
+            if (now - e.windowStart > windowMs) {
                 e.windowStart = now;
                 e.count = 0;
             }
@@ -64,7 +62,6 @@ public class AttemptLimiter {
         }
     }
 
-    /** 성공하면 기록 삭제 */
     public void success(String key) {
         if (key != null) map.remove(key);
     }

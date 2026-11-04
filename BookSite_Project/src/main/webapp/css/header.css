@@ -40,7 +40,6 @@ header {
     gap: 8px; 
     white-space: nowrap; 
 }
-/* 로고 링크: 페이지 CSS와 상관없이 밑줄·파란색 없이 표시 */
 .logo a,
 .logo a:visited {
     color: inherit;
@@ -59,10 +58,6 @@ nav a:hover { color: #f97316; }
 nav a small { font-weight: 500; font-size: 11px; color: #9ca3af; display: block; margin-top: 2px; }
 nav li { margin-right: 20px; }
 
-/* -------------------------------------------------- */
-/* 헤더 우측 로그인/회원가입/닉네임 스타일 */
-/* -------------------------------------------------- */
-
 .header-auth {
     margin-left: auto;
     display: flex;
@@ -70,7 +65,6 @@ nav li { margin-right: 20px; }
     gap: 10px;
 }
 
-/* 로그인 상태 닉네임 뱃지 */
 .header-auth .user-nickname {
     display: inline-flex;
     align-items: center;
@@ -89,7 +83,6 @@ nav li { margin-right: 20px; }
     font-weight: 800;
 }
 
-/* 공통 버튼 스타일 */
 .header-auth .btn-auth {
     display: inline-flex;
     align-items: center;
@@ -104,10 +97,9 @@ nav li { margin-right: 20px; }
     transition: all 0.2s ease;
 }
 
-/* 1. 로그인 버튼 (주황 그라데이션) */
 .header-auth .btn-login {
     background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-    color: #ffffff !important; /* 글자색 흰색 강제 고정 */
+    color: #ffffff !important;
     border: none;
     box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25);
 }
@@ -119,10 +111,9 @@ nav li { margin-right: 20px; }
     color: #ffffff !important;
 }
 
-/* 2. 회원가입 버튼 (파란 그라데이션) */
 .header-auth .btn-signup {
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: #ffffff !important; /* 글자색 흰색 강제 고정 */
+    color: #ffffff !important;
     border: none;
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
 }
@@ -134,7 +125,6 @@ nav li { margin-right: 20px; }
     color: #ffffff !important;
 }
 
-/* 3. 로그아웃 버튼 */
 .header-auth .btn-logout {
     background-color: #f3f4f6;
     color: #4b5563 !important;
@@ -148,7 +138,6 @@ nav li { margin-right: 20px; }
     transform: translateY(-1px);
 }
 
-/* 좁은 창/모바일: 로고-네비-로그인영역이 겹치지 않게 줄바꿈 + 여백 축소 */
 @media (max-width: 760px) {
     header { padding: 12px 5%; gap: 10px 20px; }
     nav ul { gap: 8px 16px; }
@@ -157,9 +146,6 @@ nav li { margin-right: 20px; }
     .header-auth { margin-left: 0; }
 }
 
-/* -------------------------------------------------- */
-/* 알림 (종 아이콘 + 드롭다운 패널) */
-/* -------------------------------------------------- */
 .header-auth a.user-nickname { text-decoration: none; }
 
 .notif-wrap { position: relative; }
@@ -285,10 +271,6 @@ nav li { margin-right: 20px; }
 }
 .notif-footer:hover { background: #F7F8FC; }
 
-
-/* -------------------------------------------------- */
-/* 헤더 검색창 (시안: 둥근 회색 입력창 + 돋보기) */
-/* -------------------------------------------------- */
 .header-search {
     display: flex;
     align-items: center;
@@ -318,7 +300,6 @@ nav li { margin-right: 20px; }
     color: #2B2B33;
 }
 
-/* 비로그인 알림 안내 */
 .notif-empty { line-height: 1.6; }
 .notif-login {
     display: inline-block;
@@ -340,7 +321,6 @@ nav li { margin-right: 20px; }
     .header-auth { flex-wrap: wrap; width: 100%; }
 }
 
-/* 검색창이 추가되어도 한 줄에 들어가도록 넓지 않은 화면에서 여백/너비를 조금씩 줄임 */
 @media (max-width: 1600px) {
     header { padding-left: 5%; padding-right: 5%; }
     nav li { margin-right: 8px; }
@@ -350,10 +330,8 @@ nav li { margin-right: 20px; }
     nav a { font-size: 16px; }
 }
 
-/* ================================================== */
 /* 모바일 헤더 (760px 이하): 로고 + 알림 + 메뉴 버튼 한 줄,   */
 /* 메뉴·검색·로그인 버튼은 ☰ 버튼을 눌렀을 때만 펼쳐짐          */
-/* ================================================== */
 .nav-toggle { display: none; }
 
 @media (max-width: 760px) {
@@ -389,13 +367,11 @@ nav li { margin-right: 20px; }
         cursor: pointer;
     }
 
-    /* 접혀 있을 때는 숨김 */
     nav,
     .header-search,
     .header-auth .btn-auth,
     .header-auth .user-nickname { display: none; }
 
-    /* 펼쳤을 때 */
     header.menu-open nav {
         display: block;
         order: 4;
@@ -434,7 +410,6 @@ nav li { margin-right: 20px; }
         padding: 10px 12px;
     }
 
-    /* 알림 패널: 화면 폭에 맞춰 오른쪽 정렬 */
     .notif-panel { position: fixed; top: 60px; left: 12px; right: 12px; width: auto; max-width: none; }
 }
 

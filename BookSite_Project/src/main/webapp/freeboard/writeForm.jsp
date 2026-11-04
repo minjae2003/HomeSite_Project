@@ -5,7 +5,6 @@
 
     String sessionUserId = (String) session.getAttribute("id");
 
-    // 로그인하지 않은 사용자는 글쓰기 폼에 접근할 수 없도록 차단
     if (sessionUserId == null) {
         out.println("<script>alert('로그인이 필요합니다.'); location.href='../member/loginForm.jsp';</script>");
         return;
@@ -18,7 +17,6 @@
 
     String sessionRole = (String) session.getAttribute("role");
 
-    // 목록에서 넘어온 카테고리를 미리 선택 (FREE/TIP/QNA/RECIPE 외에는 FREE)
     String selCat = request.getParameter("category");
     selCat = (selCat == null) ? "FREE" : selCat.trim().toUpperCase();
     if (!java.util.Arrays.asList("FREE", "TIP", "QNA", "RECIPE").contains(selCat)) selCat = "FREE";
@@ -33,7 +31,6 @@
     <link rel="stylesheet" href="../css/freeboard/write.css">
 </head>
 <body>
-
 
 <jsp:include page="../module/header.jsp" flush="false" />
 

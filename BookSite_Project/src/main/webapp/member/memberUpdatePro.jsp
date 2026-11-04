@@ -34,6 +34,23 @@
         out.println("<script>alert('입력값이 너무 깁니다.'); history.back();</script>");
         return;
     }
+    // 전화번호는 선택 입력 - 숫자만 뽑아서 형식 검사 후 010-1234-5678 형태로 저장
+    String phoneRaw = request.getParameter("phone");
+    String digits = (phoneRaw == null) ? "" : phoneRaw.replaceAll("[^0-9]", "");
+    String phone = null;
+    if (!digits.isEmpty()) {
+        boolean seoul = digits.startsWith("02");
+        boolean valid = digits.startsWith("0") &&
+                (seoul ? (digits.length() == 9 || digits.length() == 10)
+                       : (digits.length() == 10 || digits.length() == 11));
+        if (!valid) {
+            out.println("<script>alert('전화번호 형식이 올바르지 않습니다.'); history.back();</script>");
+            return;
+        }
+        int head = seoul ? 2 : 3;
+        int tail = digits.length() - 4;
+        phone = digits.substring(0, head) + "-" + digits.substring(head, tail) + "-" + digits.substring(tail);
+    }
     if (!newPass.equals(newPassConfirm)) {
         out.println("<script>alert('새 비밀번호가 서로 일치하지 않습니다.'); history.back();</script>");
         return;
@@ -47,7 +64,6 @@
         }
     }
 
-    // 본인 확인: 현재 비밀번호 검사 (MemberDAO.userCheck: 1 = 일치)
     MemberDAO dao = MemberDAO.getInstance();
     int locked = LoginLimiter.lockedMinutes(request, sessionUserId);
     if (locked > 0) {
@@ -66,9 +82,9 @@
     member.setNickname(nickname);
     member.setName(name);
     member.setEmail(email);
+    member.setPhone(phone);
 
     if (dao.updateMember(member, newPass)) {
-        // 헤더 등에 바로 반영되도록 세션의 닉네임도 갱신
         session.setAttribute("nickname", nickname);
         out.println("<script>alert('회원정보가 수정되었습니다.'); location.href='../mypage/account.jsp';</script>");
     } else {

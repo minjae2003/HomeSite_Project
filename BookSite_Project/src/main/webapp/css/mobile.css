@@ -5,7 +5,6 @@
    ================================================================== */
 @media (max-width: 768px) {
 
-    /* 화면 밖으로 넘치는 이미지/영상 방지 */
     img, video { max-width: 100%; height: auto; }
 
     /* iOS 사파리는 글자 크기 16px 미만 입력창을 누르면 화면을 확대함 → 16px로 고정 */
@@ -13,7 +12,6 @@
     select,
     textarea { font-size: 16px !important; }
 
-    /* ── 카테고리 탭: 여러 줄로 흩어지지 않고 가로로 밀어서 넘기기 ── */
     .category-tabs {
         flex-wrap: nowrap !important;
         overflow-x: auto;
@@ -67,7 +65,6 @@
     }
     .board-table td:nth-child(3)::before,
     .board-table td:nth-child(4)::before { content: "·"; margin-right: 10px; color: #cbd5e1; }
-    /* 글이 없을 때 안내 문구 칸 */
     .board-table td[colspan] {
         flex: 1 1 100%;
         text-align: center !important;
@@ -76,14 +73,11 @@
     }
     .board-table td[colspan]::before { content: none; }
 
-    /* 목록 위 "총 N개 / 글쓰기" 줄 */
     .top-bar { gap: 10px; }
     .btn-write { white-space: nowrap; }
 
-    /* 페이지 번호가 많아도 줄바꿈 */
     .pagination { flex-wrap: wrap; }
 
-    /* 게시글 본문 안 이미지/영상 */
     .post-content img, .post-content video, .post-media { max-width: 100%; height: auto; }
 }
 
@@ -95,13 +89,12 @@
     .tab-slider .category-tabs {
         position: relative;
         margin-bottom: 0 !important;
-        scroll-snap-type: x proximity;   /* 손으로 밀면 탭 위치에 맞춰 멈춤 */
+        scroll-snap-type: x proximity;
         scroll-behavior: smooth;
         padding: 4px 4px 8px;
     }
     .tab-slider .tab-item { scroll-snap-align: center; }
 
-    /* 좌우 화살표 버튼 */
     .tab-arrow {
         display: flex;
         align-items: center;

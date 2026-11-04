@@ -12,21 +12,17 @@ String sessionUserNick = (String) session.getAttribute("nickname");
 if (sessionUserNick == null)
 	sessionUserNick = (String) session.getAttribute("name");
 
-// 카테고리 파라미터 (ALL, BEST, FREE, TIP, QNA, RECIPE)
 // 목록에 없는 값은 ALL로 처리 (화면에 그대로 출력되므로 임의 값 차단)
 String category = request.getParameter("category");
 category = (category == null) ? "ALL" : category.trim().toUpperCase();
 if (!java.util.Arrays.asList("ALL", "BEST", "FREE", "TIP", "QNA", "RECIPE").contains(category)) {
 	category = "ALL";
 }
-// 글쓰기 버튼에 현재 카테고리를 넘겨서 해당 카테고리가 미리 선택되도록 함
 String writeQuery = java.util.Arrays.asList("FREE", "TIP", "QNA", "RECIPE").contains(category)
 		? "?category=" + category : "";
-// 검색어 파라미터
 String keyword = request.getParameter("keyword");
 if (keyword != null)
 	keyword = keyword.trim();
-// 페이징 처리
 int pageSize = 10;
 String pageNum = request.getParameter("pageNum");
 if (pageNum == null || !pageNum.matches("\\d{1,9}"))
@@ -50,7 +46,6 @@ List<BoardVO> articleList = null;
 if (totalCount > 0) {
 	articleList = dao.getArticles(startRow, pageSize, queryCategory, keyword);
 }
-// 페이징/탭 링크에 검색어를 그대로 이어붙이기 위한 쿼리스트링 조각
 String keywordQuery = "";
 if (keyword != null && !keyword.isEmpty()) {
 	try {
@@ -81,12 +76,10 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 	<jsp:include page="../module/header.jsp" flush="false" />
 
 	<div class="container">
-		<!-- 게시판 헤더 -->
 		<div class="board-header">
 			<h1 class="board-title">💭 생활 꿀팁/자유 게시판</h1>
 			<p class="board-subtitle">자취생들과 다양한 소식, 고민, 꿀팁, 요리레시피를 나누는 공간입니다.</p>
 		</div>
-		<!-- 검색창 -->
 		<form class="search-box" action="list.jsp" method="get">
 			<input type="hidden" name="category" value="<%=category%>">
 			<input type="text" name="keyword" placeholder="제목/내용으로 검색"
@@ -128,7 +121,7 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 
 		<div class="top-bar">
 			<span style="font-size: 14px; color: #666;"> 총 <b><%=totalCount%></b>개의
-				게시글 <%="BEST".equals(category) ? "(조회수 높은 순)" : ""%>
+				게시글 <%="BEST".equals(category) ? "(최근 " + BoardDAO.HOT_WINDOW_HOURS + "시간 조회·추천·댓글 기준)" : ""%>
 			</span> <a href="writeForm.jsp<%=writeQuery%>" class="btn-write">✏️ 글쓰기</a>
 		</div>
 
@@ -170,13 +163,13 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 							<a
 							href="content.jsp?num=<%=article.getNum()%>&pageNum=<%=pageNum%>&category=<%=category%><%=keywordQuery%>"
 							class="subject-link"> <%=HtmlUtil.esc(article.getSubject())%>
-						</a> <!-- 댓글 수 표시 --> <%
+						</a> <%
  if (article.getCommentCount() > 0) {
  %> <span
 							class="comment-cnt">[💬 <%=article.getCommentCount()%>]
 						</span> <%
  }
- %> <!-- 추천 수 표시 --> <%
+ %> <%
  if (article.getLikeCount() > 0) {
  %> <span
 							style="font-size: 12px; color: #e53935; font-weight: 700; margin-left: 4px;">[❤️
@@ -199,7 +192,6 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 			</table>
 		</div>
 
-		<!-- 페이징 영역 -->
 		<%
 		if (totalCount > 0) {
 			int pageCount = totalCount / pageSize + (totalCount % pageSize == 0 ? 0 : 1);

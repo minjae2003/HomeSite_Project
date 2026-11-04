@@ -42,7 +42,6 @@
         .page-link { padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; background: #fff; color: #555; font-size: 13px; font-weight: 600; }
         .page-link.active { background: #1e272e; color: #fff; border-color: #1e272e; }
 
-        /* 검색 */
         .search-box {
             display: flex;
             align-items: center;

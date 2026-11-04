@@ -49,7 +49,6 @@ public class MemberVO {
     public Timestamp getRegDate() { return regDate; }
     public void setRegDate(Timestamp regDate) { this.regDate = regDate; }
 
-    // Legacy/JSP 호환용 Alias 메서드
     public String getPass() { return password; }
     public void setPass(String pass) { this.password = pass; }
 

@@ -10,17 +10,14 @@
     String sessionUserNick = (String) session.getAttribute("nickname");
     if (sessionUserNick == null) sessionUserNick = (String) session.getAttribute("name");
 
-    // 공지사항 카테고리 파라미터 (ALL, FIX, NORMAL)
     String category = request.getParameter("category");
     // 링크/폼에 그대로 출력되므로 허용된 값만 사용 (반사형 XSS 방지)
     category = (category == null) ? "ALL" : category.trim().toUpperCase();
     if (!java.util.Arrays.asList("ALL", "FIX", "NORMAL").contains(category)) category = "ALL";
 
-    // 검색어 파라미터
     String keyword = request.getParameter("keyword");
     if (keyword != null) keyword = keyword.trim();
 
-    // 페이징 처리
     int pageSize = 10;
     String pageNum = request.getParameter("pageNum");
     if (pageNum == null || !pageNum.matches("\\d{1,9}")) pageNum = "1";
@@ -36,7 +33,6 @@
         articleList = dao.getNotices(startRow, pageSize, category, keyword);
     }
 
-    // 페이징/탭 링크에 검색어를 그대로 이어붙이기 위한 쿼리스트링 조각
     String keywordQuery = "";
     if (keyword != null && !keyword.isEmpty()) {
         try {
@@ -72,7 +68,6 @@
         <p class="board-subtitle">운영진의 안내와 중요한 소식을 확인하는 공간입니다.</p>
     </div>
 
-    <!-- 검색창 -->
     <form class="search-box" action="list.jsp" method="get">
         <input type="hidden" name="category" value="<%= category %>">
         <input type="text" name="keyword" placeholder="제목/내용으로 검색" value="<%= escapedKeyword %>">

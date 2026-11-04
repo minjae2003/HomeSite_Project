@@ -17,7 +17,6 @@
 
     NotificationDAO dao = NotificationDAO.getInstance();
 
-    // ── 필터 탭 (ALL / COMMENT / LIKE / NOTICE) ──
     String type = request.getParameter("type");
     if (!NotificationDAO.isValidType(type)) type = "ALL";
     String daoType = "ALL".equals(type) ? null : type;
@@ -26,7 +25,6 @@
         {"ALL", "전체"}, {"COMMENT", "댓글"}, {"LIKE", "추천"}, {"NOTICE", "공지"}
     };
 
-    // ── 페이징 ──
     int pageSize = 15;
     int currentPage = 1;
     String pageNumStr = request.getParameter("pageNum");
@@ -38,12 +36,10 @@
     if (currentPage > pageCount) currentPage = pageCount;
     List<NotificationVO> list = dao.getList(sessionUserId, daoType, (currentPage - 1) * pageSize, pageSize);
 
-    // ── 사이드바: 수신 설정 / 최근 공지 ──
     boolean[] settings = dao.getSettings(sessionUserId);
     String[][] settingRows = { {"COMMENT", "댓글 알림"}, {"LIKE", "추천 알림"}, {"NOTICE", "공지사항 알림"} };
     List<BoardVO> recentNotices = BoardDAO.getInstance().getNotices(0, 3, "ALL");
 
-    // 처리 후 돌아올 현재 페이지 주소
     String selfUrl = request.getContextPath() + "/mypage/notifications.jsp?type=" + type + "&pageNum=" + currentPage;
 %>
 <!DOCTYPE html>
@@ -76,7 +72,6 @@
 
   <div class="main-grid noti-grid">
     <main>
-      <!-- 필터 탭 (숫자는 읽지 않은 알림 수) -->
       <div class="filter-tabs">
       <% for (String[] t : tabs) {
            int unread = dao.getUnreadCount(sessionUserId, "ALL".equals(t[0]) ? null : t[0]);
@@ -149,7 +144,6 @@
     </main>
 
     <aside>
-      <!-- 알림 수신 설정 (스위치를 누르면 바로 저장) -->
       <div class="side-block" id="notiSetting">
         <p class="side-title">알림 수신 설정</p>
         <% for (int i = 0; i < settingRows.length; i++) { %>
@@ -165,7 +159,6 @@
         <p class="side-note">끈 알림은 새로 생기지 않아요. 이미 받은 알림은 그대로 남아요.</p>
       </div>
 
-      <!-- 최근 공지사항 -->
       <div class="side-block">
         <p class="side-title">최근 공지사항</p>
         <% if (recentNotices == null || recentNotices.isEmpty()) { %>

@@ -32,7 +32,6 @@
     String bio = profile.getBio() == null ? "" : profile.getBio();
     String imgUrl = profile.hasImage() ? request.getContextPath() + "/uploads/profile/" + profile.getProfileImg() : "";
 
-    // 미리보기 등급 (마이페이지와 같은 계산)
     MyPageDAO my = MyPageDAO.getInstance();
     Level level = new Level(my.getPostCount(sessionUserId), my.getCommentCount(sessionUserId), my.getReceivedLikeCount(sessionUserId));
 %>
@@ -69,7 +68,6 @@
         </div>
         <div class="pf-card-body">
 
-          <!-- 프로필 사진 -->
           <div class="field">
             <label>프로필 사진 <span class="hint">jpg · png · gif · webp, 5MB 이하</span></label>
             <div class="photo-row">
@@ -84,20 +82,17 @@
             </div>
           </div>
 
-          <!-- 닉네임 -->
           <div class="field">
             <label for="nickname">닉네임</label>
             <input type="text" id="nickname" name="nickname" maxlength="50" value="<%= esc(nickname) %>" required>
           </div>
 
-          <!-- 한줄 소개 -->
           <div class="field">
             <label for="bio">한줄 소개 <span class="hint">최대 <%= ProfileDAO.BIO_MAX %>자</span></label>
             <textarea id="bio" name="bio" maxlength="<%= ProfileDAO.BIO_MAX %>" placeholder="나를 한 줄로 소개해 보세요"><%= esc(bio) %></textarea>
             <div class="char-count"><span id="bioCount"><%= bio.length() %></span> / <%= ProfileDAO.BIO_MAX %></div>
           </div>
 
-          <!-- 거주 지역 / 자취 연차 (기본값: 설정 안 함) -->
           <div class="field-row">
             <div class="field">
               <label for="region">거주 지역</label>
@@ -123,7 +118,6 @@
             </div>
           </div>
 
-          <!-- 관심 태그 -->
           <div class="field">
             <label>관심 태그 <span class="hint">최대 <%= ProfileDAO.TAG_MAX %>개 선택</span></label>
             <div class="tag-select">
@@ -186,7 +180,6 @@
 
   function firstChar(s) { s = (s || '').trim(); return s ? Array.from(s)[0] : '?'; }
 
-  // 아바타 두 곳(사진 칸, 미리보기)을 같이 바꿈
   function setAvatar(src) {
     boxes.forEach(function (box) {
       box.textContent = '';
@@ -200,7 +193,6 @@
     });
   }
 
-  // 사진 선택 → 바로 미리보기
   photoInput.addEventListener('change', function () {
     var f = photoInput.files[0];
     if (!f) return;
@@ -218,14 +210,12 @@
     reader.readAsDataURL(f);
   });
 
-  // 기본 이미지로 (저장해야 반영)
   window.resetPhoto = function () {
     photoInput.value = '';
     removePhoto.value = 'Y';
     setAvatar(null);
   };
 
-  // 한줄 소개 글자 수 + 미리보기
   function updateText() {
     document.getElementById('bioCount').textContent = bio.value.length;
     document.getElementById('previewName').textContent = nick.value.trim() || '닉네임';
@@ -242,7 +232,6 @@
   [region, years].forEach(function (el) { el.addEventListener('change', updateText); });
   updateText();
 
-  // 관심 태그 최대 개수 제한
   var tagBoxes = form.querySelectorAll('input[name=tags]');
   tagBoxes.forEach(function (cb) {
     cb.addEventListener('change', function () {

@@ -22,13 +22,11 @@
   button{ font-family:inherit; }
   .wrap{ max-width:1180px; margin:0 auto; padding:0 24px; }
 
-  /* page head */
   .breadcrumb{ font-size:12.5px; color:var(--text-soft); margin:26px 0 8px; }
   .breadcrumb b{ color:var(--text); font-weight:700; }
   .page-title{ font-size:24px; font-weight:800; margin:0 0 6px; }
   .page-sub{ font-size:14px; color:var(--text-soft); margin:0 0 22px; }
 
-  /* progress hero */
   .progress-hero{
     background:linear-gradient(135deg,var(--purple1),var(--purple2));
     border-radius:16px; padding:26px 28px; color:#fff;
@@ -47,7 +45,6 @@
 
   .main-grid{ display:grid; grid-template-columns:1fr 300px; gap:24px; padding-bottom:60px; align-items:start; }
 
-  /* category card */
   .cat-card{ background:#fff; border:1px solid var(--card-border); border-radius:14px; margin-bottom:16px; overflow:hidden; }
   .cat-head{ display:flex; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid var(--card-border); }
   .cat-icon{
@@ -79,7 +76,6 @@
   .check-item.done .check-label{ color:var(--text-soft); text-decoration:line-through; }
   .check-item.done .check-desc{ text-decoration:line-through; }
 
-  /* sidebar */
   .side-block{ background:#fff; border:1px solid var(--card-border); border-radius:14px; padding:18px; margin-bottom:18px; }
   .side-title{ font-size:14px; font-weight:800; margin:0 0 12px; }
   .mini-progress-row{ display:flex; align-items:center; justify-content:space-between; padding:8px 0; font-size:13px; }

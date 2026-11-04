@@ -27,7 +27,6 @@
 <%
     request.setCharacterEncoding("UTF-8");
 
-    // 로그인 확인
     String sessionUserId = (String) session.getAttribute("id");
     if (sessionUserId == null) {
         out.println("<script>alert('로그인이 필요합니다.'); location.href='../member/loginForm.jsp';</script>");
@@ -41,9 +40,7 @@
     }
     String nickname = member.getNickname() != null && !member.getNickname().isEmpty() ? member.getNickname() : member.getId();
     boolean isAdmin = "ADMIN".equals(member.getRole());
-    // 공개 프로필 (사진 / 한줄 소개 / 지역 / 연차 / 관심 태그)
     ProfileVO profile = ProfileDAO.getInstance().get(sessionUserId);
-    // ── 활동 통계 ──
     MyPageDAO dao = MyPageDAO.getInstance();
     int postCount = dao.getPostCount(sessionUserId);
     int commentCount = dao.getCommentCount(sessionUserId);
@@ -52,11 +49,9 @@
 
     Level level = new Level(postCount, commentCount, receivedLikes);
 
-    // ── 뱃지 (활동 기록으로 자동 획득) ──
     Map<String, Integer> byCat = dao.getPostCountByCategory(sessionUserId);
     int maxLike = dao.getMaxLike(sessionUserId);
     String[][] badges = {
-        // {아이콘, 이름, 획득조건 설명}
         {"✍️", "첫 글", "글을 1개 이상 작성"},
         {"💡", "정보통", "자취꿀팁 글 3개 이상"},
         {"🍳", "자취요리사", "요리레시피 글 1개 이상"},
@@ -69,10 +64,8 @@
         maxLike >= 10
     };
 
-    // ── 체크리스트 (계정에 저장된 진행률) ──
     int[] checklist = dao.getChecklistProgress(sessionUserId);
 
-    // ── 탭 + 페이징 ──
     String tab = request.getParameter("tab");
     if (!MyPageDAO.TAB_COMMENTS.equals(tab) && !MyPageDAO.TAB_LIKES.equals(tab)) tab = MyPageDAO.TAB_POSTS;
 
@@ -108,7 +101,6 @@
 
 <div class="wrap">
 
-    <!-- 프로필 -->
   <div class="profile-card">
     <div class="profile-avatar">
       <% if (profile.hasImage()) { %>
@@ -143,7 +135,6 @@
     </div>
   </div>
 
-  <!-- 활동 통계 -->
   <div class="stat-grid">
     <div class="stat-cell"><div class="num"><%= postCount %></div><div class="label">작성글</div></div>
     <div class="stat-cell"><div class="num"><%= commentCount %></div><div class="label">작성댓글</div></div>
@@ -198,7 +189,6 @@
     </main>
 
     <aside>
-      <!-- 등급 -->
       <div class="side-block">
         <p class="side-title"><%= level.isMax() ? "최고 등급 달성!" : "다음 등급까지" %></p>
         <div class="progress-track"><div class="progress-fill" style="width:<%= level.getPercent() %>%"></div></div>
@@ -212,7 +202,6 @@
         <p class="side-desc" style="margin:10px 0 0;">글 10P · 댓글 2P · 받은 추천 5P</p>
       </div>
 
-      <!-- 뱃지 -->
       <div class="side-block">
         <p class="side-title">획득 뱃지</p>
         <div class="badge-grid">
@@ -225,7 +214,6 @@
         </div>
       </div>
 
-      <!-- 체크리스트 -->
       <div class="side-block">
         <p class="side-title">자취 시작 체크리스트</p>
         <% if (checklist != null && checklist[1] > 0) {
@@ -240,7 +228,6 @@
         <% } %>
       </div>
 
-      <!-- 계정 관리 -->
       <div class="side-block">
         <p class="side-title">계정 관리</p>
         <p class="side-desc">로그인 정보, 알림 설정, 회원 탈퇴 등을 관리할 수 있어요.</p>

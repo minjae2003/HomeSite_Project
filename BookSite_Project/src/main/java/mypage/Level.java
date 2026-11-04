@@ -29,10 +29,8 @@ public class Level {
     public int getNextLevel() { return isMax() ? getLevel() : getLevel() + 1; }
     public String getNextName() { return isMax() ? getName() : NAMES[index + 1]; }
 
-    /** 다음 등급까지 남은 점수 */
     public int getRemain() { return isMax() ? 0 : THRESHOLDS[index + 1] - point; }
 
-    /** 현재 등급 구간 안에서의 진행률 (0~100) */
     public int getPercent() {
         if (isMax()) return 100;
         int from = THRESHOLDS[index], to = THRESHOLDS[index + 1];

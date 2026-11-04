@@ -21,7 +21,6 @@ public class BoardFileDAO {
         return ds.getConnection();
     }
 
-    // 1. 첨부파일 등록
     public void insertFile(BoardFileVO file) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -45,7 +44,6 @@ public class BoardFileDAO {
         }
     }
 
-    // 2. 특정 게시글의 첨부파일 목록 (본문 삽입 순서대로 정렬)
     public List<BoardFileVO> getFiles(int boardNum) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -78,7 +76,6 @@ public class BoardFileDAO {
         return list;
     }
 
-    // 3. 첨부파일 1개 삭제 (DB 레코드만 - 물리 파일 삭제는 호출부에서)
     public void deleteFile(int fileNum) {
         Connection conn = null;
         PreparedStatement pstmt = null;

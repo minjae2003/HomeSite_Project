@@ -25,7 +25,6 @@
         .btn-like.active { background: #e53935; color: #fff; border-color: #e53935; }
         .btn-list { background: #f1f5f9; color: #475569; }
 
-        /* 댓글 영역 */
         .comment-section { background: #fff; border-radius: 12px; border: 1px solid #eaeaea; padding: 25px; }
         .comment-header { font-size: 18px; font-weight: 700; margin-bottom: 18px; color: #1e293b; }
         .comment-form { display: flex; gap: 10px; margin-bottom: 25px; }

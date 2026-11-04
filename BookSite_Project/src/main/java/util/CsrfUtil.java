@@ -38,7 +38,6 @@ public final class CsrfUtil {
         return t;
     }
 
-    /** 요청에 담긴 토큰(헤더 또는 _csrf 파라미터)이 세션 토큰과 같은지 */
     public static boolean isValid(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session == null) return false;

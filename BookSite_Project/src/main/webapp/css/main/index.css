@@ -2,12 +2,10 @@
 body { background-color: #f4f5f7; color: #333; line-height: 1.5; }
 a { text-decoration: none; color: inherit; }
 
-/* Container & Layout */
 .container { display: flex; width: 80%; max-width: 1200px; margin: 30px auto; gap: 24px; }
 .main-content { flex: 3; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
 .sidebar { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 20px; }
 
-/* Notice Hero Banner */
 .notice-banner { 
     background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%); 
     border: 2px solid #bfdbfe; 
@@ -30,7 +28,6 @@ a { text-decoration: none; color: inherit; }
     box-shadow: 0 2px 4px rgba(0,0,0,0.03); 
 }
 
-/* 4-Card Grid */
 .board-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
 .board-card {
     background: #ffffff;
@@ -67,7 +64,6 @@ a { text-decoration: none; color: inherit; }
 }
 .post-list a:hover { color: #f97316; text-decoration: underline; }
 
-/* Sidebar Elements */
 .sidebar-box { 
     background: #ffffff; 
     border-radius: 14px; 
@@ -150,7 +146,6 @@ a { text-decoration: none; color: inherit; }
     min-width: 14px; 
 }
 
-/* 실시간 인기글 섹션 */
 .hot-posts-section {
     margin-top: 32px;
     background: #ffffff;
@@ -323,7 +318,6 @@ a { text-decoration: none; color: inherit; }
     color: #6b7280;
 }
 
-/* 체크리스트 안내 배너 */
 .checklist-banner {
     background: #f0f5ff;
     border: 1px solid #e0e7ff;
@@ -410,3 +404,5 @@ a { text-decoration: none; color: inherit; }
 @media (max-width: 760px) {
     .sidebar .auth-buttons { display: none; }
 }
+
+.hot-posts-section .section-title .hot-window { font-size: 12px; font-weight: 600; color: #94a3b8; margin-left: 6px; }

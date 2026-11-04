@@ -4,10 +4,6 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-/**
- * 알림 1건 (NOTIFICATION 테이블)
- *  type: COMMENT(내 글에 댓글) / LIKE(내 글 추천) / NOTICE(새 공지사항)
- */
 public class NotificationVO {
     private int notiNum;
     private String receiverId;
@@ -16,8 +12,8 @@ public class NotificationVO {
     private String actorNickname;
     private int boardNum;
     private String boardSubject;
-    private String preview;     // 댓글 내용 / 공지 본문 미리보기
-    private String boardType;   // 조회 시 BOARD와 조인해서 채움 (링크 경로 결정용)
+    private String preview;
+    private String boardType;
     private boolean read;
     private Timestamp regDate;
 
@@ -54,7 +50,6 @@ public class NotificationVO {
     public Timestamp getRegDate() { return regDate; }
     public void setRegDate(Timestamp regDate) { this.regDate = regDate; }
 
-    /** 알림을 눌렀을 때 이동할 게시글 경로 (contextPath 뒤에 붙임) */
     public String getLinkPath() {
         String folder = "NOTICE".equals(boardType) ? "noticeboard" : "freeboard";
         return "/" + folder + "/content.jsp?num=" + boardNum;
@@ -70,7 +65,6 @@ public class NotificationVO {
         return esc(getBoardSubject());
     }
 
-    /** 전체 알림 페이지용 제목 (HTML) */
     public String getTitleHtml() {
         String nick = "<b>" + esc(getActorNickname()) + "</b>";
         String subj = "\"" + esc(shorten(getBoardSubject(), 40)) + "\"";
@@ -80,14 +74,12 @@ public class NotificationVO {
         return esc(getBoardSubject());
     }
 
-    /** 전체 알림 페이지용 부가 설명 (댓글 내용 / 공지 본문 미리보기), 없으면 null */
     public String getDescHtml() {
         if (preview == null || preview.trim().isEmpty()) return null;
         String p = esc(shorten(preview.trim(), 60));
         return "COMMENT".equals(type) ? "\"" + p + "\"" : p;
     }
 
-    /** "5분 전", "어제" 같은 상대 시간 (헤더 드롭다운용) */
     public String getTimeAgo() {
         if (regDate == null) return "";
         long diffSec = (System.currentTimeMillis() - regDate.getTime()) / 1000;
@@ -99,7 +91,6 @@ public class NotificationVO {
         return new SimpleDateFormat("yyyy.MM.dd").format(regDate);
     }
 
-    /** 전체 알림 페이지용 시간: 오늘 → "5분 전", 어제 → "어제 18:12", 그 외 → "09.14" */
     public String getTimeText() {
         if (regDate == null) return "";
         int days = daysAgo();
@@ -110,7 +101,6 @@ public class NotificationVO {
         return new SimpleDateFormat(now.get(Calendar.YEAR) == c.get(Calendar.YEAR) ? "MM.dd" : "yyyy.MM.dd").format(regDate);
     }
 
-    /** 날짜 묶음 이름: 오늘 / 어제 / 이번 주 / 이전 알림 */
     public String getGroupLabel() {
         int days = daysAgo();
         if (days <= 0) return "오늘";
@@ -119,7 +109,6 @@ public class NotificationVO {
         return "이전 알림";
     }
 
-    /** 오늘 기준 며칠 전인지 (날짜 단위) */
     private int daysAgo() {
         if (regDate == null) return 0;
         Calendar today = Calendar.getInstance();
@@ -132,7 +121,6 @@ public class NotificationVO {
         return (int) Math.round((today.getTimeInMillis() - d.getTimeInMillis()) / 86400000.0);
     }
 
-    /** 알림 종류별 아이콘 */
     public String getIcon() {
         if ("COMMENT".equals(type)) return "💬";
         if ("LIKE".equals(type)) return "👍";

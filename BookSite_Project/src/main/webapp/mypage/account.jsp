@@ -25,7 +25,6 @@
     String pwChanged = member.getPwChangedAt() != null ? fmt.format(member.getPwChangedAt()) : "변경 기록 없음";
     String infoChanged = member.getInfoChangedAt() != null ? fmt.format(member.getInfoChangedAt()) : "변경 기록 없음";
 
-    // 알림 수신 설정 {댓글, 추천, 공지}
     boolean[] settings = NotificationDAO.getInstance().getSettings(sessionUserId);
     String[][] settingRows = {
         {"COMMENT", "댓글 알림", "내 글에 댓글이 달리면 알려드려요"},
@@ -56,7 +55,6 @@
   <div class="main-grid acct-grid">
     <main>
 
-      <!-- 로그인 정보 -->
       <div class="acct-card" id="login-info">
         <div class="acct-card-head">
           <h3>로그인 정보</h3>
@@ -83,7 +81,6 @@
         </div>
       </div>
 
-      <!-- 알림 설정 (스위치를 누르면 바로 저장) -->
       <div class="acct-card" id="notiSetting">
         <div class="acct-card-head">
           <h3>알림 설정</h3>
@@ -106,7 +103,6 @@
         </div>
       </div>
 
-      <!-- 위험 구역 -->
       <div class="acct-card danger-zone" id="danger-zone">
         <div class="acct-card-head">
           <h3>위험 구역</h3>
@@ -168,7 +164,6 @@
 </div>
 
 <script>
-  // 바로가기: 부드럽게 스크롤 + 현재 항목 강조
   (function () {
     var links = document.querySelectorAll('.settings-list a');
     function setActive(hash) {

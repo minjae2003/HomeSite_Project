@@ -3,7 +3,6 @@
 <%
     request.setCharacterEncoding("UTF-8");
 
-    // 1) 로그인 확인
     String sessionUserId = (String) session.getAttribute("id");
     String sessionRole = (String) session.getAttribute("role");
     if (sessionUserId == null) {
@@ -11,13 +10,13 @@
         return;
     }
 
-    // 2) POST만 허용 (링크/이미지 태그로 몰래 호출되는 것 방지)
+    // POST만 허용 (링크/이미지 태그로 몰래 호출되는 것 방지)
     if (!"POST".equalsIgnoreCase(request.getMethod())) {
         response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
         return;
     }
 
-    // 3) 입력값 검증 - 숫자가 아니면 거부 (NumberFormatException 500 에러 방지)
+    // 입력값 검증 - 숫자가 아니면 거부 (NumberFormatException 500 에러 방지)
     String commentNumParam = request.getParameter("commentNum");
     String boardNumParam = request.getParameter("boardNum");
     String pageNum = request.getParameter("pageNum");
@@ -35,7 +34,7 @@
     int commentNum = Integer.parseInt(commentNumParam);
     int boardNum = Integer.parseInt(boardNumParam);
 
-    // 4) 본인 또는 관리자만 삭제 (권한 확인은 DAO의 WHERE 절에서)
+    // 본인 또는 관리자만 삭제 (권한 확인은 DAO의 WHERE 절에서)
     boolean deleted = CommentDAO.getInstance()
             .deleteComment(commentNum, boardNum, sessionUserId, "ADMIN".equals(sessionRole));
 

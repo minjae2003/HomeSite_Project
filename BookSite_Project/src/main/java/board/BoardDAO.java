@@ -15,7 +15,28 @@ public class BoardDAO {
     public static BoardDAO getInstance() { return instance; }
     private BoardDAO() {}
 
-    // DBCP 커넥션 풀 연결
+    // 실시간 인기글: 지금 시각 기준 직전 HOT_WINDOW_HOURS 시간 동안 생긴 조회·추천·댓글만 점수로 셈 (롤링 집계)
+    // 점수가 있는 글이 먼저, 부족한 자리는 누적 조회수 순으로 채움
+    public static final int HOT_WINDOW_HOURS = 24;
+    private static final int W_VIEW = 1, W_LIKE = 5, W_COMMENT = 3;
+
+    // 상수만 넣으므로 SQL 문자열에 직접 붙여도 안전 (사용자 입력 없음)
+    private static final String HOT_JOINS =
+          " LEFT JOIN (SELECT board_num, COUNT(*) AS cnt FROM BOARD_VIEW_LOG"
+        + "   WHERE viewed_at >= NOW() - INTERVAL " + HOT_WINDOW_HOURS + " HOUR GROUP BY board_num) hv ON hv.board_num = b.num"
+        + " LEFT JOIN (SELECT board_num, COUNT(*) AS cnt FROM BOARD_LIKE"
+        + "   WHERE reg_date >= NOW() - INTERVAL " + HOT_WINDOW_HOURS + " HOUR GROUP BY board_num) hl ON hl.board_num = b.num"
+        + " LEFT JOIN (SELECT board_num, COUNT(*) AS cnt FROM BOARD_COMMENT"
+        + "   WHERE reg_date >= NOW() - INTERVAL " + HOT_WINDOW_HOURS + " HOUR GROUP BY board_num) hc ON hc.board_num = b.num";
+    private static final String HOT_SCORE =
+        "(COALESCE(hv.cnt, 0) * " + W_VIEW + " + COALESCE(hl.cnt, 0) * " + W_LIKE + " + COALESCE(hc.cnt, 0) * " + W_COMMENT + ")";
+    private static final String HOT_ORDER =
+        " ORDER BY (" + HOT_SCORE + " > 0) DESC, " + HOT_SCORE + " DESC, b.readcount DESC, b.num DESC LIMIT ?, ?";
+
+    private static boolean isBest(String category) {
+        return "BEST".equalsIgnoreCase(category) || "FREE_BEST".equalsIgnoreCase(category);
+    }
+
     private Connection getConnection() throws Exception {
         Context initCtx = new InitialContext();
         Context envCtx = (Context) initCtx.lookup("java:comp/env");
@@ -23,7 +44,6 @@ public class BoardDAO {
         return ds.getConnection();
     }
 
- // 1. 카테고리별 게시글 수 조회
     public int getArticleCount(String category) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -43,7 +63,6 @@ public class BoardDAO {
                 // 자유게시판(FREE/TIP/QNA/RECIPE) 전용 전체보기/인기글 - 공지사항 등 다른 게시판 글은 제외
                 sql += " WHERE board_type IN ('FREE', 'TIP', 'QNA', 'RECIPE')";
             } else {
-                // 전체/인기글 탭에는 공지사항(NOTICE)이 섞여 나오지 않도록 제외
                 sql += " WHERE board_type <> 'NOTICE'";
             }
 
@@ -63,7 +82,6 @@ public class BoardDAO {
         }
         return count;
     }
- // 1-1. 카테고리 + 검색어별 게시글 수 조회
     public int getArticleCount(String category, String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             return getArticleCount(category);
@@ -110,7 +128,6 @@ public class BoardDAO {
         return count;
     }
 
-    // 2. 카테고리별 목록 조회 (댓글 수 조회 서브쿼리 추가)
     public List<BoardVO> getArticles(int start, int count, String category) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -120,7 +137,8 @@ public class BoardDAO {
         try {
             conn = getConnection();
 
-            String sql = "SELECT b.*, (SELECT COUNT(*) FROM BOARD_COMMENT c WHERE c.board_num = b.num) AS comment_count FROM BOARD b";
+            String sql = "SELECT b.*, (SELECT COUNT(*) FROM BOARD_COMMENT c WHERE c.board_num = b.num) AS comment_count FROM BOARD b"
+                    + (isBest(category) ? HOT_JOINS : "");
             boolean freeboardScoped = "FREE_ALL".equalsIgnoreCase(category) || "FREE_BEST".equalsIgnoreCase(category);
             boolean filter = category != null && !category.isEmpty() && !freeboardScoped
                     && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category);
@@ -131,12 +149,11 @@ public class BoardDAO {
                 // 자유게시판(FREE/TIP/QNA/RECIPE) 전용 전체보기/인기글 - 공지사항 등 다른 게시판 글은 제외
                 sql += " WHERE b.board_type IN ('FREE', 'TIP', 'QNA', 'RECIPE')";
             } else {
-                // 전체/인기글 탭에는 공지사항(NOTICE)이 섞여 나오지 않도록 제외
                 sql += " WHERE b.board_type <> 'NOTICE'";
             }
 
-            if ("BEST".equalsIgnoreCase(category) || "FREE_BEST".equalsIgnoreCase(category)) {
-                sql += " ORDER BY b.readcount DESC, b.num DESC LIMIT ?, ?";
+            if (isBest(category)) {
+                sql += HOT_ORDER;
             } else {
                 sql += " ORDER BY b.num DESC LIMIT ?, ?";
             }
@@ -178,7 +195,6 @@ public class BoardDAO {
         }
         return articleList;
     }
- // 2-1. 카테고리 + 검색어별 목록 조회
     public List<BoardVO> getArticles(int start, int count, String category, String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             return getArticles(start, count, category);
@@ -192,7 +208,8 @@ public class BoardDAO {
         try {
             conn = getConnection();
 
-            String sql = "SELECT b.*, (SELECT COUNT(*) FROM BOARD_COMMENT c WHERE c.board_num = b.num) AS comment_count FROM BOARD b";
+            String sql = "SELECT b.*, (SELECT COUNT(*) FROM BOARD_COMMENT c WHERE c.board_num = b.num) AS comment_count FROM BOARD b"
+                    + (isBest(category) ? HOT_JOINS : "");
             boolean freeboardScoped = "FREE_ALL".equalsIgnoreCase(category) || "FREE_BEST".equalsIgnoreCase(category);
             boolean filter = category != null && !category.isEmpty() && !freeboardScoped
                     && !"ALL".equalsIgnoreCase(category) && !"BEST".equalsIgnoreCase(category);
@@ -205,8 +222,8 @@ public class BoardDAO {
                 sql += " WHERE b.board_type <> 'NOTICE' AND (b.subject LIKE ? OR b.content LIKE ?)";
             }
 
-            if ("BEST".equalsIgnoreCase(category) || "FREE_BEST".equalsIgnoreCase(category)) {
-                sql += " ORDER BY b.readcount DESC, b.num DESC LIMIT ?, ?";
+            if (isBest(category)) {
+                sql += HOT_ORDER;
             } else {
                 sql += " ORDER BY b.num DESC LIMIT ?, ?";
             }
@@ -282,7 +299,6 @@ public class BoardDAO {
         return generatedNum;
     }
 
-    // 4. 조회수 증가
     public void updateReadcount(int num) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -300,7 +316,43 @@ public class BoardDAO {
         }
     }
 
-    // 5. 게시글 상세 조회
+    /**
+     * 실시간 인기글 집계용 조회 기록. 같은 사람(viewerKey)은 집계 기간 안에 한 번만 기록되어
+     * 새로고침을 반복해도 점수가 오르지 않음. 오래된 기록(7일 초과)은 가끔 정리.
+     */
+    public void logView(int boardNum, String viewerKey) {
+        if (viewerKey == null || viewerKey.isEmpty()) return;
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            conn = getConnection();
+            pstmt = conn.prepareStatement("SELECT 1 FROM BOARD_VIEW_LOG WHERE board_num = ? AND viewer_key = ?"
+                    + " AND viewed_at >= NOW() - INTERVAL " + HOT_WINDOW_HOURS + " HOUR LIMIT 1");
+            pstmt.setInt(1, boardNum);
+            pstmt.setString(2, viewerKey);
+            rs = pstmt.executeQuery();
+            boolean already = rs.next();
+            rs.close(); rs = null;
+            pstmt.close(); pstmt = null;
+            if (!already) {
+                pstmt = conn.prepareStatement("INSERT INTO BOARD_VIEW_LOG (board_num, viewer_key) VALUES (?, ?)");
+                pstmt.setInt(1, boardNum);
+                pstmt.setString(2, viewerKey);
+                pstmt.executeUpdate();
+                pstmt.close(); pstmt = null;
+            }
+            if (java.util.concurrent.ThreadLocalRandom.current().nextInt(200) == 0) {
+                pstmt = conn.prepareStatement("DELETE FROM BOARD_VIEW_LOG WHERE viewed_at < NOW() - INTERVAL 7 DAY LIMIT 1000");
+                pstmt.executeUpdate();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            close(conn, pstmt, rs);
+        }
+    }
+
     public BoardVO getBoardDetail(int num) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -327,7 +379,7 @@ public class BoardDAO {
                 try { board.setWriterNickname(rs.getString("writer_nickname")); } catch (Exception e) {}
                 try { board.setLikeCount(rs.getInt("like_count")); } catch (Exception e) {}
                 try { board.setCategory(rs.getString("board_type")); } catch (Exception e) {}
-                try { board.setNoticeType(rs.getString("category")); } catch (Exception e) {} // 공지사항 고정/일반 구분 매핑
+                try { board.setNoticeType(rs.getString("category")); } catch (Exception e) {}
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -337,7 +389,6 @@ public class BoardDAO {
         return board;
     }
 
-    // 6. 특정 사용자가 추천했는지 확인
     public boolean hasUserLiked(int boardNum, String userId) {
         if (userId == null || userId.trim().isEmpty()) return false;
         Connection conn = null;
@@ -364,7 +415,6 @@ public class BoardDAO {
         return liked;
     }
 
-    // 7. 추천/추천취소 토글
     public boolean toggleLike(int boardNum, String userId) {
         if (userId == null || userId.trim().isEmpty()) return false;
         Connection conn = null;
@@ -416,7 +466,6 @@ public class BoardDAO {
         return isLikedNow;
     }
 
-    // 8. 게시글 수정
     public void updateArticle(BoardVO article) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -437,7 +486,6 @@ public class BoardDAO {
         }
     }
 
-    // 9. 게시글 삭제
     public void deleteArticle(int num) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -455,13 +503,9 @@ public class BoardDAO {
         }
     }
 
-    // =====================================================================
-    // 10~13. 공지사항(noticeboard) 전용 메서드
     // board_type = 'NOTICE' 로 고정하여 자유게시판 등 다른 글과 절대 섞이지 않게 하고,
     // 원래 쓰이지 않던 category 컬럼을 FIX(고정공지) / NORMAL(일반공지) 구분으로 사용한다.
-    // =====================================================================
 
-    // 10. 공지사항 개수 조회 (전체 / 고정공지 / 일반공지)
     public int getNoticeCount(String noticeType) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -489,7 +533,6 @@ public class BoardDAO {
         return count;
     }
 
-    // 10-1. 공지사항 개수 조회 (검색어 포함)
     public int getNoticeCount(String noticeType, String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             return getNoticeCount(noticeType);
@@ -573,7 +616,6 @@ public class BoardDAO {
         return articleList;
     }
 
-    // 11-1. 공지사항 목록 조회 (검색어 포함, 고정공지 우선 정렬)
     public List<BoardVO> getNotices(int start, int count, String noticeType, String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             return getNotices(start, count, noticeType);
@@ -630,7 +672,6 @@ public class BoardDAO {
         return articleList;
     }
 
-    // 12. 공지사항 등록 (board_type을 항상 'NOTICE'로 저장, 생성된 num 반환)
     public int insertNotice(BoardVO article) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -659,7 +700,6 @@ public class BoardDAO {
         } finally {
             close(conn, pstmt, rs);
         }
-        // 새 공지사항 → 작성자를 제외한 전체 회원에게 알림
         if (generatedNum > 0) {
             notification.NotificationDAO.getInstance()
             .notifyNotice(generatedNum, article.getWriterId(), article.getWriterNickname(), article.getContent());
@@ -688,7 +728,6 @@ public class BoardDAO {
         }
     }
 
-    // 14. 자원 해제
     private void close(Connection conn, PreparedStatement pstmt, ResultSet rs) {
         if (rs != null) try { rs.close(); } catch (Exception e) {}
         if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}

@@ -28,7 +28,6 @@
             return;
         }
 
-        // 이메일은 선택 사항: 입력한 경우에만 형식 검사
         var email = f.email.value.trim();
         if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             alert("이메일 형식이 올바르지 않습니다.\n예) example@email.com");
@@ -36,7 +35,6 @@
             return;
         }
 
-        // 전화번호는 선택 사항: 입력한 경우에만 형식 검사
         var phone = f.phone.value.replace(/[^0-9]/g, "");
         if (phone) {
             var ok = phone.indexOf("02") === 0 ? (phone.length === 9 || phone.length === 10)
@@ -74,7 +72,6 @@
                     "left=700,top=300,width=350,height=200,scrollbars=no,resizable=yes");
     }
 
-    // 전화번호 입력 시 하이픈 자동 입력 (02 지역번호도 처리)
     function formatPhone(input) {
         var d = input.value.replace(/[^0-9]/g, "").substring(0, 11);
         var out;

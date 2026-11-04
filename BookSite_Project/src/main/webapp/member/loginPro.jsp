@@ -15,7 +15,6 @@
     String id = request.getParameter("id");
     String pass = request.getParameter("pass");
     
-    // loginForm.jsp의 input name이 'passwd' 또는 'password'인 경우 예외 처리
     if (pass == null || pass.trim().isEmpty()) {
         pass = request.getParameter("passwd");
     }

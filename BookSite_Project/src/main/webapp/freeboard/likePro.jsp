@@ -10,7 +10,6 @@
         return;
     }
 
-    // 세션에서 사용자 ID 가져오기 (프로젝트 환경에 따라 key값이 다를 수 있어 여러 개 체크)
     String sessionUserId = (String) session.getAttribute("id");
     if (sessionUserId == null) sessionUserId = (String) session.getAttribute("userId");
     if (sessionUserId == null) sessionUserId = (String) session.getAttribute("memberId");
@@ -24,7 +23,6 @@
     category = (category == null) ? "ALL" : category.trim().toUpperCase();
     if (!java.util.Arrays.asList("ALL", "BEST", "FREE", "TIP", "QNA", "RECIPE").contains(category)) category = "ALL";
 
-    // 1. 로그인 여부 확인
     if (sessionUserId == null || sessionUserId.trim().isEmpty()) {
         out.println("<script>");
         out.println("alert('로그인이 필요한 서비스입니다.');");
@@ -37,7 +35,6 @@
         int num = Integer.parseInt(numParam.trim());
         BoardDAO dao = BoardDAO.getInstance();
         
-        // 2. 추천 / 취소 토글 수행
         boolean isLiked = dao.toggleLike(num, sessionUserId);
 
         out.println("<script>");

@@ -36,7 +36,6 @@
             out.println("<script>alert('닉네임은 2~50자로 입력해 주세요.'); history.go(-1);</script>");
             return;
         }
-        // 이메일은 선택 사항: 비어 있으면 빈 값으로 저장, 입력했으면 형식 검사
         String email = request.getParameter("email");
         email = (email == null) ? "" : email.trim();
         if (!email.isEmpty() && (email.length() > 100 || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"))) {
@@ -44,7 +43,6 @@
             return;
         }
 
-        // 전화번호는 선택 사항: 숫자만 추출해 검사한 뒤 010-1234-5678 형식으로 통일
         String phoneRaw = request.getParameter("phone");
         String digits = (phoneRaw == null) ? "" : phoneRaw.replaceAll("[^0-9]", "");
         String phone = null;

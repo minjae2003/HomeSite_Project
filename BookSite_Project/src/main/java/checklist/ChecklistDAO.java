@@ -12,24 +12,17 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
-/**
- * 자취 시작 체크리스트 - 계정별 체크 상태 저장/조회
- * 테이블: USER_CHECKLIST (checklist_table.sql 참고)
- * 체크 상태는 체크된 항목 키만 콤마로 이어서 저장 (예: "c0_0,c1_3,c2_5")
- */
 public class ChecklistDAO {
 
     /** 로그인 시 세션에 사용자 ID를 넣는 이름 — member/loginPro.jsp와 동일 */
     public static final String SESSION_USER_KEY = "id";
 
-    /** 체크박스 키 형식: c{카테고리번호}_{항목번호} */
     private static final Pattern KEY_PATTERN = Pattern.compile("^c\\d{1,2}_\\d{1,2}$");
 
     public static boolean isValidKey(String key) {
         return key != null && KEY_PATTERN.matcher(key).matches();
     }
 
-    /** 프로젝트 공통 커넥션 풀 (BoardFileDAO, MemberDAO와 동일) */
     private Connection getConnection() throws Exception {
         Context initCtx = new InitialContext();
         Context envCtx = (Context) initCtx.lookup("java:comp/env");
@@ -37,10 +30,6 @@ public class ChecklistDAO {
         return ds.getConnection();
     }
 
-    /**
-     * 계정에 저장된 체크 키 목록을 불러온다.
-     * @return 저장 기록이 없으면 null, 있으면 키 목록(0개일 수 있음)
-     */
     public Set<String> loadKeys(String userId) throws Exception {
         String sql = "SELECT CHECKED_KEYS FROM USER_CHECKLIST WHERE USER_ID = ?";
         try (Connection conn = getConnection();
@@ -50,7 +39,7 @@ public class ChecklistDAO {
                 if (!rs.next()) return null;
 
                 Set<String> keys = new LinkedHashSet<>();
-                String raw = rs.getString(1);   // Oracle은 빈 문자열을 NULL로 저장함
+                String raw = rs.getString(1);
                 if (raw != null && !raw.isEmpty()) {
                     for (String k : raw.split(",")) {
                         k = k.trim();
@@ -62,9 +51,6 @@ public class ChecklistDAO {
         }
     }
 
-    /**
-     * 체크 상태를 저장한다. (기존 행이 있으면 UPDATE, 없으면 INSERT)
-     */
     public void saveKeys(String userId, Collection<String> keys, int totalCount) throws Exception {
         String joined = String.join(",", keys);
 

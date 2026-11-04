@@ -12,15 +12,13 @@ public class BoardVO {
     private int readcount;
     private int likeCount;
     private Timestamp regDate;
-    private String category; // board_type (FREE, TIP, QNA, NOTICE 등)
+    private String category;
     private int commentCount;
 
-    // ↓↓↓ 공지사항 전용 추가 필드 ↓↓↓
     // DB의 category 컬럼에 매핑되는 값. 자유게시판에서는 쓰지 않고,
     // 공지게시판(board_type='NOTICE')에서만 FIX(고정공지)/NORMAL(일반공지) 구분에 사용.
     private String noticeType;
 
-    // Getters & Setters
     public int getNum() { return num; }
     public void setNum(int num) { this.num = num; }
 
@@ -58,7 +56,6 @@ public class BoardVO {
         this.commentCount = commentCount;
     }
 
-    // ↓↓↓ 공지사항 전용 Getter/Setter ↓↓↓
     public String getNoticeType() { return noticeType != null ? noticeType : "NORMAL"; }
     public void setNoticeType(String noticeType) { this.noticeType = noticeType; }
 }

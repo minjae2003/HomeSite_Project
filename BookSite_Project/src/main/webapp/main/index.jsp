@@ -6,7 +6,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>자취의 품격</title>
-    <!-- external css 불러오기 -->
     <link rel="stylesheet" href="../css/main/index.css">
 </head>
 <body>
@@ -15,11 +14,9 @@
     String sessionName = (String) session.getAttribute("name");
     if (sessionName == null || sessionName.trim().isEmpty()) sessionName = sessionId;
 %>
-    <!-- Header 모듈 불러오기 -->
     <jsp:include page="../module/header.jsp" flush="false"/>
 
     <div class="container">
-        <!-- 메인 콘텐츠 영역 -->
         <main class="main-content">
             <div class="notice-banner">
                 📢 필독! 자취의 품격 공지사항 <br>
@@ -27,7 +24,6 @@
             </div>
 
             <div class="board-grid">
-                <!-- 공지사항 카드 (DB 연동) -->
 <div class="board-card" onclick="location.href='../noticeboard/list.jsp'">
     <div class="card-header">
         <div class="card-icon">📢</div>
@@ -57,7 +53,6 @@
     </ul>
 </div>
 
-                <!-- 자취꿀팁 카드 (DB 연동) -->
                 <div class="board-card" onclick="location.href='../freeboard/list.jsp'">
                     <div class="card-header">
                         <div class="card-icon">💡</div>
@@ -86,7 +81,6 @@
                     </ul>
                 </div>
 
-                <!-- 자유게시판 카드 (DB 연동) -->
                 <div class="board-card" onclick="location.href='../freeboard/list.jsp'">
                     <div class="card-header">
                         <div class="card-icon">💬</div>
@@ -115,7 +109,6 @@
                     </ul>
                 </div>
 
-                <!-- 요리레시피 카드 (DB 연동) -->
                 <div class="board-card" onclick="location.href='../freeboard/list.jsp?category=RECIPE'">
                     <div class="card-header">
                         <div class="card-icon">🍳</div>
@@ -145,10 +138,9 @@
                 </div>
             </div>
 
-            <!-- 실시간 인기글 섹션 (category=BEST 연동) -->
             <div class="hot-posts-section">
                 <div class="section-header">
-                    <h2 class="section-title">실시간 인기글</h2>
+                    <h2 class="section-title">실시간 인기글 <small class="hot-window">최근 <%= board.BoardDAO.HOT_WINDOW_HOURS %>시간</small></h2>
                     <a href="../freeboard/list.jsp?category=BEST" class="btn-more">더보기 +</a>
                 </div>
                 <div class="hot-post-list">
@@ -206,7 +198,6 @@
             </div>
         </main>
         
-        <!-- 사이드바 영역 -->
         <aside class="sidebar">
             	<form class="search-bar" action="search.jsp" method="get">
                     <input type="text" name="keyword" placeholder="SEARCH BAR">
@@ -229,7 +220,6 @@
 %>
 </div>
 
-            <!-- 커뮤니티 현황 위젯 -->
 <%
     int totalMemberCount = member.MemberDAO.getInstance().getMemberCount();
     int todayVisitorCount = visit.VisitDAO.getInstance().getTodayVisitorCount();
@@ -248,7 +238,6 @@
     </div>
 </div>
 
-            <!-- 첫 자취 체크리스트 배너 -->
             <div class="checklist-banner">
                 <div class="banner-icon">🏠</div>
                 <div class="banner-title">첫 자취 준비 중이신가요?</div>

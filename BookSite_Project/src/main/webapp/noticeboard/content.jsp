@@ -7,7 +7,6 @@
         return s.replace("&", "&amp;").replace("\"", "&quot;").replace("'", "&#39;")
                 .replace("<", "&lt;").replace(">", "&gt;");
     }
-    // 파일 크기를 KB/MB 단위로 보기 좋게 표시
     private String formatSize(long bytes) {
         if (bytes < 1024) return bytes + " B";
         if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
@@ -41,7 +40,7 @@
     int num = Integer.parseInt(numParam.trim());
 
     BoardDAO dao = BoardDAO.getInstance();
-    dao.updateReadcount(num); // 조회수 증가
+    dao.updateReadcount(num);
     BoardVO article = dao.getBoardDetail(num);
 
     if (article == null) {
@@ -52,10 +51,8 @@
     boolean isLiked = dao.hasUserLiked(num, sessionUserId);
     boolean isFixed = "FIX".equals(article.getNoticeType());
 
-    // 공지사항 수정/삭제 버튼은 관리자에게만 표시
     boolean canManage = isAdminUser;
 
-    // 댓글 목록 가져오기
     CommentDAO commentDao = CommentDAO.getInstance();
     List<CommentVO> commentList = commentDao.getComments(num);
 
@@ -108,7 +105,6 @@
 <jsp:include page="../module/header.jsp" flush="false"/>
 
 <div class="container">
-    <!-- 본문 카드 -->
     <div class="card">
         <span class="notice-badge <%= isFixed ? "FIX" : "NORMAL" %>"><%= isFixed ? "📌 고정공지" : "📝 일반공지" %></span>
         <h1 class="post-title"><%= escAttr(article.getSubject()) %></h1>
@@ -132,7 +128,6 @@
         <% } %>
 
         <div class="btn-box">
-            <!-- 추천 버튼 -->
             <!-- 상태를 바꾸는 요청이라 GET 링크가 아닌 POST 폼 + CSRF 토큰으로 전송 -->
             <form method="post" action="likePro.jsp" style="display:inline; margin:0;">
                 <input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
@@ -160,11 +155,9 @@
         </div>
     </div>
 
-    <!-- 댓글 카드 -->
     <div class="comment-section">
         <h3 class="comment-header">💬 댓글 <span>(<%= commentList.size() %>)</span></h3>
 
-        <!-- 댓글 작성 폼 -->
         <form action="commentWritePro.jsp" method="post" class="comment-form"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
             <input type="hidden" name="boardNum" value="<%= num %>">
             <input type="hidden" name="pageNum" value="<%= pageNum %>">
@@ -173,7 +166,6 @@
             <button type="submit" class="btn-comment-submit" <%= sessionUserId == null ? "disabled" : "" %>>등록</button>
         </form>
 
-        <!-- 댓글 목록 -->
         <ul class="comment-list">
             <% if (commentList.isEmpty()) { %>
                 <li style="text-align: center; color: #94a3b8; padding: 20px 0; font-size: 14px;">첫 번째 댓글을 작성해 보세요!</li>
@@ -204,8 +196,8 @@
                     <div class="comment-text"><%= escAttr(comment.getContent()) %></div>
                 </li>
             <%
-                }   // for 끝
-            }       // else 끝
+                }
+            }
             %>
         </ul>
     </div>

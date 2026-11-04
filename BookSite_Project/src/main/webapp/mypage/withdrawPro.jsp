@@ -1,7 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="member.MemberDAO, member.MemberVO, member.LoginLimiter, java.util.List,mypage.ProfileDAO, java.io.File" %>
 <%
-    // 회원 탈퇴 처리 (POST + 현재 비밀번호 확인)
     request.setCharacterEncoding("UTF-8");
 
     String sessionUserId = (String) session.getAttribute("id");
@@ -49,14 +48,12 @@
         return;
     }
 
-    // 내 글에 첨부했던 실제 파일 삭제
     String uploadDir = application.getRealPath("/uploads");
     for (String name : savedNames) {
         if (name == null) continue;
         File f = new File(uploadDir, name);
         if (f.exists()) f.delete();
     }
-    // 프로필 사진 삭제
     if (profileImg != null && !profileImg.contains("/") && !profileImg.contains("\\") && !profileImg.contains("..")) {
         File pf = new File(application.getRealPath("/uploads/profile"), profileImg);
         if (pf.exists()) pf.delete();

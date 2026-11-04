@@ -37,8 +37,8 @@ import board.BoardVO;
  */
 @WebServlet("/board/upload")
 @MultipartConfig(
-    maxFileSize = 50L * 1024 * 1024,       // 파일 1개 최대 50MB
-    maxRequestSize = 300L * 1024 * 1024,   // 요청 전체 최대 300MB (동영상 여러 개 대비)
+    maxFileSize = 50L * 1024 * 1024,
+    maxRequestSize = 300L * 1024 * 1024,
     fileSizeThreshold = 1024 * 1024
 )
 public class BoardUploadServlet extends HttpServlet {
@@ -58,7 +58,7 @@ public class BoardUploadServlet extends HttpServlet {
         if (IMAGE_EXT.contains(e)) return "IMAGE";
         if (VIDEO_EXT.contains(e)) return "VIDEO";
         if (DOC_EXT.contains(e)) return "FILE";
-        return null; // 화이트리스트에 없으면 업로드 거부
+        return null;
     }
 
     @Override
@@ -107,7 +107,6 @@ public class BoardUploadServlet extends HttpServlet {
         if (isNotice && !"FIX".equals(noticeType)) noticeType = "NORMAL";
 
         // 자유게시판 카테고리 화이트리스트 (요리레시피도 자유게시판의 RECIPE 카테고리로 편입)
-        // 목록에 없는 값은 FREE로 처리 (공지사항은 위에서 noticeType으로 따로 처리)
         if (category == null) category = "";
         category = category.trim().toUpperCase();
         boolean allowedCategory = "FREE".equals(category) || "TIP".equals(category)
@@ -127,7 +126,6 @@ public class BoardUploadServlet extends HttpServlet {
         int boardNum;
 
         if (numParam == null || numParam.trim().isEmpty()) {
-            // 신규 작성
             BoardVO article = new BoardVO();
             article.setWriter(sessionUserNick);
             article.setWriterId(sessionUserId);
@@ -148,7 +146,6 @@ public class BoardUploadServlet extends HttpServlet {
                 return;
             }
         } else {
-            // 수정 (권한 체크: 작성자 본인 또는 ADMIN)
             if (!numParam.trim().matches("\\d{1,9}")) {
                 alertAndRedirect(response, "잘못된 접근입니다.", null);
                 return;
@@ -183,7 +180,6 @@ public class BoardUploadServlet extends HttpServlet {
             }
         }
 
-        // 업로드 폴더 준비 (webapp/uploads - 톰캣이 정적 파일로 그대로 서빙)
         String uploadDir = getServletContext().getRealPath("/uploads");
         File dir = new File(uploadDir);
         if (!dir.exists()) dir.mkdirs();
@@ -198,7 +194,7 @@ public class BoardUploadServlet extends HttpServlet {
             if (!"files".equals(part.getName())) continue;
 
             String submittedName = part.getSubmittedFileName();
-            if (submittedName == null || submittedName.trim().isEmpty()) continue; // 파일 선택 안 한 input
+            if (submittedName == null || submittedName.trim().isEmpty()) continue;
 
             String ext = "";
             int dotIdx = submittedName.lastIndexOf('.');

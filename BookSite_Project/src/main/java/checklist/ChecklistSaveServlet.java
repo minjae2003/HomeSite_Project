@@ -28,7 +28,6 @@ public class ChecklistSaveServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         resp.setContentType("application/json; charset=UTF-8");
 
-        // 1) 로그인 확인
         HttpSession session = req.getSession(false);
         Object loginObj = (session == null) ? null : session.getAttribute(ChecklistDAO.SESSION_USER_KEY);
         String userId = (loginObj == null) ? null : loginObj.toString();
@@ -38,9 +37,8 @@ public class ChecklistSaveServlet extends HttpServlet {
             return;
         }
 
-        // 2) 파라미터 검증 (형식이 맞는 키만 저장)
         Set<String> keys = new LinkedHashSet<>();
-        String[] params = req.getParameterValues("keys");   // 체크된 게 없으면 null
+        String[] params = req.getParameterValues("keys");
         if (params != null) {
             for (String k : params) {
                 if (ChecklistDAO.isValidKey(k)) keys.add(k);
@@ -56,7 +54,6 @@ public class ChecklistSaveServlet extends HttpServlet {
         }
         if (total < keys.size() || total > MAX_KEYS) total = keys.size();
 
-        // 3) 저장
         try {
             new ChecklistDAO().saveKeys(userId, keys, total);
             resp.getWriter().write("{\"ok\":true,\"checked\":" + keys.size() + "}");

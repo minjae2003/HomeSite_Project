@@ -20,7 +20,6 @@ public class MemberDAO {
         return ds.getConnection();
     }
 
-    // 1. 회원가입
     public boolean insertMember(MemberVO member) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -45,7 +44,6 @@ public class MemberDAO {
         }
     }
 
-    // 2. 아이디 중복 검사 (idCheck, checkId 모두 지원)
     public int idCheck(String id) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -60,9 +58,9 @@ public class MemberDAO {
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                x = 1; // 중복 아이디
+                x = 1;
             } else {
-                x = 0; // 사용 가능
+                x = 0;
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -96,7 +94,6 @@ public class MemberDAO {
                 String dbPassword = rs.getString("password");
 
                 if (PasswordUtil.isHashed(dbPassword)) {
-                    // 해시로 저장된 계정
                     x = PasswordUtil.verify(password, dbPassword) ? 1 : 0;
                 } else if (dbPassword != null && password != null
                         && java.security.MessageDigest.isEqual(
@@ -105,10 +102,10 @@ public class MemberDAO {
                     x = 1;
                     needUpgrade = true;
                 } else {
-                    x = 0; // 비밀번호 불일치
+                    x = 0;
                 }
             } else {
-                x = -1; // 회원 없음
+                x = -1;
                 PasswordUtil.dummyVerify(password);   // 없는 아이디도 응답 시간을 비슷하게 (아이디 존재 여부 노출 방지)
             }
         } catch (Exception ex) {
@@ -168,7 +165,6 @@ public class MemberDAO {
         return count;
     }
 
-    // 4. 회원 상세 정보 조회
     public MemberVO getMember(String id) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -206,7 +202,7 @@ public class MemberDAO {
     // 6-1. 아이디 찾기: 이름 + 이메일이 모두 일치하는 회원 아이디 목록 (같은 이메일로 여러 계정일 수 있음)
     public java.util.List<String> findIds(String name, String email) {
         java.util.List<String> ids = new java.util.ArrayList<String>();
-        if (isBlank(name) || isBlank(email)) return ids;   // 이메일 미등록 회원은 찾을 수 없음
+        if (isBlank(name) || isBlank(email)) return ids;
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -226,7 +222,6 @@ public class MemberDAO {
         return ids;
     }
 
-    // 6-2. 비밀번호 찾기 본인 확인: 아이디 + 이름 + 이메일이 모두 일치하는지
     public boolean matchForReset(String id, String name, String email) {
         if (isBlank(id) || isBlank(name) || isBlank(email)) return false;
         Connection conn = null;
@@ -249,7 +244,6 @@ public class MemberDAO {
         return false;
     }
 
-    // 6-3. 비밀번호 재설정 (마지막 변경일도 기록)
     public boolean resetPassword(String id, String newPassword) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -270,7 +264,6 @@ public class MemberDAO {
     private static boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
     }
-    // 5-1. 회원 정보 수정 (닉네임/이름/이메일, 새 비밀번호가 있으면 비밀번호도 변경)
     public boolean updateMember(MemberVO member, String newPassword) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -279,13 +272,14 @@ public class MemberDAO {
         try {
             conn = getConnection();
             String sql = changePw
-            		? "UPDATE MEMBER SET nickname = ?, name = ?, email = ?, password = ?, info_changed_at = NOW(), pw_changed_at = NOW() WHERE id = ?"
-                            : "UPDATE MEMBER SET nickname = ?, name = ?, email = ?, info_changed_at = NOW() WHERE id = ?";
+            		? "UPDATE MEMBER SET nickname = ?, name = ?, email = ?, phone = ?, password = ?, info_changed_at = NOW(), pw_changed_at = NOW() WHERE id = ?"
+                            : "UPDATE MEMBER SET nickname = ?, name = ?, email = ?, phone = ?, info_changed_at = NOW() WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
             int idx = 1;
             pstmt.setString(idx++, member.getNickname());
             pstmt.setString(idx++, member.getName());
             pstmt.setString(idx++, member.getEmail());
+            pstmt.setString(idx++, (member.getPhone() != null && !member.getPhone().isEmpty()) ? member.getPhone() : null);
             if (changePw) pstmt.setString(idx++, PasswordUtil.hash(newPassword));
             pstmt.setString(idx, member.getId());
             return pstmt.executeUpdate() == 1;
@@ -312,7 +306,6 @@ public class MemberDAO {
         }
         return false;
     }
-    // 5-2. 회원 탈퇴
     //  - 내가 추천했던 다른 사람 글의 추천 수를 먼저 1씩 줄이고
     //  - MEMBER 삭제 → 내 글/댓글/추천/알림/체크리스트는 FK(ON DELETE CASCADE)로 함께 삭제
     //  - 성공하면 서버에서 지워야 할 첨부파일 이름 목록을 돌려줌 (실패 시 null)
@@ -326,7 +319,7 @@ public class MemberDAO {
             conn = getConnection();
             conn.setAutoCommit(false);
 
-            // 1) 내 글에 붙은 첨부파일 이름 (DB 행은 CASCADE로 지워지지만 실제 파일은 직접 지워야 함)
+            // 내 글에 붙은 첨부파일 이름 (DB 행은 CASCADE로 지워지지만 실제 파일은 직접 지워야 함)
             pstmt = conn.prepareStatement(
                 "SELECT f.saved_name FROM BOARD_FILE f JOIN BOARD b ON b.num = f.board_num WHERE b.writer_id = ?");
             pstmt.setString(1, id);
@@ -335,7 +328,6 @@ public class MemberDAO {
             rs.close(); rs = null;
             pstmt.close();
 
-            // 2) 내가 추천한 (다른 사람) 글의 추천 수 감소
             pstmt = conn.prepareStatement(
                 "UPDATE BOARD SET like_count = GREATEST(0, IFNULL(like_count, 0) - 1) "
               + "WHERE num IN (SELECT board_num FROM BOARD_LIKE WHERE user_id = ?) AND (writer_id IS NULL OR writer_id <> ?)");
@@ -344,7 +336,6 @@ public class MemberDAO {
             pstmt.executeUpdate();
             pstmt.close();
 
-            // 3) 회원 삭제 (연결된 데이터는 FK CASCADE로 함께 삭제)
             pstmt = conn.prepareStatement("DELETE FROM MEMBER WHERE id = ?");
             pstmt.setString(1, id);
             int deleted = pstmt.executeUpdate();
@@ -364,7 +355,6 @@ public class MemberDAO {
             close(conn, pstmt, rs);
         }
     }
-    // 5. 전체 회원 수 조회
     public int getMemberCount() {
         Connection conn = null;
         PreparedStatement pstmt = null;

@@ -20,7 +20,6 @@
     int postTotal = 0;
     List<BoardVO> postList = null;
 
-    // 공지사항 검색: 최근 5건만 미리보기로 보여주고 "더보기"는 공지게시판으로
     int noticeTotal = 0;
     List<BoardVO> noticeList = null;
 
@@ -123,7 +122,6 @@
                             if ("TIP".equals(catCode)) catName = "꿀팁";
                             else if ("QNA".equals(catCode)) catName = "질문";
                             else if ("RECIPE".equals(catCode)) catName = "레시피";
-                            // 요리레시피도 자유게시판으로 통합되어 같은 상세 페이지 사용
                             String contentUrl = "../freeboard/content.jsp?num=" + p.getNum();
                             String dateStr = p.getRegDate() != null ? sdf.format(p.getRegDate()) : "";
                         %>

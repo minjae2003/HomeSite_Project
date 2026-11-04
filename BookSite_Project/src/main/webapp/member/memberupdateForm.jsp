@@ -32,11 +32,33 @@
         if (!f.nickname.value.trim()) { alert('닉네임을 입력하세요.'); f.nickname.focus(); return false; }
         if (!f.name.value.trim()) { alert('이름을 입력하세요.'); f.name.focus(); return false; }
         if (!f.email.value.trim()) { alert('이메일을 입력하세요.'); f.email.focus(); return false; }
+        var phone = f.phone.value.replace(/[^0-9]/g, '');
+        if (phone) {
+            var ok = phone.indexOf('02') === 0 ? (phone.length === 9 || phone.length === 10)
+                                               : (/^0\d+$/.test(phone) && (phone.length === 10 || phone.length === 11));
+            if (!ok) { alert('전화번호 형식이 올바르지 않습니다.\n예) 010-1234-5678'); f.phone.focus(); return false; }
+        }
         if (f.newPass.value !== f.newPassConfirm.value) {
             alert('새 비밀번호가 서로 일치하지 않습니다.'); f.newPassConfirm.focus(); return false;
         }
         if (!f.currentPass.value) { alert('변경하려면 현재 비밀번호를 입력하세요.'); f.currentPass.focus(); return false; }
         return true;
+    }
+    function formatPhone(input) {
+        var d = input.value.replace(/[^0-9]/g, '').substring(0, 11);
+        var out;
+        if (d.indexOf('02') === 0) {
+            if (d.length <= 2) out = d;
+            else if (d.length <= 5) out = d.substring(0, 2) + '-' + d.substring(2);
+            else if (d.length <= 9) out = d.substring(0, 2) + '-' + d.substring(2, 5) + '-' + d.substring(5);
+            else out = d.substring(0, 2) + '-' + d.substring(2, 6) + '-' + d.substring(6, 10);
+        } else {
+            if (d.length <= 3) out = d;
+            else if (d.length <= 6) out = d.substring(0, 3) + '-' + d.substring(3);
+            else if (d.length <= 10) out = d.substring(0, 3) + '-' + d.substring(3, 6) + '-' + d.substring(6);
+            else out = d.substring(0, 3) + '-' + d.substring(3, 7) + '-' + d.substring(7);
+        }
+        input.value = out;
     }
 </script>
 </head>
@@ -47,7 +69,7 @@
 <div class="wrap">
   <div class="form-card">
     <h1 class="page-title">⚙️ 회원정보 수정</h1>
-    <p class="page-sub" style="margin-bottom:22px;">닉네임·이름·이메일과 비밀번호를 변경할 수 있어요.</p>
+    <p class="page-sub" style="margin-bottom:22px;">닉네임·이름·이메일·전화번호와 비밀번호를 변경할 수 있어요.</p>
 
     <form method="post" action="memberUpdatePro.jsp" onsubmit="return checkForm(this);"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
       <div class="form-group">
@@ -69,7 +91,7 @@
       </div>
       <div class="form-group">
         <label class="form-label" for="phone">전화번호</label>
-        <input type="phone" id="phone" name="phone" class="input-control" maxlength="100" placeholder="새로운 전화 번호 입력" value="<%= esc(member.getEmail()) %>">
+        <input type="tel" id="phone" name="phone" class="input-control" maxlength="13" placeholder="010-1234-5678 (선택)" oninput="formatPhone(this)" value="<%= esc(member.getPhone()) %>">
       </div>
 
       <hr class="form-divider" id="password">

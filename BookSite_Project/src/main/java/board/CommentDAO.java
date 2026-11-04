@@ -21,7 +21,6 @@ public class CommentDAO {
         return ds.getConnection();
     }
 
-    // 1. 댓글 등록
     public void insertComment(CommentVO comment) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -42,12 +41,10 @@ public class CommentDAO {
         } finally {
             close(conn, pstmt, null);
         }
-        // 글 작성자에게 댓글 알림 (본인 글이면 생성되지 않음)
         notification.NotificationDAO.getInstance()
         .notifyComment(comment.getBoardNum(), comment.getWriterId(), comment.getWriterNickname(), comment.getContent());
     }
 
-    // 2. 댓글 목록 조회
     public List<CommentVO> getComments(int boardNum) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -80,7 +77,6 @@ public class CommentDAO {
         return list;
     }
 
-    // 3. 댓글 삭제
     public void deleteComment(int commentNum) {
         Connection conn = null;
         PreparedStatement pstmt = null;

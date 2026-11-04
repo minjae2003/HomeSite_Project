@@ -20,12 +20,10 @@ public class FindLimiter {
     // 실패 횟수는 세션이 아니라 서버에 IP별로 기록 (쿠키를 지워도 초기화되지 않도록)
     private static final AttemptLimiter BY_IP = new AttemptLimiter(MAX_FAIL, LOCK_MS, LOCK_MS);
 
-    /** 잠겨 있으면 남은 분(1 이상), 아니면 0 */
     public static int lockedMinutes(HttpServletRequest request) {
         return BY_IP.lockedMinutes(request.getRemoteAddr());
     }
 
-    /** 실패 1회 기록, 남은 시도 횟수 반환 (0이면 방금 잠김) */
     public static int fail(HttpServletRequest request) {
         return BY_IP.fail(request.getRemoteAddr());
     }
@@ -34,13 +32,11 @@ public class FindLimiter {
     public static void success(HttpServletRequest request) {
     }
 
-    /** 비밀번호 재설정 허가 (본인 확인 성공 시) */
     public static void allowReset(HttpSession session, String id) {
         session.setAttribute(RESET_ID, id);
         session.setAttribute(RESET_UNTIL, System.currentTimeMillis() + RESET_MS);
     }
 
-    /** 재설정이 허가된 아이디 (없거나 만료됐으면 null) */
     public static String resetId(HttpSession session) {
         String id = (String) session.getAttribute(RESET_ID);
         Long until = (Long) session.getAttribute(RESET_UNTIL);
@@ -56,7 +52,6 @@ public class FindLimiter {
         session.removeAttribute(RESET_UNTIL);
     }
 
-    /** 아이디 일부 가리기: minjae2003 → min******* */
     public static String mask(String id) {
         if (id == null || id.isEmpty()) return "";
         int keep = Math.max(1, id.length() / 3);

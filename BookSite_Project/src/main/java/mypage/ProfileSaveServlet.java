@@ -21,11 +21,6 @@ import javax.servlet.http.Part;
 
 import member.MemberDAO;
 
-/**
- * 프로필 편집 저장 (mypage/profileEdit.jsp → POST /mypage/profileSave)
- *  - 닉네임은 MEMBER 테이블, 나머지는 MEMBER_PROFILE 테이블에 저장
- *  - 프로필 사진은 webapp/uploads/profile/ 에 UUID 이름으로 저장 (이미지 확장자만 허용, 5MB 이하)
- */
 @WebServlet("/mypage/profileSave")
 @MultipartConfig(maxFileSize = 5L * 1024 * 1024, maxRequestSize = 6L * 1024 * 1024, fileSizeThreshold = 1024 * 1024)
 public class ProfileSaveServlet extends HttpServlet {
@@ -53,7 +48,6 @@ public class ProfileSaveServlet extends HttpServlet {
             return;
         }
 
-        // ── 입력값 검사 ──
         String nickname = trim(request.getParameter("nickname"));
         String bio = trim(request.getParameter("bio"));
         String region = trim(request.getParameter("region"));
@@ -69,7 +63,7 @@ public class ProfileSaveServlet extends HttpServlet {
             alert(response, "한줄 소개는 " + ProfileDAO.BIO_MAX + "자까지 입력할 수 있어요.", null);
             return;
         }
-        if (!region.isEmpty() && !ProfileDAO.isValidRegion(region)) region = "";   // 목록에 없는 값은 설정 안 함
+        if (!region.isEmpty() && !ProfileDAO.isValidRegion(region)) region = "";
         if (!years.isEmpty() && !ProfileDAO.YEARS.contains(years)) years = "";
 
         List<String> tags = new ArrayList<String>();
@@ -83,7 +77,6 @@ public class ProfileSaveServlet extends HttpServlet {
             return;
         }
 
-        // ── 프로필 사진 ──
         ProfileDAO dao = ProfileDAO.getInstance();
         ProfileVO old = dao.get(userId);
         String imgName = old.getProfileImg();
@@ -102,14 +95,13 @@ public class ProfileSaveServlet extends HttpServlet {
             }
             String newName = UUID.randomUUID().toString().replace("-", "") + "." + ext;
             photo.write(uploadDir + File.separator + newName);
-            deleteFile(uploadDir, imgName);   // 예전 사진 삭제
+            deleteFile(uploadDir, imgName);
             imgName = newName;
         } else if (removePhoto) {
             deleteFile(uploadDir, imgName);
             imgName = null;
         }
 
-        // ── 저장 ──
         ProfileVO vo = new ProfileVO();
         vo.setUserId(userId);
         vo.setProfileImg(imgName);
@@ -120,7 +112,7 @@ public class ProfileSaveServlet extends HttpServlet {
 
         boolean okProfile = dao.save(vo);
         boolean okNick = MemberDAO.getInstance().updateNickname(userId, nickname);
-        if (okNick) session.setAttribute("nickname", nickname);   // 헤더에 바로 반영
+        if (okNick) session.setAttribute("nickname", nickname);
 
         if (okProfile && okNick) {
             alert(response, "프로필이 저장되었습니다.", ctx + "/mypage/index.jsp");

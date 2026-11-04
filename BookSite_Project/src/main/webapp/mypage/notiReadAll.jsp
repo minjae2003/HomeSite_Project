@@ -1,7 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="notification.NotificationDAO" %>
 <%
-    // 내 알림 모두 읽음 처리 후 원래 페이지로 돌아감
     request.setCharacterEncoding("UTF-8");
     String sessionUserId = (String) session.getAttribute("id");
     if (sessionUserId == null) {
