@@ -8,10 +8,39 @@
     <link rel="stylesheet" href="../css/member.css">
     
    <script>
+    // 아이디 규칙: 영문으로 시작, 영문+숫자 4~20자 (memberPro.jsp, memberCheckId.jsp와 동일)
+    var ID_RULE = /^[A-Za-z][A-Za-z0-9]{3,19}$/;
+
+    // 아이디 입력 중 허용되지 않는 글자를 치면 바로 경고하고 지움
+    // (한글은 조합이 끝난 뒤 compositionend에서 검사해야 팝업이 두 번 뜨지 않음)
+    function filterId(e) {
+        if (e.isComposing) return;
+        var input = e.target;
+        var value = input.value;
+        var msg = null;
+        if (/[^A-Za-z0-9]/.test(value)) {
+            msg = "아이디는 영문과 숫자만 입력할 수 있습니다.\n(한글, 공백, 특수문자 사용 불가)";
+            value = value.replace(/[^A-Za-z0-9]/g, "");
+        }
+        if (/^[0-9]/.test(value)) {
+            msg = msg || "아이디는 영문으로 시작해야 합니다.";
+            value = value.replace(/^[0-9]+/, "");
+        }
+        if (msg) {
+            input.value = value;
+            alert(msg);
+            input.focus();
+        }
+    }
+
     function check_input() {
         var f = document.member_form;
 
         if (!f.id.value) { alert("아이디를 입력하세요!"); f.id.focus(); return; }
+        if (!ID_RULE.test(f.id.value)) {
+            alert("아이디는 영문으로 시작하는 4~20자의 영문/숫자만 사용할 수 있습니다.");
+            f.id.focus(); return;
+        }
         if (!f.pass.value) { alert("비밀번호를 입력하세요!"); f.pass.focus(); return; }
         if (!f.pass_confirm.value) { alert("비밀번호확인을 입력하세요!"); f.pass_confirm.focus(); return; }
         if (!f.name.value) { alert("이름을 입력하세요!"); f.name.focus(); return; }
@@ -67,6 +96,11 @@
             document.member_form.id.focus();
             return;
         }
+        if (!ID_RULE.test(document.member_form.id.value)) {
+            alert("아이디는 영문으로 시작하는 4~20자의 영문/숫자만 사용할 수 있습니다.");
+            document.member_form.id.focus();
+            return;
+        }
         window.open("memberCheckId.jsp?id=" + encodeURIComponent(document.member_form.id.value),
                     "IDcheck",
                     "left=700,top=300,width=350,height=200,scrollbars=no,resizable=yes");
@@ -103,7 +137,7 @@
                     <div class="form-group">
                         <label for="id">아이디</label>
                         <div class="input-with-btn">
-                            <input type="text" id="id" name="id" placeholder="아이디 입력">
+                            <input type="text" id="id" name="id" maxlength="20" placeholder="영문 시작, 영문/숫자 4~20자" autocomplete="username" autocapitalize="off" spellcheck="false" oninput="filterId(event)" oncompositionend="filterId(event)">
                             <button type="button" class="btn-check" onclick="check_id()">중복확인</button>
                         </div>
                     </div>

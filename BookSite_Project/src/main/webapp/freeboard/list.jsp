@@ -137,7 +137,7 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 				</thead>
 				<tbody>
 					<%
-					if (totalCount == 0) {
+					if (totalCount == 0 || articleList == null) {
 					%>
 					<tr>
 						<td colspan="4"
@@ -158,8 +158,8 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 
 						String dateStr = article.getRegDate() != null ? sdf.format(article.getRegDate()) : "";
 					%>
-					<tr>
-						<td><span class="cat-badge <%=catCode%>"><%=catName%></span>
+					<tr class="<%= article.isPinned() && !"BEST".equals(category) ? "pinned-row" : "" %>">
+						<td><% if (article.isPinned() && !"BEST".equals(category)) { %><span class="pin-badge">📌 고정</span><% } %><span class="cat-badge <%=catCode%>"><%=catName%></span>
 							<a
 							href="content.jsp?num=<%=article.getNum()%>&pageNum=<%=pageNum%>&category=<%=category%><%=keywordQuery%>"
 							class="subject-link"> <%=HtmlUtil.esc(article.getSubject())%>

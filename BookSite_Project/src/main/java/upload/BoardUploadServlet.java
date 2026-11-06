@@ -3,6 +3,7 @@ package upload;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +21,8 @@ import javax.servlet.http.Part;
 
 import board.BoardDAO;
 import board.BoardVO;
+import util.HtmlUtil;
+import util.RichText;
 
 /**
  * 모든 게시판(자유게시판/자취꿀팁/질문답변/요리레시피 등) 공통 글쓰기·수정 + 사진/동영상 업로드 서블릿.
@@ -32,6 +35,7 @@ import board.BoardVO;
  *                 insertNotice()/updateNotice()로 처리하고, FIX는 ADMIN만 지정 가능.
  *  - redirectBoard 목록/상세 폴더명 (freeboard, recipe, noticeboard 등) - 완료 후 이동할 경로
  *  - subject, content
+ *  - contentFormat (선택) "html"이면 에디터(HTML) 본문. 허용 태그만 남기고 맨 앞에 RichText.MARK를 붙여 저장
  *  - pageNum      (선택) 수정 후 돌아갈 목록 페이지
  *  - files        (선택, 여러 개 가능) 첨부할 이미지/동영상
  */
@@ -122,6 +126,57 @@ public class BoardUploadServlet extends HttpServlet {
             return;
         }
 
+        boolean html = "html".equals(request.getParameter("contentFormat"));
+        if (html) content = RichText.sanitize(content);
+
+        // 첨부파일을 먼저 디스크에 저장 (에디터 글이면 첨부한 사진은 본문 맨 아래에 이미지로 넣음)
+        String uploadDir = getServletContext().getRealPath("/uploads");
+        File dir = new File(uploadDir);
+        if (!dir.exists()) dir.mkdirs();
+
+        List<BoardFileVO> newFiles = new ArrayList<BoardFileVO>();
+        StringBuilder appendedImages = new StringBuilder();
+        for (Part part : request.getParts()) {
+            if (!"files".equals(part.getName())) continue;
+
+            String submittedName = part.getSubmittedFileName();
+            if (submittedName == null || submittedName.trim().isEmpty()) continue;
+
+            String ext = "";
+            int dotIdx = submittedName.lastIndexOf('.');
+            if (dotIdx != -1 && dotIdx < submittedName.length() - 1) {
+                ext = submittedName.substring(dotIdx + 1);
+            }
+
+            String fileType = fileTypeOf(ext);
+            if (fileType == null) continue; // 허용 확장자가 아니면 무시 (보안: 실행 가능한 파일 업로드 차단)
+
+            String savedName = UUID.randomUUID().toString().replace("-", "") + "." + ext.toLowerCase();
+            part.write(uploadDir + File.separator + savedName);
+
+            BoardFileVO fileVO = new BoardFileVO();
+            fileVO.setOriginalName(submittedName);
+            fileVO.setSavedName(savedName);
+            fileVO.setFileType(fileType);
+            fileVO.setFileSize(part.getSize());
+            newFiles.add(fileVO);
+
+            if (html && "IMAGE".equals(fileType)) {
+                appendedImages.append("<p><img src=\"").append(HtmlUtil.esc(request.getContextPath() + fileVO.getWebPath()))
+                              .append("\" alt=\"").append(HtmlUtil.esc(submittedName)).append("\"></p>");
+            }
+        }
+
+        if (html) {
+            content = content + appendedImages;
+            if (!RichText.hasContent(content)) {
+                for (BoardFileVO f : newFiles) new File(uploadDir, f.getSavedName()).delete();
+                alertAndRedirect(response, "내용을 입력해 주세요.", null);
+                return;
+            }
+            content = RichText.MARK + content;
+        }
+
         BoardDAO boardDao = BoardDAO.getInstance();
         int boardNum;
 
@@ -142,6 +197,7 @@ public class BoardUploadServlet extends HttpServlet {
             }
 
             if (boardNum <= 0) {
+                for (BoardFileVO f : newFiles) new File(uploadDir, f.getSavedName()).delete();
                 alertAndRedirect(response, "게시글 등록에 실패했습니다.", null);
                 return;
             }
@@ -161,6 +217,7 @@ public class BoardUploadServlet extends HttpServlet {
             // 기존 글이 공지사항이면 관리자만 수정 가능 (자유게시판 수정 폼으로 우회하는 것도 차단)
             if ("NOTICE".equals(existing.getCategory()) && !isAdmin) isOwnerOrAdmin = false;
             if (!isOwnerOrAdmin) {
+                for (BoardFileVO f : newFiles) new File(uploadDir, f.getSavedName()).delete();
                 alertAndRedirect(response, "수정 권한이 없습니다.", null);
                 return;
             }
@@ -180,44 +237,53 @@ public class BoardUploadServlet extends HttpServlet {
             }
         }
 
-        String uploadDir = getServletContext().getRealPath("/uploads");
-        File dir = new File(uploadDir);
-        if (!dir.exists()) dir.mkdirs();
-
         BoardFileDAO fileDao = BoardFileDAO.getInstance();
 
         // 수정 시 기존 첨부 개수 뒤로 이어서 순번을 매긴다
         List<BoardFileVO> already = fileDao.getFiles(boardNum);
         int order = already.size();
+        Set<String> registered = new HashSet<String>();
+        for (BoardFileVO f : already) registered.add(f.getSavedName());
 
-        for (Part part : request.getParts()) {
-            if (!"files".equals(part.getName())) continue;
-
-            String submittedName = part.getSubmittedFileName();
-            if (submittedName == null || submittedName.trim().isEmpty()) continue;
-
-            String ext = "";
-            int dotIdx = submittedName.lastIndexOf('.');
-            if (dotIdx != -1 && dotIdx < submittedName.length() - 1) {
-                ext = submittedName.substring(dotIdx + 1);
-            }
-
-            String fileType = fileTypeOf(ext);
-            if (fileType == null) continue; // 허용 확장자가 아니면 무시 (보안: 실행 가능한 파일 업로드 차단)
-
-            String savedName = UUID.randomUUID().toString().replace("-", "") + "." + ext.toLowerCase();
-
-            part.write(uploadDir + File.separator + savedName);
-
+        for (BoardFileVO fileVO : newFiles) {
             order++;
-            BoardFileVO fileVO = new BoardFileVO();
             fileVO.setBoardNum(boardNum);
-            fileVO.setOriginalName(submittedName);
-            fileVO.setSavedName(savedName);
-            fileVO.setFileType(fileType);
-            fileVO.setFileSize(part.getSize());
             fileVO.setUploadOrder(order);
             fileDao.insertFile(fileVO);
+            registered.add(fileVO.getSavedName());
+        }
+
+        if (html) {
+            Set<String> used = RichText.uploadNames(content);
+
+            // 에디터로 올린 사진 중 본문에 남아 있는 것만 이 글의 첨부로 등록 (내가 이번 세션에 올린 파일만)
+            synchronized (session) {
+                @SuppressWarnings("unchecked")
+                Set<String> pending = (Set<String>) session.getAttribute(EditorImageServlet.SESSION_KEY);
+                for (String name : used) {
+                    if (registered.contains(name) || pending == null || !pending.contains(name)) continue;
+                    File f = new File(uploadDir, name);
+                    if (!f.exists()) continue;
+                    order++;
+                    BoardFileVO fileVO = new BoardFileVO();
+                    fileVO.setBoardNum(boardNum);
+                    fileVO.setOriginalName(name);
+                    fileVO.setSavedName(name);
+                    fileVO.setFileType("IMAGE");
+                    fileVO.setFileSize(f.length());
+                    fileVO.setUploadOrder(order);
+                    fileDao.insertFile(fileVO);
+                    pending.remove(name);
+                }
+            }
+
+            // 수정하면서 본문에서 지운 사진은 첨부 목록과 서버에서도 삭제
+            for (BoardFileVO f : already) {
+                if (f.isImage() && !used.contains(f.getSavedName())) {
+                    fileDao.deleteFile(f.getFileNum());
+                    new File(uploadDir, f.getSavedName()).delete();
+                }
+            }
         }
 
         response.sendRedirect(request.getContextPath() + "/" + redirectBoard + "/content.jsp?num=" + boardNum + "&pageNum=" + pageNum);

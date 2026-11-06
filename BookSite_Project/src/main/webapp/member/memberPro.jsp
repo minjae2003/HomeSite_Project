@@ -23,6 +23,11 @@
         }
         id = id.trim();
         name = name.trim();
+        // 아이디는 영문으로 시작하는 영문/숫자 4~20자만 허용 (한글·공백·특수문자 차단)
+        if (!id.matches("^[A-Za-z][A-Za-z0-9]{3,19}$")) {
+            out.println("<script>alert('아이디는 영문으로 시작하는 4~20자의 영문/숫자만 사용할 수 있습니다.'); history.go(-1);</script>");
+            return;
+        }
         // 비밀번호 규칙 (8자 이상, 영문+숫자, 아이디와 다르게)
         String policyError = PasswordUtil.checkPolicy(pass, id);
         if (policyError != null) {

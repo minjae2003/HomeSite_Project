@@ -29,6 +29,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>글쓰기 - 자취의 품격</title>
     <link rel="stylesheet" href="../css/freeboard/write.css">
+    <link rel="stylesheet" href="../lib/summernote/summernote-lite.min.css">
+    <link rel="stylesheet" href="../css/editor.css">
 </head>
 <body>
 
@@ -83,13 +85,15 @@
 
             <div class="form-group">
                 <label class="form-label">내용</label>
-                <textarea name="content" class="input-control" placeholder="자취생들과 나누고 싶은 이야기를 자유롭게 작성해 주세요.&#10;&#10;사진/동영상을 넣고 싶은 위치에 [img1], [img2], [video1] 처럼 적어두면 그 자리에 삽입됩니다. (안 적으면 글 맨 아래에 순서대로 첨부돼요)" required></textarea>
+                <input type="hidden" name="contentFormat" value="html">
+                <textarea id="editor" name="content" data-upload-url="${pageContext.request.contextPath}/board/editor-image" data-csrf="<%= util.CsrfUtil.token(session) %>" placeholder="자취생들과 나누고 싶은 이야기를 자유롭게 작성해 주세요."></textarea>
+                <p class="editor-help">사진은 툴바의 🖼 버튼, 드래그, 붙여넣기(Ctrl+V)로 원하는 위치에 넣을 수 있어요. 넣은 사진을 클릭하면 크기(100/50/25%)와 정렬(왼쪽/오른쪽)을 바꿀 수 있고, 끌어서 옮길 수도 있어요.</p>
             </div>
 
             <div class="form-group">
-                <label class="form-label">사진 / 동영상 첨부</label>
+                <label class="form-label">동영상 / 파일 첨부</label>
                 <input type="file" name="files" class="input-control" accept="image/*,video/*,.hwp,.hwpx,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar,.7z" multiple>
-                <p class="form-subtitle" style="margin-top: 6px;">여러 개 선택 가능 (이미지/동영상 + 한글(.hwp)/PDF/워드/엑셀/압축파일 등) · 본문에 [img1], [img2]... [video1], [video2]... 순서로 적어 사진·동영상은 원하는 위치에 넣을 수 있어요. 그 외 문서 파일은 본문 아래 첨부파일 목록에 자동으로 붙습니다.</p>
+                <p class="form-subtitle" style="margin-top: 6px;">여러 개 선택 가능 · 동영상은 본문 아래에, 한글(.hwp)/PDF/워드/엑셀/압축파일 등은 첨부파일 목록에 붙어요. (여기서 고른 사진은 본문 맨 아래에 들어가요)</p>
             </div>
 
             <div class="btn-group">
@@ -100,5 +104,9 @@
     </div>
 </div>
 
+<script src="../lib/jquery/jquery.min.js"></script>
+<script src="../lib/summernote/summernote-lite.min.js"></script>
+<script src="../lib/summernote/lang/summernote-ko-KR.min.js"></script>
+<script src="../js/editor.js"></script>
 </body>
 </html>

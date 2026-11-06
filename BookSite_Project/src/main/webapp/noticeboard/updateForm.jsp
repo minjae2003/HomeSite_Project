@@ -34,6 +34,9 @@
         out.println("<script>alert('수정 권한이 없습니다.'); history.go(-1);</script>");
         return;
     }
+    String editorHtml = util.RichText.isHtml(board.getContent())
+            ? util.RichText.sanitize(util.RichText.body(board.getContent()))
+            : util.RichText.legacyToHtml(board.getContent(), existingFiles, request.getContextPath());
 %>
 
 <!DOCTYPE html>
@@ -43,6 +46,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>공지사항 수정</title>
     <link rel="stylesheet" href="../css/noticeboard/update.css">
+    <link rel="stylesheet" href="../lib/summernote/summernote-lite.min.css">
+    <link rel="stylesheet" href="../css/editor.css">
     <link rel="stylesheet" href="../css/mobile.css">
 </head>
 <body>
@@ -70,23 +75,28 @@
 
         <div class="form-group">
             <label>내용</label>
-            <textarea name="content" rows="12" required><%= HtmlUtil.esc(board.getContent()) %></textarea>
+            <input type="hidden" name="contentFormat" value="html">
+                <textarea id="editor" name="content" data-upload-url="${pageContext.request.contextPath}/board/editor-image" data-csrf="<%= util.CsrfUtil.token(session) %>" placeholder="내용을 입력해 주세요."><%= HtmlUtil.esc(editorHtml) %></textarea>
+                <p class="editor-help">사진은 툴바의 🖼 버튼, 드래그, 붙여넣기(Ctrl+V)로 원하는 위치에 넣을 수 있어요. 넣은 사진을 클릭하면 크기(100/50/25%)와 정렬(왼쪽/오른쪽)을 바꿀 수 있고, 끌어서 옮길 수도 있어요.</p>
         </div>
 
-        <% if (!existingFiles.isEmpty()) { %>
+        <%
+            List<BoardFileVO> attachFiles = new java.util.ArrayList<BoardFileVO>();
+            for (BoardFileVO f : existingFiles) if (!f.isImage()) attachFiles.add(f);
+            if (!attachFiles.isEmpty()) { %>
         <div class="form-group">
-            <label>기존 첨부파일</label>
+            <label>기존 첨부파일 (사진은 본문 에디터에서 관리)</label>
             <p style="font-size: 13px; color: #666; margin: 0;">
-                <% for (int i = 0; i < existingFiles.size(); i++) {
-                       BoardFileVO f = existingFiles.get(i); %>
-                    <%= f.isImage() ? "🖼" : (f.isVideo() ? "🎬" : "📎") %> <%= HtmlUtil.esc(f.getOriginalName()) %><%= i < existingFiles.size() - 1 ? ", " : "" %>
+                <% for (int i = 0; i < attachFiles.size(); i++) {
+                       BoardFileVO f = attachFiles.get(i); %>
+                    <%= f.isImage() ? "🖼" : (f.isVideo() ? "🎬" : "📎") %> <%= HtmlUtil.esc(f.getOriginalName()) %><%= i < attachFiles.size() - 1 ? ", " : "" %>
                 <% } %>
             </p>
         </div>
         <% } %>
 
         <div class="form-group">
-            <label>사진 / 동영상 추가 첨부</label>
+            <label>동영상 / 파일 추가 첨부</label>
             <input type="file" name="files" accept="image/*,video/*,.hwp,.hwpx,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar,.7z" multiple>
         </div>
 
@@ -97,5 +107,9 @@
     </form>
 </div>
 
+<script src="../lib/jquery/jquery.min.js"></script>
+<script src="../lib/summernote/summernote-lite.min.js"></script>
+<script src="../lib/summernote/lang/summernote-ko-KR.min.js"></script>
+<script src="../js/editor.js"></script>
 </body>
 </html>

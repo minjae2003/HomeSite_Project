@@ -155,7 +155,7 @@ public class BoardDAO {
             if (isBest(category)) {
                 sql += HOT_ORDER;
             } else {
-                sql += " ORDER BY b.num DESC LIMIT ?, ?";
+                sql += " ORDER BY (b.category = 'FIX') DESC, b.num DESC LIMIT ?, ?";   // 관리자가 고정한 글이 맨 위
             }
 
             pstmt = conn.prepareStatement(sql);
@@ -183,6 +183,7 @@ public class BoardDAO {
                     try { article.setWriterNickname(rs.getString("writer_nickname")); } catch (Exception e) {}
                     try { article.setLikeCount(rs.getInt("like_count")); } catch (Exception e) {}
                     try { article.setCategory(rs.getString("board_type")); } catch (Exception e) {}
+                    try { article.setNoticeType(rs.getString("category")); } catch (Exception e) {}
                     try { article.setCommentCount(rs.getInt("comment_count")); } catch (Exception e) {}
 
                     articleList.add(article);
@@ -225,7 +226,7 @@ public class BoardDAO {
             if (isBest(category)) {
                 sql += HOT_ORDER;
             } else {
-                sql += " ORDER BY b.num DESC LIMIT ?, ?";
+                sql += " ORDER BY (b.category = 'FIX') DESC, b.num DESC LIMIT ?, ?";   // 관리자가 고정한 글이 맨 위
             }
 
             pstmt = conn.prepareStatement(sql);
@@ -256,6 +257,7 @@ public class BoardDAO {
                     try { article.setWriterNickname(rs.getString("writer_nickname")); } catch (Exception e) {}
                     try { article.setLikeCount(rs.getInt("like_count")); } catch (Exception e) {}
                     try { article.setCategory(rs.getString("board_type")); } catch (Exception e) {}
+                    try { article.setNoticeType(rs.getString("category")); } catch (Exception e) {}
                     try { article.setCommentCount(rs.getInt("comment_count")); } catch (Exception e) {}
 
                     articleList.add(article);
@@ -486,6 +488,24 @@ public class BoardDAO {
         }
     }
 
+    /** 관리자 전용: 자유게시판 글 상단 고정/해제 (공지사항 글은 대상 아님) */
+    public boolean setPinned(int num, boolean pinned) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = getConnection();
+            pstmt = conn.prepareStatement("UPDATE BOARD SET category = ? WHERE num = ? AND board_type <> 'NOTICE'");
+            pstmt.setString(1, pinned ? "FIX" : "FREE");
+            pstmt.setInt(2, num);
+            return pstmt.executeUpdate() == 1;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        } finally {
+            close(conn, pstmt, null);
+        }
+    }
+
     public void deleteArticle(int num) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -702,7 +722,7 @@ public class BoardDAO {
         }
         if (generatedNum > 0) {
             notification.NotificationDAO.getInstance()
-            .notifyNotice(generatedNum, article.getWriterId(), article.getWriterNickname(), article.getContent());
+            .notifyNotice(generatedNum, article.getWriterId(), article.getWriterNickname(), util.RichText.toText(article.getContent()));
         }
         return generatedNum;
     }

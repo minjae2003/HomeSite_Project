@@ -182,7 +182,7 @@
                             </div>
                             <div class="post-author-group">
                                 <span class="author-avatar" style="background-color: <%= color %>;"></span>
-                                <span class="author-name"><%= HtmlUtil.esc(item.getWriter()) %></span>
+                                <span class="author-name"><%= HtmlUtil.esc(item.getWriterNickname() != null ? item.getWriterNickname() : item.getWriter()) %></span>
                             </div>
                             <div class="post-stats">
                                 <span>조회 <strong><%= item.getReadcount() %></strong></span>

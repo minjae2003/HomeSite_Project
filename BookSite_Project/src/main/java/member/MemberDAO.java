@@ -271,6 +271,7 @@ public class MemberDAO {
 
         try {
             conn = getConnection();
+            conn.setAutoCommit(false);
             String sql = changePw
             		? "UPDATE MEMBER SET nickname = ?, name = ?, email = ?, phone = ?, password = ?, info_changed_at = NOW(), pw_changed_at = NOW() WHERE id = ?"
                             : "UPDATE MEMBER SET nickname = ?, name = ?, email = ?, phone = ?, info_changed_at = NOW() WHERE id = ?";
@@ -282,9 +283,13 @@ public class MemberDAO {
             pstmt.setString(idx++, (member.getPhone() != null && !member.getPhone().isEmpty()) ? member.getPhone() : null);
             if (changePw) pstmt.setString(idx++, PasswordUtil.hash(newPassword));
             pstmt.setString(idx, member.getId());
-            return pstmt.executeUpdate() == 1;
+            if (pstmt.executeUpdate() != 1) { conn.rollback(); return false; }
+            syncNickname(conn, member.getId(), member.getNickname());
+            conn.commit();
+            return true;
         } catch (Exception ex) {
             ex.printStackTrace();
+            rollback(conn);
         } finally {
             close(conn, pstmt, null);
         }
@@ -295,16 +300,44 @@ public class MemberDAO {
         PreparedStatement pstmt = null;
         try {
             conn = getConnection();
+            conn.setAutoCommit(false);
             pstmt = conn.prepareStatement("UPDATE MEMBER SET nickname = ?, info_changed_at = NOW() WHERE id = ?");
             pstmt.setString(1, nickname);
             pstmt.setString(2, id);
-            return pstmt.executeUpdate() == 1;
+            if (pstmt.executeUpdate() != 1) { conn.rollback(); return false; }
+            syncNickname(conn, id, nickname);
+            conn.commit();
+            return true;
         } catch (Exception ex) {
             ex.printStackTrace();
+            rollback(conn);
         } finally {
             close(conn, pstmt, null);
         }
         return false;
+    }
+    // 닉네임을 바꾸면 예전에 쓴 글·댓글·알림에 저장된 작성자 이름도 새 닉네임으로 함께 변경 (같은 트랜잭션)
+    private void syncNickname(Connection conn, String id, String nickname) throws java.sql.SQLException {
+        String[] sqls = {
+            "UPDATE BOARD SET writer = ?, writer_nickname = ? WHERE writer_id = ?",
+            "UPDATE BOARD_COMMENT SET writer = ?, writer_nickname = ? WHERE writer_id = ?",
+        };
+        for (String sql : sqls) {
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, nickname);
+                ps.setString(2, nickname);
+                ps.setString(3, id);
+                ps.executeUpdate();
+            }
+        }
+        try (PreparedStatement ps = conn.prepareStatement("UPDATE NOTIFICATION SET actor_nickname = ? WHERE actor_id = ?")) {
+            ps.setString(1, nickname);
+            ps.setString(2, id);
+            ps.executeUpdate();
+        }
+    }
+    private void rollback(Connection conn) {
+        if (conn != null) try { conn.rollback(); } catch (Exception e) {}
     }
     //  - 내가 추천했던 다른 사람 글의 추천 수를 먼저 1씩 줄이고
     //  - MEMBER 삭제 → 내 글/댓글/추천/알림/체크리스트는 FK(ON DELETE CASCADE)로 함께 삭제
@@ -380,6 +413,7 @@ public class MemberDAO {
     private void close(Connection conn, PreparedStatement pstmt, ResultSet rs) {
         if (rs != null) try { rs.close(); } catch (Exception e) {}
         if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}
+        if (conn != null) try { conn.setAutoCommit(true); } catch (Exception e) {}
         if (conn != null) try { conn.close(); } catch (Exception e) {}
     }
 }

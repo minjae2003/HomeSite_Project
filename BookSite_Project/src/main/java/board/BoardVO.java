@@ -58,4 +58,6 @@ public class BoardVO {
 
     public String getNoticeType() { return noticeType != null ? noticeType : "NORMAL"; }
     public void setNoticeType(String noticeType) { this.noticeType = noticeType; }
+    /** 자유게시판 글이 관리자에 의해 상단 고정됐는지 (category 컬럼 = FIX) */
+    public boolean isPinned() { return "FIX".equals(noticeType); }
 }

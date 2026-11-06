@@ -31,6 +31,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>공지사항 작성 - 자취의 품격</title>
     <link rel="stylesheet" href="../css/noticeboard/write.css">
+    <link rel="stylesheet" href="../lib/summernote/summernote-lite.min.css">
+    <link rel="stylesheet" href="../css/editor.css">
 </head>
 <body>
 
@@ -71,11 +73,13 @@
 
             <div class="form-group">
                 <label class="form-label">내용</label>
-                <textarea name="content" class="input-control" placeholder="공지 내용을 작성해 주세요.&#10;&#10;사진/동영상을 넣고 싶은 위치에 [img1], [video1] 처럼 적어두면 그 자리에 삽입됩니다." required></textarea>
+                <input type="hidden" name="contentFormat" value="html">
+                <textarea id="editor" name="content" data-upload-url="${pageContext.request.contextPath}/board/editor-image" data-csrf="<%= util.CsrfUtil.token(session) %>" placeholder="공지 내용을 작성해 주세요."></textarea>
+                <p class="editor-help">사진은 툴바의 🖼 버튼, 드래그, 붙여넣기(Ctrl+V)로 원하는 위치에 넣을 수 있어요. 넣은 사진을 클릭하면 크기(100/50/25%)와 정렬(왼쪽/오른쪽)을 바꿀 수 있고, 끌어서 옮길 수도 있어요.</p>
             </div>
 
             <div class="form-group">
-                <label class="form-label">사진 / 동영상 첨부</label>
+                <label class="form-label">동영상 / 파일 첨부</label>
                 <input type="file" name="files" class="input-control" accept="image/*,video/*,.hwp,.hwpx,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar,.7z" multiple>
             </div>
 
@@ -87,5 +91,9 @@
     </div>
 </div>
 
+<script src="../lib/jquery/jquery.min.js"></script>
+<script src="../lib/summernote/summernote-lite.min.js"></script>
+<script src="../lib/summernote/lang/summernote-ko-KR.min.js"></script>
+<script src="../js/editor.js"></script>
 </body>
 </html>

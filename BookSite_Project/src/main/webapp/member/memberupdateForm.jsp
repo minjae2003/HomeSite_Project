@@ -79,7 +79,7 @@
       <div class="form-group">
         <label class="form-label" for="nickname">닉네임</label>
         <input type="text" id="nickname" name="nickname" class="input-control" maxlength="50" value="<%= esc(member.getNickname()) %>">
-        <div class="form-hint">이미 작성한 글·댓글의 작성자 이름은 작성 당시 닉네임으로 유지돼요.</div>
+        <div class="form-hint">닉네임을 바꾸면 이미 작성한 글·댓글의 작성자 이름도 함께 바뀌어요.</div>
       </div>
       <div class="form-group">
         <label class="form-label" for="name">이름</label>

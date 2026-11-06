@@ -118,6 +118,32 @@ public class CommentDAO {
             close(conn, pstmt, null);
         }
     }
+    /**
+     * 댓글 수정 - 작성자 본인 또는 관리자만 가능
+     * @return 실제로 수정됐으면 true (권한 없음/없는 댓글이면 false)
+     */
+    public boolean updateComment(int commentNum, int boardNum, String userId, boolean isAdmin, String content) {
+        if (userId == null) return false;
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = getConnection();
+            String sql = isAdmin
+                ? "UPDATE BOARD_COMMENT SET content = ? WHERE comment_num = ? AND board_num = ?"
+                : "UPDATE BOARD_COMMENT SET content = ? WHERE comment_num = ? AND board_num = ? AND writer_id = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, content);
+            pstmt.setInt(2, commentNum);
+            pstmt.setInt(3, boardNum);
+            if (!isAdmin) pstmt.setString(4, userId);
+            return pstmt.executeUpdate() == 1;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        } finally {
+            close(conn, pstmt, null);
+        }
+    }
     private void close(Connection conn, PreparedStatement pstmt, ResultSet rs) {
         if (rs != null) try { rs.close(); } catch (Exception e) {}
         if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}

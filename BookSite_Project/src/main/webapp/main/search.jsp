@@ -65,7 +65,7 @@
 <div class="container">
     <div class="board-header">
         <h1 class="board-title">🔍 통합검색</h1>
-        <p class="board-subtitle">자유게시판, 자취꿀팁, 질문/답변, 요리레시피, 공지사항을 한 번에 검색합니다.</p>
+        <p class="board-subtitle"> 공지사항, 자유게시판, 자취꿀팁, 질문/답변, 요리레시피을 한 번에 검색합니다.</p>
     </div>
 
     <form class="search-box" action="search.jsp" method="get">

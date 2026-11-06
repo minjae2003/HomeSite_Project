@@ -61,7 +61,11 @@
     List<BoardFileVO> fileList = BoardFileDAO.getInstance().getFiles(num);
     List<BoardFileVO> docFiles = new java.util.ArrayList<BoardFileVO>();
     // 본문은 먼저 이스케이프한 뒤 [img1] 같은 자리표시자만 태그로 바꿈 (저장형 XSS 방지)
-    String processedContent = escAttr(article.getContent());
+    // 에디터(HTML)로 쓴 글은 허용된 태그만 남겨서 그대로 출력, 예전 텍스트 글은 이스케이프 후 [img1] 치환
+    boolean richPost = util.RichText.isHtml(article.getContent());
+    String processedContent = richPost
+            ? util.RichText.sanitize(util.RichText.body(article.getContent()))
+            : util.RichText.linkify(escAttr(article.getContent()));   // 주소는 누를 수 있는 링크로
     StringBuilder extraMedia = new StringBuilder();
     int imgIdx = 0, vidIdx = 0;
     for (BoardFileVO f : fileList) {
@@ -69,6 +73,7 @@
             docFiles.add(f);
             continue;
         }
+        if (richPost && f.isImage()) continue;   // 에디터 글의 사진은 본문 안에 이미 들어 있음
         String url = request.getContextPath() + f.getWebPath();
         String tag;
         String placeholder;
@@ -113,7 +118,7 @@
             <span>작성일: <%= article.getRegDate() != null ? sdf.format(article.getRegDate()) : "" %></span>
             <span>조회수: <%= article.getReadcount() %></span>
         </div>
-        <div class="post-content"><%= processedContent %><%= extraMedia.toString() %></div>
+        <div class="post-content<%= richPost ? " rich" : "" %>"><%= processedContent %><%= extraMedia.toString() %></div>
 
         <% if (!docFiles.isEmpty()) { %>
         <ul class="attach-list">
@@ -182,6 +187,7 @@
                         <div>
                             <span class="comment-date"><%= comment.getRegDate() != null ? sdf.format(comment.getRegDate()) : "" %></span>
                             <% if (canDeleteComment) { %>
+                                <button type="button" class="btn-comment-edit" onclick="toggleCommentEdit(<%= comment.getCommentNum() %>)">수정</button>
                                 <form method="post" action="commentDeletePro.jsp" style="display:inline"
                                       onsubmit="return confirm('댓글을 삭제하시겠습니까?');"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
                                     <input type="hidden" name="commentNum" value="<%= comment.getCommentNum() %>">
@@ -193,7 +199,20 @@
                             <% } %>
                         </div>
                     </div>
-                    <div class="comment-text"><%= escAttr(comment.getContent()) %></div>
+                    <div class="comment-text" id="comment-text-<%= comment.getCommentNum() %>"><%= util.RichText.linkify(escAttr(comment.getContent())) %></div>
+                    <% if (canDeleteComment) { %>
+                    <form method="post" action="commentUpdatePro.jsp" class="comment-edit-form" id="comment-edit-<%= comment.getCommentNum() %>" hidden><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
+                        <input type="hidden" name="commentNum" value="<%= comment.getCommentNum() %>">
+                        <input type="hidden" name="boardNum" value="<%= num %>">
+                        <input type="hidden" name="pageNum" value="<%= pageNum %>">
+                        <input type="hidden" name="category" value="<%= category %>">
+                        <textarea name="content" class="comment-textarea" maxlength="1000" required><%= escAttr(comment.getContent()) %></textarea>
+                        <div class="comment-edit-actions">
+                            <button type="button" class="btn-comment-cancel" onclick="toggleCommentEdit(<%= comment.getCommentNum() %>)">취소</button>
+                            <button type="submit" class="btn-comment-save">저장</button>
+                        </div>
+                    </form>
+                    <% } %>
                 </li>
             <%
                 }
@@ -203,5 +222,16 @@
     </div>
 </div>
 
+<script>
+    // 댓글 수정 폼 열기/닫기 (본인 댓글 또는 관리자에게만 버튼이 보임, 실제 권한 확인은 commentUpdatePro.jsp + DAO)
+    function toggleCommentEdit(id) {
+        var form = document.getElementById('comment-edit-' + id);
+        var text = document.getElementById('comment-text-' + id);
+        var open = form.hidden;
+        form.hidden = !open;
+        text.hidden = open;
+        if (open) form.querySelector('textarea').focus();
+    }
+</script>
 </body>
 </html>
