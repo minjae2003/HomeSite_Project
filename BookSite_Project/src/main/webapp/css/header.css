@@ -1,4 +1,3 @@
-/* ── 헤더 공통 초기화: 페이지 CSS와 상관없이 같은 모양 유지 ── */
 header,
 header * {
     box-sizing: border-box;
@@ -330,8 +329,6 @@ nav li { margin-right: 20px; }
     nav a { font-size: 16px; }
 }
 
-/* 모바일 헤더 (760px 이하): 로고 + 알림 + 메뉴 버튼 한 줄,   */
-/* 메뉴·검색·로그인 버튼은 ☰ 버튼을 눌렀을 때만 펼쳐짐          */
 .nav-toggle { display: none; }
 
 @media (max-width: 760px) {
@@ -345,7 +342,6 @@ nav li { margin-right: 20px; }
     }
     header .logo { order: 1; flex: 1 1 auto; font-size: 19px; }
 
-    /* .header-auth 안의 요소들을 header의 직접 자식처럼 배치 */
     .header-auth { display: contents; }
 
     .notif-wrap { order: 2; margin-right: 8px; }
@@ -413,13 +409,12 @@ nav li { margin-right: 20px; }
     .notif-panel { position: fixed; top: 60px; left: 12px; right: 12px; width: auto; max-width: none; }
 }
 
-/* 모바일 헤더의 작은 로그인 버튼 (로그아웃 상태에서만 출력됨) */
 .btn-mini-login { display: none; }
 @media (max-width: 760px) {
     .btn-mini-login {
         display: inline-flex;
         align-items: center;
-        order: 3;                 /* 오른쪽: 알림 종(2)과 메뉴 버튼(4) 사이 */
+        order: 3;
         height: 32px;
         padding: 0 12px;
         margin-right: 8px;
@@ -432,6 +427,5 @@ nav li { margin-right: 20px; }
         white-space: nowrap;
     }
     .btn-mini-login:visited { color: #ffffff; }
-    /* ☰ 메뉴를 펼치면 큰 로그인/회원가입 버튼이 나오므로 작은 버튼은 숨김 */
     header.menu-open .btn-mini-login { display: none; }
 }

@@ -1,0 +1,7 @@
+<%@ page pageEncoding="UTF-8" %>
+<nav class="policy-tabs">
+    <a href="terms.jsp" class="<%= "terms".equals(policyTab) ? "active" : "" %>">이용약관</a>
+    <a href="privacy.jsp" class="<%= "privacy".equals(policyTab) ? "active" : "" %>">개인정보처리방침</a>
+    <a href="rules.jsp" class="<%= "rules".equals(policyTab) ? "active" : "" %>">운영정책</a>
+    <a href="rules.jsp#report" class="">권리침해 신고</a>
+</nav>

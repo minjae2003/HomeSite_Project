@@ -7,7 +7,6 @@
     String numStr = request.getParameter("num");
     String pageNum = request.getParameter("pageNum");
 
-    // 글 번호는 숫자만, pageNum도 숫자만 허용 (문자가 오면 500 에러 / 스크립트 삽입 방지)
     if (numStr == null || !numStr.trim().matches("\\d{1,9}")) {
         out.println("<script>alert('잘못된 접근입니다.'); history.go(-1);</script>");
         return;
@@ -26,7 +25,6 @@
     String sessionUserId = (String) session.getAttribute("id");
     String sessionRole = (String) session.getAttribute("role");
 
-    // 작성자 본인 또는 관리자만 가능 (작성자 정보가 없는 예전 글은 관리자만)
     boolean isOwnerOrAdmin = sessionUserId != null
             && (sessionUserId.equals(board.getWriterId()) || "ADMIN".equals(sessionRole));
     if (!isOwnerOrAdmin) {
@@ -90,6 +88,8 @@
             <label>동영상 / 파일 추가 첨부</label>
             <input type="file" name="files" accept="image/*,video/*,.hwp,.hwpx,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar,.7z" multiple>
         </div>
+
+            <p class="post-notice">📌 전화번호·주소 등 개인정보, 욕설·비방, 광고·도배 글은 <a href="${pageContext.request.contextPath}/policy/rules.jsp" target="_blank" rel="noopener">운영정책</a>에 따라 숨김·삭제될 수 있어요. 다른 사람의 글이나 사진을 가져올 때는 출처를 밝혀 주세요.</p>
 
         <div class="btn-box">
             <button type="submit" class="btn btn-submit">수정 완료</button>

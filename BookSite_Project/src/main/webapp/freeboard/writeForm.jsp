@@ -96,6 +96,8 @@
                 <p class="form-subtitle" style="margin-top: 6px;">여러 개 선택 가능 · 동영상은 본문 아래에, 한글(.hwp)/PDF/워드/엑셀/압축파일 등은 첨부파일 목록에 붙어요. (여기서 고른 사진은 본문 맨 아래에 들어가요)</p>
             </div>
 
+            <p class="post-notice">📌 전화번호·주소 등 개인정보, 욕설·비방, 광고·도배 글은 <a href="${pageContext.request.contextPath}/policy/rules.jsp" target="_blank" rel="noopener">운영정책</a>에 따라 숨김·삭제될 수 있어요. 다른 사람의 글이나 사진을 가져올 때는 출처를 밝혀 주세요.</p>
+
             <div class="btn-group">
                 <button type="button" class="btn btn-cancel" onclick="location.href='list.jsp?category=<%= selCat %>'">취소</button>
                 <button type="submit" class="btn btn-submit">게시글 등록</button>
@@ -108,5 +110,6 @@
 <script src="../lib/summernote/summernote-lite.min.js"></script>
 <script src="../lib/summernote/lang/summernote-ko-KR.min.js"></script>
 <script src="../js/editor.js"></script>
+<jsp:include page="/module/footer.jsp" flush="false"/>
 </body>
 </html>

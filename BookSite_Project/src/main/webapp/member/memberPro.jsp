@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="member.MemberDAO, util.PasswordUtil" %>
+<%@ page import="member.MemberDAO, member.ConsentDAO, util.PasswordUtil" %>
 <%@ page import="member.MemberVO" %>
 
 <%
@@ -21,20 +21,22 @@
             out.println("<script>alert('아이디, 비밀번호, 이름을 모두 입력해 주세요.'); history.go(-1);</script>");
             return;
         }
+        // [필수] 이용약관, 개인정보 수집·이용 동의 확인 (화면 검사를 우회해도 서버에서 다시 막음)
+        if (!"Y".equals(request.getParameter("agree_terms")) || !"Y".equals(request.getParameter("agree_privacy"))) {
+            out.println("<script>alert('이용약관과 개인정보 수집·이용에 모두 동의해야 가입할 수 있습니다.'); history.go(-1);</script>");
+            return;
+        }
         id = id.trim();
         name = name.trim();
-        // 아이디는 영문으로 시작하는 영문/숫자 4~20자만 허용 (한글·공백·특수문자 차단)
         if (!id.matches("^[A-Za-z][A-Za-z0-9]{3,19}$")) {
             out.println("<script>alert('아이디는 영문으로 시작하는 4~20자의 영문/숫자만 사용할 수 있습니다.'); history.go(-1);</script>");
             return;
         }
-        // 비밀번호 규칙 (8자 이상, 영문+숫자, 아이디와 다르게)
         String policyError = PasswordUtil.checkPolicy(pass, id);
         if (policyError != null) {
             out.println("<script>alert('" + policyError + "'); history.go(-1);</script>");
             return;
         }
-        // 닉네임은 필수 (2~50자) - 비어 있으면 실명이 대신 저장되지 않도록 여기서 막음
         String nickname = request.getParameter("nickname");
         nickname = (nickname == null) ? "" : nickname.trim();
         if (nickname.length() < 2 || nickname.length() > 50) {
@@ -77,13 +79,13 @@
         if (dao.idCheck(id) == 1) {
             out.println("<script>alert('이미 사용 중인 아이디입니다.'); history.go(-1);</script>");
         } else if (dao.insertMember(member)) {
+            ConsentDAO.getInstance().agree(id, util.SiteInfo.POLICY_VERSION);
             out.println("<script>alert('회원가입 성공!'); location.href='loginForm.jsp';</script>");
         } else {
             out.println("<script>alert('회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'); history.go(-1);</script>");
         }
     } catch (Exception e) {
-        e.printStackTrace();   // 자세한 원인은 서버 로그(Console/catalina.out)에만 남김
-        // 사용자에게는 DB 에러 내용(테이블/컬럼 이름, SQL 등)을 보여주지 않음
+        e.printStackTrace();
         out.println("<script>alert('회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'); history.go(-1);</script>");
     }
 %>

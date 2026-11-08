@@ -31,6 +31,11 @@ public class VisitDAO {
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, sessionId);
             pstmt.executeUpdate();
+            if (java.util.concurrent.ThreadLocalRandom.current().nextInt(500) == 0) {
+                pstmt.close();
+                pstmt = conn.prepareStatement("DELETE FROM VISIT_LOG WHERE visit_date < CURDATE() - INTERVAL 1 YEAR LIMIT 5000");
+                pstmt.executeUpdate();
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {

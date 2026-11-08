@@ -1,10 +1,5 @@
 package mypage;
 
-/**
- * 활동 점수 → 등급 계산
- *  점수 = 작성글 x 10 + 작성댓글 x 2 + 받은 추천 x 5
- *  (기준표는 THRESHOLDS / NAMES 배열만 바꾸면 조정 가능)
- */
 public class Level {
     private static final int[] THRESHOLDS = { 0, 30, 80, 150, 300, 500, 800 };
     private static final String[] NAMES = { "자취새내기", "자취입문", "자취러", "살림꾼", "살림고수", "자취달인", "자취의 품격" };

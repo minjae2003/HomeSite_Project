@@ -3,7 +3,6 @@
 <%
     String id = request.getParameter("id");
     id = (id == null) ? "" : id.trim();
-    // 회원가입과 같은 규칙: 영문으로 시작하는 영문/숫자 4~20자
     boolean validId = id.matches("^[A-Za-z][A-Za-z0-9]{3,19}$");
     int check = validId ? MemberDAO.getInstance().idCheck(id) : -1;
 %>

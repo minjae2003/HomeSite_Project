@@ -10,13 +10,11 @@
         return;
     }
 
-    // POST만 허용 (링크/이미지 태그로 몰래 호출되는 것 방지)
     if (!"POST".equalsIgnoreCase(request.getMethod())) {
         response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
         return;
     }
 
-    // 입력값 검증 - 숫자가 아니면 거부 (NumberFormatException 500 에러 방지)
     String commentNumParam = request.getParameter("commentNum");
     String boardNumParam = request.getParameter("boardNum");
     String pageNum = request.getParameter("pageNum");
@@ -45,7 +43,6 @@
         return;
     }
 
-    // 본인 또는 관리자만 수정 (권한 확인은 DAO의 WHERE 절에서)
     boolean updated = CommentDAO.getInstance()
             .updateComment(commentNum, boardNum, sessionUserId, "ADMIN".equals(sessionRole), content);
 

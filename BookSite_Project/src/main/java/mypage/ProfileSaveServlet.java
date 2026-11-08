@@ -39,7 +39,6 @@ public class ProfileSaveServlet extends HttpServlet {
             return;
         }
 
-        // 파일 크기 초과 시 여기서 예외가 남
         Part photo;
         try {
             photo = request.getPart("photo");

@@ -12,7 +12,6 @@ String sessionUserNick = (String) session.getAttribute("nickname");
 if (sessionUserNick == null)
 	sessionUserNick = (String) session.getAttribute("name");
 
-// 목록에 없는 값은 ALL로 처리 (화면에 그대로 출력되므로 임의 값 차단)
 String category = request.getParameter("category");
 category = (category == null) ? "ALL" : category.trim().toUpperCase();
 if (!java.util.Arrays.asList("ALL", "BEST", "FREE", "TIP", "QNA", "RECIPE").contains(category)) {
@@ -32,8 +31,6 @@ int currentPage = Math.max(1, Integer.parseInt(pageNum));
 int startRow = (currentPage - 1) * pageSize;
 
 BoardDAO dao = BoardDAO.getInstance();
-// 자유게시판 목록은 "전체보기/인기글" 탭이라도 FREE/TIP/QNA/RECIPE만 보여야 함 (공지사항 제외)
-// 탭 강조/링크에 쓰는 category 값(ALL/BEST)은 그대로 두고, DB 조회에만 다른 값을 넘긴다.
 String queryCategory = category;
 if ("ALL".equalsIgnoreCase(category))
 	queryCategory = "FREE_ALL";
@@ -102,7 +99,6 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 		<%
 		}
 		%>
-		<!-- 카테고리 탭 (모바일에서는 좌우 화살표가 있는 슬라이드로 동작: js/category-slider.js) -->
 		<div class="tab-slider">
 		<button type="button" class="tab-arrow prev" aria-label="이전 카테고리" hidden>‹</button>
 		<div class="category-tabs">
@@ -240,5 +236,6 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 	</div>
 
 <script src="../js/category-slider.js"></script>
+<jsp:include page="/module/footer.jsp" flush="false"/>
 </body>
 </html>

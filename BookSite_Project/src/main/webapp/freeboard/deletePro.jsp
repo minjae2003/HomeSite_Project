@@ -13,7 +13,6 @@
     String numStr = request.getParameter("num");
     String pageNum = request.getParameter("pageNum");
 
-    // 글 번호는 숫자만, pageNum도 숫자만 허용 (문자가 오면 500 에러 / 스크립트 삽입 방지)
     if (numStr == null || !numStr.trim().matches("\\d{1,9}")) {
         out.println("<script>alert('잘못된 접근입니다.'); history.go(-1);</script>");
         return;
@@ -31,17 +30,14 @@
     String sessionUserId = (String) session.getAttribute("id");
     String sessionRole = (String) session.getAttribute("role");
 
-    // 작성자 본인 또는 관리자만 가능 (작성자 정보가 없는 예전 글은 관리자만)
     boolean isOwnerOrAdmin = sessionUserId != null
             && (sessionUserId.equals(board.getWriterId()) || "ADMIN".equals(sessionRole));
-    // 공지사항 글은 자유게시판 경로로 들어와도 관리자만 삭제 가능
     if ("NOTICE".equals(board.getCategory()) && !"ADMIN".equals(sessionRole)) isOwnerOrAdmin = false;
     if (!isOwnerOrAdmin) {
         out.println("<script>alert('삭제 권한이 없습니다.'); history.go(-1);</script>");
         return;
     }
 
-    // 첨부된 실제 파일 삭제 (DB의 BOARD_FILE 행은 게시글 삭제 시 FK ON DELETE CASCADE로 자동 삭제됨)
     List<BoardFileVO> attachedFiles = BoardFileDAO.getInstance().getFiles(num);
     String uploadDir = application.getRealPath("/uploads");
     for (BoardFileVO f : attachedFiles) {

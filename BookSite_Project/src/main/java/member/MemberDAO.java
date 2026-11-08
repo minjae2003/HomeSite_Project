@@ -74,7 +74,6 @@ public class MemberDAO {
         return idCheck(id);
     }
 
-    // 3. 로그인 인증 (1 = 성공, 0 = 비밀번호 불일치, -1 = 회원 없음)
     public int userCheck(String id, String password) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -150,7 +149,6 @@ public class MemberDAO {
                 String id = rs.getString("id");
                 String plain = rs.getString("password");
                 if (plain == null) continue;
-                // 예전 로그인은 앞뒤 공백을 무시하고 비교했으므로 trim한 값으로 해시
                 upd.setString(1, PasswordUtil.hash(plain.trim()));
                 upd.setString(2, id);
                 upd.setString(3, plain);
@@ -199,7 +197,6 @@ public class MemberDAO {
         }
         return vo;
     }
-    // 6-1. 아이디 찾기: 이름 + 이메일이 모두 일치하는 회원 아이디 목록 (같은 이메일로 여러 계정일 수 있음)
     public java.util.List<String> findIds(String name, String email) {
         java.util.List<String> ids = new java.util.ArrayList<String>();
         if (isBlank(name) || isBlank(email)) return ids;
@@ -316,7 +313,6 @@ public class MemberDAO {
         }
         return false;
     }
-    // 닉네임을 바꾸면 예전에 쓴 글·댓글·알림에 저장된 작성자 이름도 새 닉네임으로 함께 변경 (같은 트랜잭션)
     private void syncNickname(Connection conn, String id, String nickname) throws java.sql.SQLException {
         String[] sqls = {
             "UPDATE BOARD SET writer = ?, writer_nickname = ? WHERE writer_id = ?",
@@ -339,9 +335,6 @@ public class MemberDAO {
     private void rollback(Connection conn) {
         if (conn != null) try { conn.rollback(); } catch (Exception e) {}
     }
-    //  - 내가 추천했던 다른 사람 글의 추천 수를 먼저 1씩 줄이고
-    //  - MEMBER 삭제 → 내 글/댓글/추천/알림/체크리스트는 FK(ON DELETE CASCADE)로 함께 삭제
-    //  - 성공하면 서버에서 지워야 할 첨부파일 이름 목록을 돌려줌 (실패 시 null)
     public java.util.List<String> deleteMember(String id) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -352,7 +345,6 @@ public class MemberDAO {
             conn = getConnection();
             conn.setAutoCommit(false);
 
-            // 내 글에 붙은 첨부파일 이름 (DB 행은 CASCADE로 지워지지만 실제 파일은 직접 지워야 함)
             pstmt = conn.prepareStatement(
                 "SELECT f.saved_name FROM BOARD_FILE f JOIN BOARD b ON b.num = f.board_num WHERE b.writer_id = ?");
             pstmt.setString(1, id);

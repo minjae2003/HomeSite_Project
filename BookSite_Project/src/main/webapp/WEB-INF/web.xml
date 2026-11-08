@@ -10,9 +10,7 @@
 
     <display-name>HomeSite_Project</display-name>
 
-    <!-- ===== 세션 / 쿠키 보안 ===== -->
     <session-config>
-        <!-- 30분 동안 아무 요청이 없으면 로그아웃 -->
         <session-timeout>30</session-timeout>
         <cookie-config>
             <!-- 자바스크립트(document.cookie)로 세션 쿠키를 읽지 못하게 → XSS가 생겨도 세션 탈취가 어려움 -->
@@ -23,6 +21,14 @@
         <!-- 세션 ID를 URL(;jsessionid=...)에 붙이지 않고 쿠키로만 사용 → 주소 복사/Referer로 세션 ID가 새는 것 방지 -->
         <tracking-mode>COOKIE</tracking-mode>
     </session-config>
+
+    <!-- include로 끼워 넣는 조각 파일(.jspf)도 UTF-8로 읽도록 (지정하지 않으면 한글이 깨짐) -->
+    <jsp-config>
+        <jsp-property-group>
+            <url-pattern>*.jspf</url-pattern>
+            <page-encoding>UTF-8</page-encoding>
+        </jsp-property-group>
+    </jsp-config>
 
     <!-- ===== 에러 페이지 =====
          Tomcat 기본 에러 화면은 서버 버전과 스택 트레이스(코드 경로, 클래스 이름, SQL 등)를 보여주므로

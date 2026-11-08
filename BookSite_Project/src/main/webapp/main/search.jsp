@@ -10,13 +10,12 @@
 
     int pageSize = 10;
     String pageNum = request.getParameter("pageNum");
-    if (pageNum == null || !pageNum.matches("\\d{1,9}")) pageNum = "1";   // 숫자가 아니면 500 에러 대신 1페이지
+    if (pageNum == null || !pageNum.matches("\\d{1,9}")) pageNum = "1";
     int currentPage = Math.max(1, Integer.parseInt(pageNum));
     int startRow = (currentPage - 1) * pageSize;
 
     BoardDAO dao = BoardDAO.getInstance();
 
-    // 게시글 검색: 자유게시판(FREE/TIP/QNA/RECIPE) - "ALL"은 공지사항만 제외한 전체 카테고리
     int postTotal = 0;
     List<BoardVO> postList = null;
 
@@ -65,7 +64,7 @@
 <div class="container">
     <div class="board-header">
         <h1 class="board-title">🔍 통합검색</h1>
-        <p class="board-subtitle"> 공지사항, 자유게시판, 자취꿀팁, 질문/답변, 요리레시피을 한 번에 검색합니다.</p>
+        <p class="board-subtitle">자유게시판, 자취꿀팁, 질문/답변, 요리레시피, 공지사항을 한 번에 검색합니다.</p>
     </div>
 
     <form class="search-box" action="search.jsp" method="get">
@@ -165,5 +164,6 @@
     <% } %>
 </div>
 
+<jsp:include page="/module/footer.jsp" flush="false"/>
 </body>
 </html>

@@ -15,12 +15,9 @@ public class BoardDAO {
     public static BoardDAO getInstance() { return instance; }
     private BoardDAO() {}
 
-    // 실시간 인기글: 지금 시각 기준 직전 HOT_WINDOW_HOURS 시간 동안 생긴 조회·추천·댓글만 점수로 셈 (롤링 집계)
-    // 점수가 있는 글이 먼저, 부족한 자리는 누적 조회수 순으로 채움
     public static final int HOT_WINDOW_HOURS = 24;
     private static final int W_VIEW = 1, W_LIKE = 5, W_COMMENT = 3;
 
-    // 상수만 넣으므로 SQL 문자열에 직접 붙여도 안전 (사용자 입력 없음)
     private static final String HOT_JOINS =
           " LEFT JOIN (SELECT board_num, COUNT(*) AS cnt FROM BOARD_VIEW_LOG"
         + "   WHERE viewed_at >= NOW() - INTERVAL " + HOT_WINDOW_HOURS + " HOUR GROUP BY board_num) hv ON hv.board_num = b.num"
@@ -60,7 +57,6 @@ public class BoardDAO {
             if (filter) {
                 sql += " WHERE board_type = ?";
             } else if (freeboardScoped) {
-                // 자유게시판(FREE/TIP/QNA/RECIPE) 전용 전체보기/인기글 - 공지사항 등 다른 게시판 글은 제외
                 sql += " WHERE board_type IN ('FREE', 'TIP', 'QNA', 'RECIPE')";
             } else {
                 sql += " WHERE board_type <> 'NOTICE'";
@@ -146,7 +142,6 @@ public class BoardDAO {
             if (filter) {
                 sql += " WHERE b.board_type = ?";
             } else if (freeboardScoped) {
-                // 자유게시판(FREE/TIP/QNA/RECIPE) 전용 전체보기/인기글 - 공지사항 등 다른 게시판 글은 제외
                 sql += " WHERE b.board_type IN ('FREE', 'TIP', 'QNA', 'RECIPE')";
             } else {
                 sql += " WHERE b.board_type <> 'NOTICE'";
@@ -155,7 +150,7 @@ public class BoardDAO {
             if (isBest(category)) {
                 sql += HOT_ORDER;
             } else {
-                sql += " ORDER BY (b.category = 'FIX') DESC, b.num DESC LIMIT ?, ?";   // 관리자가 고정한 글이 맨 위
+                sql += " ORDER BY (b.category = 'FIX') DESC, b.num DESC LIMIT ?, ?";
             }
 
             pstmt = conn.prepareStatement(sql);
@@ -226,7 +221,7 @@ public class BoardDAO {
             if (isBest(category)) {
                 sql += HOT_ORDER;
             } else {
-                sql += " ORDER BY (b.category = 'FIX') DESC, b.num DESC LIMIT ?, ?";   // 관리자가 고정한 글이 맨 위
+                sql += " ORDER BY (b.category = 'FIX') DESC, b.num DESC LIMIT ?, ?";
             }
 
             pstmt = conn.prepareStatement(sql);
@@ -270,7 +265,6 @@ public class BoardDAO {
         }
         return articleList;
     }
-    // 3. 게시글 작성 (생성된 num을 반환 - 첨부파일을 이 글에 연결할 때 사용)
     public int insertArticle(BoardVO article) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -318,10 +312,6 @@ public class BoardDAO {
         }
     }
 
-    /**
-     * 실시간 인기글 집계용 조회 기록. 같은 사람(viewerKey)은 집계 기간 안에 한 번만 기록되어
-     * 새로고침을 반복해도 점수가 오르지 않음. 오래된 기록(7일 초과)은 가끔 정리.
-     */
     public void logView(int boardNum, String viewerKey) {
         if (viewerKey == null || viewerKey.isEmpty()) return;
         Connection conn = null;
@@ -461,7 +451,6 @@ public class BoardDAO {
         } finally {
             close(conn, pstmt, null);
         }
-        // 추천했을 때만 글 작성자에게 알림 (같은 사람의 같은 글 추천 알림은 1번만)
         if (isLikedNow) {
             notification.NotificationDAO.getInstance().notifyLike(boardNum, userId, null);
         }
@@ -488,7 +477,6 @@ public class BoardDAO {
         }
     }
 
-    /** 사이트맵용: 글 번호, 게시판 종류(board_type → category), 작성일. 최신 글부터 최대 limit개. 오류 시 null */
     public List<BoardVO> getSitemapArticles(int limit) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -515,7 +503,6 @@ public class BoardDAO {
         }
     }
 
-    /** 관리자 전용: 자유게시판 글 상단 고정/해제 (공지사항 글은 대상 아님) */
     public boolean setPinned(int num, boolean pinned) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -549,9 +536,6 @@ public class BoardDAO {
             close(conn, pstmt, null);
         }
     }
-
-    // board_type = 'NOTICE' 로 고정하여 자유게시판 등 다른 글과 절대 섞이지 않게 하고,
-    // 원래 쓰이지 않던 category 컬럼을 FIX(고정공지) / NORMAL(일반공지) 구분으로 사용한다.
 
     public int getNoticeCount(String noticeType) {
         Connection conn = null;
@@ -625,7 +609,6 @@ public class BoardDAO {
             boolean filter = noticeType != null && !noticeType.isEmpty() && !"ALL".equalsIgnoreCase(noticeType);
             if (filter) sql += " AND b.category = ?";
 
-            // 고정공지(FIX)가 항상 먼저 오도록 정렬한 뒤, 같은 그룹 내에서는 최신순
             sql += " ORDER BY CASE WHEN b.category = 'FIX' THEN 0 ELSE 1 END, b.num DESC LIMIT ?, ?";
 
             pstmt = conn.prepareStatement(sql);
@@ -754,7 +737,6 @@ public class BoardDAO {
         return generatedNum;
     }
 
-    // 13. 공지사항 수정 (board_type은 그대로 두고 category(고정/일반)만 갱신)
     public void updateNotice(BoardVO article) {
         Connection conn = null;
         PreparedStatement pstmt = null;

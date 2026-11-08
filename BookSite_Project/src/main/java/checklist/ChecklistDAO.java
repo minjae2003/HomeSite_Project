@@ -14,7 +14,6 @@ import javax.sql.DataSource;
 
 public class ChecklistDAO {
 
-    /** 로그인 시 세션에 사용자 ID를 넣는 이름 — member/loginPro.jsp와 동일 */
     public static final String SESSION_USER_KEY = "id";
 
     private static final Pattern KEY_PATTERN = Pattern.compile("^c\\d{1,2}_\\d{1,2}$");

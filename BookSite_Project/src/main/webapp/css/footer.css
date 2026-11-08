@@ -1,0 +1,15 @@
+.site-footer { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; margin-top: 60px; border-top: 1px solid #e5e7eb; background: #fafafa; color: #64748b; font-size: 13px; }
+.site-footer-inner { max-width: 1000px; margin: 0 auto; padding: 24px 20px 30px; }
+.site-footer-links { display: flex; flex-wrap: wrap; gap: 6px 0; margin-bottom: 10px; }
+.site-footer .site-footer-links a { font-size: 13px; font-weight: 500; color: #475569; text-decoration: none; padding: 0 12px; border-left: 1px solid #d4d4d8; line-height: 1.2; }
+.site-footer-links a:first-child { padding-left: 0; border-left: none; }
+.site-footer .site-footer-links a.admin { color: #f97316; font-weight: 700; }
+.site-footer .site-footer-links a:hover { color: #ff5722; text-decoration: underline; }
+.site-footer .site-footer-links a.privacy { font-weight: 800; color: #1e293b; }
+.site-footer-info { margin: 0 0 4px; word-break: keep-all; }
+.site-footer-copy { margin: 0; color: #94a3b8; }
+@media (max-width: 768px) {
+    .site-footer { margin-top: 40px; font-size: 12px; }
+    .site-footer-inner { padding: 20px 16px 26px; }
+    .site-footer .site-footer-links a { padding: 0 9px; font-size: 12.5px; }
+}

@@ -22,7 +22,6 @@
                    || email == null || email.trim().isEmpty()) {
             error = "아이디, 이름, 이메일을 모두 입력해 주세요.";
         } else if (MemberDAO.getInstance().matchForReset(id, name, email)) {
-            // 본인 확인 성공 → 10분 동안 이 아이디의 비밀번호 재설정 허가
             FindLimiter.success(request);
             FindLimiter.allowReset(session, id.trim());
             response.sendRedirect("resetPw.jsp");

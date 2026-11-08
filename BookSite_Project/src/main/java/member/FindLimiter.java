@@ -4,11 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import util.AttemptLimiter;
 
-/**
- * 아이디/비밀번호 찾기 시도 제한(서버, IP 기준) + 비밀번호 재설정 허가 관리(세션 기반)
- *  - 본인 확인에 5번 실패하면 10분 동안 찾기 기능을 막음 (무작위 대입 방지)
- *  - 비밀번호 찾기 본인 확인에 성공하면 10분 동안만 그 아이디의 비밀번호를 재설정할 수 있음
- */
+/** 아이디/비밀번호 찾기 시도 제한 (IP 기준, 무작위 대입 방지) + 비밀번호 재설정 허가 관리 (세션, 10분) */
 public class FindLimiter {
     private static final int MAX_FAIL = 5;
     private static final long LOCK_MS = 10 * 60 * 1000L;
@@ -17,7 +13,6 @@ public class FindLimiter {
     private static final String RESET_ID = "RESET_PW_ID";
     private static final String RESET_UNTIL = "RESET_PW_UNTIL";
 
-    // 실패 횟수는 세션이 아니라 서버에 IP별로 기록 (쿠키를 지워도 초기화되지 않도록)
     private static final AttemptLimiter BY_IP = new AttemptLimiter(MAX_FAIL, LOCK_MS, LOCK_MS);
 
     public static int lockedMinutes(HttpServletRequest request) {

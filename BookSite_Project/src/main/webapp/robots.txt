@@ -9,6 +9,9 @@ Disallow: /error/
 Disallow: /board/
 Disallow: /main/search.jsp
 Disallow: /main/checklist.jsp
+Disallow: /policy/consent.jsp
+Disallow: /support/
+Disallow: /link-preview
 Disallow: /*writeForm.jsp
 Disallow: /*updateForm.jsp
 Disallow: /*Pro.jsp

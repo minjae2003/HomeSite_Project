@@ -50,18 +50,23 @@ public class NotificationVO {
     public Timestamp getRegDate() { return regDate; }
     public void setRegDate(Timestamp regDate) { this.regDate = regDate; }
 
+    public boolean isInquiry() { return "INQUIRY".equals(type) || "INQUIRY_REPLY".equals(type); }
+
     public String getLinkPath() {
+        if ("INQUIRY".equals(type)) return "/admin/inquiries.jsp";
+        if ("INQUIRY_REPLY".equals(type)) return "/support/myInquiries.jsp";
         String folder = "NOTICE".equals(boardType) ? "noticeboard" : "freeboard";
         return "/" + folder + "/content.jsp?num=" + boardNum;
     }
 
-    /** 헤더 드롭다운용 한 줄 문구 (HTML, 사용자 입력값은 모두 이스케이프됨) */
     public String getMessageHtml() {
         String nick = "<b>" + esc(getActorNickname()) + "</b>";
         String subj = "\"" + esc(shorten(getBoardSubject(), 24)) + "\"";
         if ("COMMENT".equals(type)) return nick + "님이 내 글 " + subj + "에 댓글을 남겼어요";
         if ("LIKE".equals(type)) return nick + "님이 내 글 " + subj + "을(를) 추천했어요";
         if ("NOTICE".equals(type)) return "새 공지사항 <b>" + esc(shorten(getBoardSubject(), 30)) + "</b>이(가) 등록됐어요";
+        if ("INQUIRY".equals(type)) return nick + "님이 새 문의 " + subj + "를 보냈어요";
+        if ("INQUIRY_REPLY".equals(type)) return "내 문의 " + subj + "에 답변이 등록됐어요";
         return esc(getBoardSubject());
     }
 
@@ -71,6 +76,8 @@ public class NotificationVO {
         if ("COMMENT".equals(type)) return nick + "님이 내 글 " + subj + "에 댓글을 남겼어요";
         if ("LIKE".equals(type)) return nick + "님이 내 글 <b>" + subj + "</b>을(를) 추천했어요";
         if ("NOTICE".equals(type)) return esc(getBoardSubject());
+        if ("INQUIRY".equals(type)) return nick + "님이 새 문의 " + subj + "를 보냈어요";
+        if ("INQUIRY_REPLY".equals(type)) return "내 문의 " + subj + "에 답변이 등록됐어요";
         return esc(getBoardSubject());
     }
 
@@ -125,6 +132,8 @@ public class NotificationVO {
         if ("COMMENT".equals(type)) return "💬";
         if ("LIKE".equals(type)) return "👍";
         if ("NOTICE".equals(type)) return "📢";
+        if ("INQUIRY".equals(type)) return "📮";
+        if ("INQUIRY_REPLY".equals(type)) return "✉️";
         return "🔔";
     }
 

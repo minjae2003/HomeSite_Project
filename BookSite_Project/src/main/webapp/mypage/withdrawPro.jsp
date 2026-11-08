@@ -21,7 +21,6 @@
         return;
     }
 
-    // 관리자 계정은 탈퇴 불가 (사이트 관리자가 사라지는 것 방지)
     if ("ADMIN".equals(member.getRole())) {
         out.println("<script>alert('관리자 계정은 탈퇴할 수 없습니다.'); location.href='account.jsp';</script>");
         return;
@@ -40,7 +39,6 @@
         return;
     }
     LoginLimiter.success(request, sessionUserId);
-    // 프로필 사진 파일 이름 (DB 행은 CASCADE로 지워지므로 미리 기억)
     String profileImg = ProfileDAO.getInstance().get(sessionUserId).getProfileImg();
     List<String> savedNames = dao.deleteMember(sessionUserId);
     if (savedNames == null) {

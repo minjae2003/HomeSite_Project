@@ -1,8 +1,5 @@
 @charset "UTF-8";
 
-/* 프로필 편집 페이지 전용 (mypage/profileEdit.jsp)
-   공통 변수·버튼·그리드·사이드블록은 index.css를 함께 사용 */
-
 .pf-head { padding: 2px 0 6px; }
 .breadcrumb { font-size: 12.5px; color: var(--text-soft); margin-bottom: 8px; }
 .breadcrumb a:hover { color: var(--purple2); }
@@ -55,7 +52,7 @@
 .tag-choice input:focus-visible + span { outline: 2px solid var(--purple2); outline-offset: 2px; }
 
 .pf-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 0; }
-.pf-actions .btn { flex: 0 0 auto; }   /* index.css의 .form-actions .btn { flex:1 } 덮어쓰기 */
+.pf-actions .btn { flex: 0 0 auto; }
 
 .preview-card { text-align: center; padding: 6px 0 4px; }
 .preview-avatar { width: 68px; height: 68px; margin: 0 auto 12px; font-size: 24px; }

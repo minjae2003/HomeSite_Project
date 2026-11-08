@@ -45,7 +45,6 @@
         .comment-text { font-size: 14px; color: #475569; white-space: pre-line; }
         .btn-comment-del { font-size: 11px; color: #ef4444; margin-left: 8px; cursor: pointer; background: none; border: none; }
 
-/* 댓글 수정 */
 .btn-comment-edit { font-size: 11px; color: #64748b; margin-left: 8px; cursor: pointer; background: none; border: none; }
 .comment-edit-form { margin-top: 6px; }
 .comment-edit-form .comment-textarea { width: 100%; box-sizing: border-box; }
@@ -54,7 +53,6 @@
 .btn-comment-cancel { background: #f1f5f9; color: #475569; }
 .btn-comment-save { background: #2b374e; color: #fff; }
 
-/* 에디터로 작성한 글 */
 .post-content.rich { white-space: normal; }
 .post-content.rich::after { content: ""; display: block; clear: both; }
 .post-content.rich p { margin: 0 0 8px; }
@@ -70,6 +68,5 @@
     .post-content.rich img[style*="float"] { float: none !important; width: auto !important; max-width: 100% !important; margin: 8px 0 !important; }
 }
 
-/* 본문·댓글의 링크 */
 .post-content a, .comment-text a { color: #2563eb; text-decoration: underline; word-break: break-all; }
 .post-content a:hover, .comment-text a:hover { color: #1d4ed8; }

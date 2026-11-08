@@ -93,10 +93,6 @@ public class CommentDAO {
             close(conn, pstmt, null);
         }
     }
-    /**
-     * 댓글 삭제 - 작성자 본인 또는 관리자만 가능
-     * @return 실제로 삭제됐으면 true (권한 없음/없는 댓글이면 false)
-     */
     public boolean deleteComment(int commentNum, int boardNum, String userId, boolean isAdmin) {
         if (userId == null) return false;
         Connection conn = null;
@@ -110,7 +106,7 @@ public class CommentDAO {
             pstmt.setInt(1, commentNum);
             pstmt.setInt(2, boardNum);
             if (!isAdmin) pstmt.setString(3, userId);
-            return pstmt.executeUpdate() == 1;   // 0이면 남의 댓글이거나 없는 댓글
+            return pstmt.executeUpdate() == 1;
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;
@@ -118,10 +114,6 @@ public class CommentDAO {
             close(conn, pstmt, null);
         }
     }
-    /**
-     * 댓글 수정 - 작성자 본인 또는 관리자만 가능
-     * @return 실제로 수정됐으면 true (권한 없음/없는 댓글이면 false)
-     */
     public boolean updateComment(int commentNum, int boardNum, String userId, boolean isAdmin, String content) {
         if (userId == null) return false;
         Connection conn = null;

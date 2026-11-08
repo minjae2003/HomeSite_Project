@@ -11,10 +11,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
-/**
- * 프로필 편집 (MEMBER_PROFILE 테이블) 조회/저장 + 선택지 목록
- * 선택지(지역/연차/태그)는 서버에서도 이 목록으로 검사한다.
- */
 public class ProfileDAO {
     private static ProfileDAO instance = new ProfileDAO();
     public static ProfileDAO getInstance() { return instance; }

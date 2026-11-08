@@ -18,11 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
-/**
- * 글쓰기 에디터에서 사진을 넣을 때 바로 업로드하는 서블릿 (AJAX, 응답은 JSON).
- * 업로드한 파일 이름은 세션에 기억해 두었다가, 글을 저장할 때 본문에 실제로 남아 있는 것만 BOARD_FILE에 등록한다.
- * CSRF 토큰은 X-CSRF-Token 헤더로 받는다 (CsrfFilter에서 검사).
- */
+/** 에디터 사진 즉시 업로드 (AJAX). CSRF 토큰은 X-CSRF-Token 헤더로 받음 */
 @WebServlet("/board/editor-image")
 @MultipartConfig(maxFileSize = 10L * 1024 * 1024, maxRequestSize = 12L * 1024 * 1024, fileSizeThreshold = 1024 * 1024)
 public class EditorImageServlet extends HttpServlet {
@@ -92,12 +88,12 @@ public class EditorImageServlet extends HttpServlet {
         }
         if (n < 4) return false;
         int b0 = h[0] & 0xff, b1 = h[1] & 0xff, b2 = h[2] & 0xff, b3 = h[3] & 0xff;
-        if (b0 == 0xFF && b1 == 0xD8 && b2 == 0xFF) return true;                         // jpg
-        if (b0 == 0x89 && b1 == 0x50 && b2 == 0x4E && b3 == 0x47) return true;           // png
-        if (b0 == 'G' && b1 == 'I' && b2 == 'F') return true;                            // gif
-        if (b0 == 'B' && b1 == 'M') return true;                                         // bmp
+        if (b0 == 0xFF && b1 == 0xD8 && b2 == 0xFF) return true;
+        if (b0 == 0x89 && b1 == 0x50 && b2 == 0x4E && b3 == 0x47) return true;
+        if (b0 == 'G' && b1 == 'I' && b2 == 'F') return true;
+        if (b0 == 'B' && b1 == 'M') return true;
         return n >= 12 && b0 == 'R' && b1 == 'I' && b2 == 'F' && b3 == 'F'
-                && h[8] == 'W' && h[9] == 'E' && h[10] == 'B' && h[11] == 'P';           // webp
+                && h[8] == 'W' && h[9] == 'E' && h[10] == 'B' && h[11] == 'P';
     }
 
     private static void fail(HttpServletResponse response, int status, String message) throws IOException {

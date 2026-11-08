@@ -4,20 +4,12 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-// Tomcat 9 (javax)
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-/**
- * 체크리스트 계정 저장 요청 처리
- * POST /checklist/save
- *   keys  : 체크된 항목 키 (여러 개, 예: keys=c0_0&keys=c1_3)
- *   total : 전체 항목 수
- * 응답: {"ok":true,"checked":N} / 실패 시 {"ok":false,"message":"..."}
- */
 @WebServlet("/checklist/save")
 public class ChecklistSaveServlet extends HttpServlet {
 

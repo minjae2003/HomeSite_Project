@@ -34,7 +34,6 @@
         out.println("<script>alert('입력값이 너무 깁니다.'); history.back();</script>");
         return;
     }
-    // 전화번호는 선택 입력 - 숫자만 뽑아서 형식 검사 후 010-1234-5678 형태로 저장
     String phoneRaw = request.getParameter("phone");
     String digits = (phoneRaw == null) ? "" : phoneRaw.replaceAll("[^0-9]", "");
     String phone = null;
@@ -55,7 +54,6 @@
         out.println("<script>alert('새 비밀번호가 서로 일치하지 않습니다.'); history.back();</script>");
         return;
     }
-    // 새 비밀번호를 정한 경우에만 규칙 검사 (비워 두면 비밀번호는 그대로)
     if (!newPass.isEmpty()) {
         String policyError = PasswordUtil.checkPolicy(newPass, sessionUserId);
         if (policyError != null) {

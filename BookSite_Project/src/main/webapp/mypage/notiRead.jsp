@@ -15,7 +15,7 @@
     int notiNum = Integer.parseInt(numStr);
 
     NotificationDAO dao = NotificationDAO.getInstance();
-    NotificationVO noti = dao.get(notiNum, sessionUserId);   // 본인 알림만 조회됨
+    NotificationVO noti = dao.get(notiNum, sessionUserId);
     if (noti == null) {
         response.sendRedirect("notifications.jsp");
         return;
@@ -23,6 +23,10 @@
 
     dao.markRead(notiNum, sessionUserId);
 
+    if (noti.isInquiry()) {
+        response.sendRedirect(request.getContextPath() + noti.getLinkPath());
+        return;
+    }
     if (noti.getBoardType() == null) {
         out.println("<script>alert('삭제된 게시글입니다.'); location.href='notifications.jsp';</script>");
         return;

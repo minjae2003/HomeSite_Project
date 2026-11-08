@@ -7,7 +7,6 @@
     String numStr = request.getParameter("num");
     String pageNum = request.getParameter("pageNum");
     String category = request.getParameter("category");
-    // 폼/버튼에 그대로 출력되므로 숫자/허용된 값만 사용
     if (pageNum == null || !pageNum.matches("\\d{1,9}")) pageNum = "1";
     category = (category == null) ? "ALL" : category.trim().toUpperCase();
     if (!java.util.Arrays.asList("ALL", "FIX", "NORMAL").contains(category)) category = "ALL";
@@ -29,7 +28,6 @@
     String sessionUserId = (String) session.getAttribute("id");
     String sessionRole = (String) session.getAttribute("role");
 
-    // 공지사항은 관리자만 수정 가능
     if (!"ADMIN".equals(sessionRole)) {
         out.println("<script>alert('수정 권한이 없습니다.'); history.go(-1);</script>");
         return;

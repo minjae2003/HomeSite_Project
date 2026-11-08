@@ -172,5 +172,6 @@
     <% } %>
 </div>
 
+<jsp:include page="/module/footer.jsp" flush="false"/>
 </body>
 </html>

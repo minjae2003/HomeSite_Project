@@ -22,7 +22,6 @@
         pass = request.getParameter("password");
     }
 
-    // 아이디만 앞뒤 공백 제거 (비밀번호는 입력한 그대로 해시와 비교해야 하므로 손대지 않음)
     if (id != null) id = id.trim();
 
     MemberDAO dao = MemberDAO.getInstance();

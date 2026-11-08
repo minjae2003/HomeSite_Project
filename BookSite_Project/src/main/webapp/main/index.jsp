@@ -16,7 +16,6 @@
     <meta property="og:title" content="자취의 품격 - 자취생 커뮤니티">
     <meta property="og:description" content="<%= HtmlUtil.esc(seo.SiteUrl.SITE_DESC) %>">
     <meta property="og:url" content="<%= HtmlUtil.esc(seoBase) %>/main/index.jsp">
-    <%-- 검색 결과에 사이트 이름을 "자취의 품격"으로 표시하도록 알려주는 정보 (구글 사이트 이름) --%>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -270,5 +269,6 @@
         </aside>
     </div>
 
+<jsp:include page="/module/footer.jsp" flush="false"/>
 </body>
 </html>

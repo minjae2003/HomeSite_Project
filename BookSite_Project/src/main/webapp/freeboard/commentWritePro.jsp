@@ -30,7 +30,6 @@
     String pageNum = request.getParameter("pageNum");
     String category = request.getParameter("category");
 
-    // 리다이렉트 주소에 들어가므로 숫자/허용된 값만 사용
     if (pageNum == null || !pageNum.matches("\\d{1,9}")) pageNum = "1";
     category = (category == null) ? "ALL" : category.trim().toUpperCase();
     if (!java.util.Arrays.asList("ALL", "BEST", "FREE", "TIP", "QNA", "RECIPE").contains(category)) category = "ALL";

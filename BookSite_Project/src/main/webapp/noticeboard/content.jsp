@@ -27,11 +27,9 @@
 
     // pageNum은 숫자만 허용 (링크/스크립트에 그대로 출력되므로 반사형 XSS 방지)
     if (pageNum == null || !pageNum.matches("\\d{1,9}")) pageNum = "1";
-    // 목록으로 돌아갈 때 쓰는 카테고리 - 허용된 값만 사용 (링크에 그대로 출력되므로)
     category = (category == null) ? "ALL" : category.trim().toUpperCase();
     if (!java.util.Arrays.asList("ALL", "FIX", "NORMAL").contains(category)) category = "ALL";
 
-    // 글 번호도 숫자만 허용 (문자가 들어오면 500 에러 대신 목록으로)
     if (numParam == null || !numParam.trim().matches("\\d{1,9}")) {
         response.sendRedirect("list.jsp");
         return;
@@ -40,7 +38,6 @@
     int num = Integer.parseInt(numParam.trim());
 
     BoardDAO dao = BoardDAO.getInstance();
-    // 검색엔진 봇은 조회수/인기글 집계에서 제외 (봇은 방문마다 새 세션이라 조회수가 부풀려짐)
     boolean isBotVisit = seo.SiteUrl.isBot(request);
     if (!isBotVisit) dao.updateReadcount(num);
     BoardVO article = dao.getBoardDetail(num);
@@ -58,8 +55,6 @@
     CommentDAO commentDao = CommentDAO.getInstance();
     List<CommentVO> commentList = commentDao.getComments(num);
 
-    // 첨부파일 가져오기 + 본문 [img1]/[video1] 위치에 삽입, 매칭 안 된 파일은 맨 아래에 모아서 첨부
-    // 일반 문서(FILE 타입: hwp/pdf/워드/압축파일 등)는 본문 삽입 없이 별도 첨부파일 목록으로만 표시
     List<BoardFileVO> fileList = BoardFileDAO.getInstance().getFiles(num);
     List<BoardFileVO> docFiles = new java.util.ArrayList<BoardFileVO>();
     // 본문은 먼저 이스케이프한 뒤 [img1] 같은 자리표시자만 태그로 바꿈 (저장형 XSS 방지)
@@ -67,7 +62,7 @@
     boolean richPost = util.RichText.isHtml(article.getContent());
     String processedContent = richPost
             ? util.RichText.sanitize(util.RichText.body(article.getContent()))
-            : util.RichText.linkify(escAttr(article.getContent()));   // 주소는 누를 수 있는 링크로
+            : util.RichText.linkify(escAttr(article.getContent()));
     StringBuilder extraMedia = new StringBuilder();
     int imgIdx = 0, vidIdx = 0;
     for (BoardFileVO f : fileList) {
@@ -75,7 +70,7 @@
             docFiles.add(f);
             continue;
         }
-        if (richPost && f.isImage()) continue;   // 에디터 글의 사진은 본문 안에 이미 들어 있음
+        if (richPost && f.isImage()) continue;
         String url = request.getContextPath() + f.getWebPath();
         String tag;
         String placeholder;
@@ -106,6 +101,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><%= escAttr(article.getSubject()) %> - 자취의 품격</title>
     <link rel="stylesheet" href="../css/noticeboard/content.css">
+    <link rel="stylesheet" href="../css/link-preview.css">
     <link rel="canonical" href="<%= escAttr(seo.SiteUrl.articleUrl(request, num, article.getCategory())) %>">
 <%
     String seoDesc = seo.SiteUrl.excerpt(article.getContent(), 150);
@@ -132,6 +128,7 @@
             <span>조회수: <%= article.getReadcount() %></span>
         </div>
         <div class="post-content<%= richPost ? " rich" : "" %>"><%= processedContent %><%= extraMedia.toString() %></div>
+        <div id="linkPreviews" class="link-previews" data-num="<%= num %>" data-endpoint="<%= request.getContextPath() %>/link-preview"></div>
 
         <% if (!docFiles.isEmpty()) { %>
         <ul class="attach-list">
@@ -190,7 +187,6 @@
             <% } else {
                 for (CommentVO comment : commentList) {
                     String cWriter = comment.getWriterNickname() != null ? comment.getWriterNickname() : comment.getWriter();
-                    // 본인 댓글이거나 관리자면 삭제 버튼 표시 (실제 권한 확인은 commentDeletePro.jsp + DAO에서 다시 함)
                     boolean canDeleteComment = sessionUserId != null
                             && (sessionUserId.equals(comment.getWriterId()) || isAdminUser);
             %>
@@ -236,7 +232,6 @@
 </div>
 
 <script>
-    // 댓글 수정 폼 열기/닫기 (본인 댓글 또는 관리자에게만 버튼이 보임, 실제 권한 확인은 commentUpdatePro.jsp + DAO)
     function toggleCommentEdit(id) {
         var form = document.getElementById('comment-edit-' + id);
         var text = document.getElementById('comment-text-' + id);
@@ -246,5 +241,7 @@
         if (open) form.querySelector('textarea').focus();
     }
 </script>
+<jsp:include page="/module/footer.jsp" flush="false"/>
+<script src="../js/link-preview.js"></script>
 </body>
 </html>

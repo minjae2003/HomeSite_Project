@@ -1,13 +1,7 @@
-/* ==================================================================
-   모바일 공통 스타일 (768px 이하)
-   - header.jsp에서 불러오므로 헤더가 있는 모든 페이지에 적용됨
-   - 페이지별 CSS보다 나중에 로드되어 같은 선택자는 이 파일이 우선함
-   ================================================================== */
 @media (max-width: 768px) {
 
     img, video { max-width: 100%; height: auto; }
 
-    /* iOS 사파리는 글자 크기 16px 미만 입력창을 누르면 화면을 확대함 → 16px로 고정 */
     input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
     select,
     textarea { font-size: 16px !important; }
@@ -28,12 +22,8 @@
         padding: 8px 14px;
         background: #f1f5f9;
     }
-    /* 선택된 탭은 원래의 진한 배경 유지 (위 회색 배경이 덮어쓰지 않도록) */
     .category-tabs .tab-item.active { background: #2b374e; }
 
-    /* ── 게시판 목록 표 → 카드형 목록 ──
-       PC: 제목 | 작성자 | 작성일 | 조회수 (4칸 표)
-       모바일: 제목 한 줄 + 아래에 "작성자 · 작성일 · 👁 조회수" */
     .board-table thead { display: none; }
     .board-table,
     .board-table tbody,
@@ -81,7 +71,6 @@
     .post-content img, .post-content video, .post-media { max-width: 100%; height: auto; }
 }
 
-/* ── 카테고리 탭 슬라이더 (자유게시판) : js/category-slider.js 와 함께 동작 ── */
 .tab-arrow { display: none; }
 
 @media (max-width: 768px) {
@@ -119,7 +108,6 @@
     .tab-arrow.next { right: -6px; }
     .tab-arrow[hidden] { display: none; }
 
-    /* 더 넘길 수 있는 쪽 가장자리를 흐리게 → "옆에 더 있다"는 표시 */
     .tab-slider.can-next .category-tabs {
         -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent);
                 mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent);

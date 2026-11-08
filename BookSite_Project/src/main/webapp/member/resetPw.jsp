@@ -9,7 +9,6 @@
 <%
     request.setCharacterEncoding("UTF-8");
 
-    // 비밀번호 찾기에서 본인 확인을 통과한 경우에만 (10분 이내) 들어올 수 있음
     String resetId = FindLimiter.resetId(session);
     if (resetId == null) {
         out.println("<script>alert('본인 확인 시간이 지났거나 잘못된 접근입니다.\\n다시 본인 확인을 해 주세요.'); location.href='findPw.jsp';</script>");
@@ -26,7 +25,7 @@
         } else if (!pass.equals(passConfirm)) {
             error = "새 비밀번호가 서로 일치하지 않아요.";
         } else if (MemberDAO.getInstance().resetPassword(resetId, pass)) {
-            FindLimiter.clearReset(session);   // 한 번만 사용 가능
+            FindLimiter.clearReset(session);
             out.println("<script>alert('비밀번호가 변경되었습니다. 새 비밀번호로 로그인해 주세요.'); location.href='loginForm.jsp';</script>");
             return;
         } else {

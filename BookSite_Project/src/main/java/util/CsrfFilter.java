@@ -11,12 +11,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * 모든 POST 요청의 CSRF 토큰을 검사하는 필터.
- * 토큰이 없거나 틀리면 처리 페이지(JSP/서블릿)까지 가지 않고 403으로 막는다.
- *
- * ※ 상태를 바꾸는 기능(삭제, 추천, 글쓰기 등)은 반드시 POST로만 받아야 이 필터의 보호를 받는다.
- */
+/** 모든 POST 요청의 CSRF 토큰 검사. ※ 상태를 바꾸는 기능은 반드시 POST로만 받을 것 */
 @WebFilter("/*")
 public class CsrfFilter implements Filter {
 
@@ -27,7 +22,6 @@ public class CsrfFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) res;
 
         if ("POST".equalsIgnoreCase(request.getMethod())) {
-            // 한글 파라미터가 깨지지 않도록, 파라미터를 처음 읽기 전에 인코딩 지정
             if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF-8");
 
             if (!CsrfUtil.isValid(request)) {

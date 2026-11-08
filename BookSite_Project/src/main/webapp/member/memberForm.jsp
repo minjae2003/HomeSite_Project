@@ -6,13 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>회원가입 - 자취의 품격</title>
     <link rel="stylesheet" href="../css/member.css">
+    <link rel="stylesheet" href="../css/consent.css">
+    <script src="../js/consent.js"></script>
     
    <script>
-    // 아이디 규칙: 영문으로 시작, 영문+숫자 4~20자 (memberPro.jsp, memberCheckId.jsp와 동일)
     var ID_RULE = /^[A-Za-z][A-Za-z0-9]{3,19}$/;
 
-    // 아이디 입력 중 허용되지 않는 글자를 치면 바로 경고하고 지움
-    // (한글은 조합이 끝난 뒤 compositionend에서 검사해야 팝업이 두 번 뜨지 않음)
     function filterId(e) {
         if (e.isComposing) return;
         var input = e.target;
@@ -75,6 +74,8 @@
             }
         }
 
+        if (!consentCheck(f)) return;
+
         f.submit();
     }
 
@@ -87,6 +88,7 @@
         f.nickname.value = "";
         f.email.value = "";
         f.phone.value = "";
+        consentReset(f);
         f.id.focus();
     }
 
@@ -172,6 +174,8 @@
                         <input type="tel" id="phone" name="phone" maxlength="13" placeholder="010-1234-5678" oninput="formatPhone(this)">
                     </div>
                     
+                    <%@ include file="/policy/_consent_fields.jspf" %>
+
                     <div class="button-group">
                         <button type="button" class="btn-submit" onclick="check_input()">가입하기</button>
                         <button type="button" class="btn-reset" onclick="reset_form()">초기화</button>
@@ -181,5 +185,6 @@
         </div>
     </section>
 
+<jsp:include page="/module/footer.jsp" flush="false"/>
 </body>
 </html>

@@ -24,21 +24,6 @@ import board.BoardVO;
 import util.HtmlUtil;
 import util.RichText;
 
-/**
- * 모든 게시판(자유게시판/자취꿀팁/질문답변/요리레시피 등) 공통 글쓰기·수정 + 사진/동영상 업로드 서블릿.
- * writeForm.jsp / updateForm.jsp 의 form action 을 이 서블릿으로 보내면 된다.
- *
- * 필요한 파라미터:
- *  - num          (수정일 때만) 게시글 번호. 없으면 신규 작성으로 처리.
- *  - category     board_type 값 (FREE/TIP/QNA/RECIPE 등) - 공지사항 제출일 때는 무시됨
- *  - noticeType   (공지사항 전용) NORMAL/FIX. 이 파라미터가 있으면 공지사항 제출로 간주해
- *                 insertNotice()/updateNotice()로 처리하고, FIX는 ADMIN만 지정 가능.
- *  - redirectBoard 목록/상세 폴더명 (freeboard, recipe, noticeboard 등) - 완료 후 이동할 경로
- *  - subject, content
- *  - contentFormat (선택) "html"이면 에디터(HTML) 본문. 허용 태그만 남기고 맨 앞에 RichText.MARK를 붙여 저장
- *  - pageNum      (선택) 수정 후 돌아갈 목록 페이지
- *  - files        (선택, 여러 개 가능) 첨부할 이미지/동영상
- */
 @WebServlet("/board/upload")
 @MultipartConfig(
     maxFileSize = 50L * 1024 * 1024,
@@ -85,7 +70,7 @@ public class BoardUploadServlet extends HttpServlet {
 
         String numParam = request.getParameter("num");
         String category = request.getParameter("category");
-        String noticeType = request.getParameter("noticeType"); // 있으면 "공지사항 제출"로 간주
+        String noticeType = request.getParameter("noticeType");
         String redirectBoard = request.getParameter("redirectBoard");
         String subject = request.getParameter("subject");
         String content = request.getParameter("content");
@@ -94,8 +79,6 @@ public class BoardUploadServlet extends HttpServlet {
         boolean isAdmin = "ADMIN".equals(sessionRole);
         boolean isNotice = (noticeType != null && !noticeType.trim().isEmpty());
 
-        // 자유게시판 폼에서 "공지사항" 카테고리로 들어온 경우도 공지사항으로 처리
-        // (새 글이면 일반공지, 수정이면 아래에서 기존 고정/일반 상태를 그대로 유지)
         boolean noticeFromFreeboard = false;
         if (!isNotice && category != null && "NOTICE".equalsIgnoreCase(category.trim())) {
             isNotice = true;
@@ -103,21 +86,18 @@ public class BoardUploadServlet extends HttpServlet {
             noticeType = "NORMAL";
         }
 
-        // 공지사항은 일반/고정 구분 없이 관리자만 작성·수정 가능 (서버측 강제)
         if (isNotice && !isAdmin) {
             alertAndRedirect(response, "공지사항은 관리자만 작성할 수 있습니다.", request.getContextPath() + "/noticeboard/list.jsp");
             return;
         }
         if (isNotice && !"FIX".equals(noticeType)) noticeType = "NORMAL";
 
-        // 자유게시판 카테고리 화이트리스트 (요리레시피도 자유게시판의 RECIPE 카테고리로 편입)
         if (category == null) category = "";
         category = category.trim().toUpperCase();
         boolean allowedCategory = "FREE".equals(category) || "TIP".equals(category)
                 || "QNA".equals(category) || "RECIPE".equals(category);
         if (!allowedCategory) category = "FREE";
 
-        // 완료 후 이동할 게시판 폴더도 화이트리스트로 제한 (요리레시피 폴더는 자유게시판으로 통합됨)
         redirectBoard = isNotice ? "noticeboard" : "freeboard";
         if (pageNum == null || pageNum.trim().isEmpty()) pageNum = "1";
 
@@ -129,7 +109,6 @@ public class BoardUploadServlet extends HttpServlet {
         boolean html = "html".equals(request.getParameter("contentFormat"));
         if (html) content = RichText.sanitize(content);
 
-        // 첨부파일을 먼저 디스크에 저장 (에디터 글이면 첨부한 사진은 본문 맨 아래에 이미지로 넣음)
         String uploadDir = getServletContext().getRealPath("/uploads");
         File dir = new File(uploadDir);
         if (!dir.exists()) dir.mkdirs();
@@ -212,7 +191,6 @@ public class BoardUploadServlet extends HttpServlet {
                 alertAndRedirect(response, "존재하지 않는 게시글입니다.", null);
                 return;
             }
-            // 작성자 정보가 없는 예전 글은 관리자만 수정 가능
             boolean isOwnerOrAdmin = sessionUserId.equals(existing.getWriterId()) || isAdmin;
             // 기존 글이 공지사항이면 관리자만 수정 가능 (자유게시판 수정 폼으로 우회하는 것도 차단)
             if ("NOTICE".equals(existing.getCategory()) && !isAdmin) isOwnerOrAdmin = false;
@@ -239,7 +217,6 @@ public class BoardUploadServlet extends HttpServlet {
 
         BoardFileDAO fileDao = BoardFileDAO.getInstance();
 
-        // 수정 시 기존 첨부 개수 뒤로 이어서 순번을 매긴다
         List<BoardFileVO> already = fileDao.getFiles(boardNum);
         int order = already.size();
         Set<String> registered = new HashSet<String>();
@@ -256,7 +233,6 @@ public class BoardUploadServlet extends HttpServlet {
         if (html) {
             Set<String> used = RichText.uploadNames(content);
 
-            // 에디터로 올린 사진 중 본문에 남아 있는 것만 이 글의 첨부로 등록 (내가 이번 세션에 올린 파일만)
             synchronized (session) {
                 @SuppressWarnings("unchecked")
                 Set<String> pending = (Set<String>) session.getAttribute(EditorImageServlet.SESSION_KEY);
@@ -277,7 +253,6 @@ public class BoardUploadServlet extends HttpServlet {
                 }
             }
 
-            // 수정하면서 본문에서 지운 사진은 첨부 목록과 서버에서도 삭제
             for (BoardFileVO f : already) {
                 if (f.isImage() && !used.contains(f.getSavedName())) {
                     fileDao.deleteFile(f.getFileNum());

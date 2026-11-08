@@ -5,6 +5,8 @@
 -- [주의] 모든 테이블과 데이터를 삭제합니다. DB를 처음부터 다시 만들 때만 실행하세요.
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS INQUIRY;
+DROP TABLE IF EXISTS MEMBER_CONSENT;
 DROP TABLE IF EXISTS BOARD_VIEW_LOG;
 DROP TABLE IF EXISTS NOTIFICATION_SETTING;
 DROP TABLE IF EXISTS NOTIFICATION;
@@ -171,3 +173,37 @@ CREATE TABLE IF NOT EXISTS VISIT_LOG (
 -- 관리자 계정 (이미 있으면 건너뜀). 배포 후 반드시 비밀번호를 바꾸세요.
 INSERT IGNORE INTO MEMBER (id, password, name, nickname, email, auth_status, role)
 VALUES ('admin', 'admin1234', '관리자', '관리자', 'admin@example.com', 'Y', 'ADMIN');
+
+-- ===== 09_member_consent.sql =====
+-- 회원 약관/개인정보 동의 기록 (정책 버전별로 한 줄)
+-- 한 줄이 있다 = 그 버전의 [필수] 이용약관, [필수] 개인정보 수집·이용, [필수] 만 14세 이상에 모두 동의함
+-- 서버 DB에는 이 파일만 실행하면 됩니다 (기존 데이터는 건드리지 않음)
+CREATE TABLE IF NOT EXISTS MEMBER_CONSENT (
+    user_id        VARCHAR(50) NOT NULL,
+    policy_version VARCHAR(20) NOT NULL,
+    agreed_at      DATETIME    DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, policy_version),
+    CONSTRAINT fk_consent_member FOREIGN KEY (user_id) REFERENCES MEMBER(id) ON DELETE CASCADE
+);
+
+-- ===== 10_inquiry.sql =====
+-- 1:1 문의 (회원 → 관리자). 관리자가 답변하면 회원에게 알림이 감
+-- category: USE(이용 문의) / BUG(오류 신고) / REPORT(게시물·회원 신고) / ACCOUNT(계정·개인정보) / ETC(기타)
+-- status  : WAIT(답변 대기) / DONE(답변 완료)
+-- 서버 DB에는 이 파일만 실행하면 됩니다 (기존 데이터는 건드리지 않음)
+CREATE TABLE IF NOT EXISTS INQUIRY (
+    inquiry_num  INT AUTO_INCREMENT PRIMARY KEY,
+    user_id      VARCHAR(50)  NOT NULL,
+    category     VARCHAR(20)  NOT NULL,
+    subject      VARCHAR(100) NOT NULL,
+    content      TEXT         NOT NULL,
+    page_url     VARCHAR(300) NULL,
+    status       VARCHAR(10)  DEFAULT 'WAIT',
+    answer       TEXT         NULL,
+    answered_by  VARCHAR(50)  NULL,
+    answered_at  DATETIME     NULL,
+    reg_date     DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_inquiry_user (user_id, inquiry_num),
+    INDEX idx_inquiry_status (status, inquiry_num),
+    CONSTRAINT fk_inquiry_member FOREIGN KEY (user_id) REFERENCES MEMBER(id) ON DELETE CASCADE
+);

@@ -44,5 +44,6 @@
         <a class="home" href="<%= home %>">메인으로</a>
         <a class="back" href="javascript:history.back()">이전 페이지</a>
     </div>
+<jsp:include page="/module/footer.jsp" flush="false"/>
 </body>
 </html>

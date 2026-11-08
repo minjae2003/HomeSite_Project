@@ -1,8 +1,5 @@
 @charset "UTF-8";
 
-/* 마이페이지 · 전체 알림 · 회원정보 수정 공통
-   사용: mypage/index.jsp, mypage/notifications.jsp, member/memberupdateForm.jsp */
-
 :root {
     --navy: #2E3A59;
     --lav-bg: #EEF1FB;
@@ -27,7 +24,6 @@ a { text-decoration: none; color: inherit; }
 button { font-family: inherit; }
 .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 24px 0; }
 
-/* 버튼 (헤더의 btn-login/btn-signup과 겹치지 않는 이름 사용) */
 .btn {
     display: inline-block; padding: 11xp 0; border-radius: 10px; font-size: 13.5px; font-weight: 800;
     text-align: center; border: none; cursor: pointer; color: #fff;
@@ -175,7 +171,7 @@ button { font-family: inherit; }
 .form-actions .btn { flex: 1; }
 
 @media (max-width: 860px) {
-    .main-grid { grid-template-columns: minmax(0, 1fr); }   /* 1fr만 쓰면 긴 제목 때문에 화면 밖으로 넘침 */
+    .main-grid { grid-template-columns: minmax(0, 1fr); }
     .profile-card { flex-direction: column; text-align: center; }
     .profile-name-row { justify-content: center; }
     .profile-actions { width: 100%; }

@@ -73,7 +73,6 @@
         }
     }
 
-    // JS로 넘길 JSON 배열 (키는 DAO에서 형식 검증을 거친 값만 들어옴)
     String savedJson = "null";
     if (savedKeys != null) {
         StringBuilder sb = new StringBuilder("[");
@@ -84,8 +83,6 @@
         savedJson = sb.append(']').toString();
     }
 
-    // 브라우저(localStorage) 저장 공간을 계정별로 분리하기 위한 접미사
-    // (URL 인코딩 → 영문/숫자/%만 남아 JS 문자열에 넣어도 안전)
     String storageSuffix = isLogin
         ? "u_" + java.net.URLEncoder.encode(loginId, "UTF-8")
         : "guest";
@@ -225,12 +222,12 @@
 
   function saveState(state){
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-    catch(err){ /* storage unavailable, ignore */ }
+    catch(err){ }
   }
 
   function saveSummary(summary){
     try{ localStorage.setItem(SUMMARY_KEY, JSON.stringify(summary)); }
-    catch(err){ /* storage unavailable, ignore */ }
+    catch(err){ }
   }
 
   function applyState(state){
@@ -328,7 +325,7 @@
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-        'X-CSRF-Token': '<%= util.CsrfUtil.token(session) %>'   // CSRF 토큰 (CsrfFilter에서 검사)
+        'X-CSRF-Token': '<%= util.CsrfUtil.token(session) %>'
       },
       body: body
     })
@@ -370,8 +367,6 @@
     if(isDirty()){ e.preventDefault(); e.returnValue = ''; }
   });
 
-  // 로그인 + 계정 저장 기록 있음 → 계정(DB) 기준
-  // 그 외 → 이 계정(또는 guest) 전용 브라우저 저장값 기준
   if(IS_LOGIN && SERVER_KEYS){
     const st = {};
     SERVER_KEYS.forEach(k => st[k] = true);
@@ -383,5 +378,6 @@
   updateSaveStatus();
 </script>
 
+<jsp:include page="/module/footer.jsp" flush="false"/>
 </body>
 </html>

@@ -9,12 +9,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
-/**
- * 알림 저장/조회/설정
- * - 알림 생성은 CommentDAO(댓글), BoardDAO(추천, 공지 등록)에서 호출한다.
- * - 받는 사람이 해당 종류의 알림을 꺼 두었으면(NOTIFICATION_SETTING) 생성하지 않는다.
- * - 알림 처리 중 오류가 나도 원래 작업(댓글 등록 등)에는 영향을 주지 않도록 예외는 여기서 처리한다.
- */
 public class NotificationDAO {
     private static NotificationDAO instance = new NotificationDAO();
     public static NotificationDAO getInstance() { return instance; }
@@ -27,7 +21,6 @@ public class NotificationDAO {
         return false;
     }
 
-    /** 알림 종류 → 설정 테이블 컬럼 이름 (화이트리스트) */
     private static String settingColumn(String type) {
         if ("COMMENT".equals(type)) return "comment_on";
         if ("LIKE".equals(type)) return "like_on";
@@ -50,10 +43,6 @@ public class NotificationDAO {
         execute(sql, actorId, actorNickname, makePreview(commentContent), boardNum, actorId);
     }
 
-    /**
-     * 내 글이 추천을 받았을 때 → 글 작성자에게 알림
-     * 추천/취소를 반복해도 같은 사람의 같은 글 추천 알림은 한 번만 생기도록 중복을 막는다.
-     */
     public void notifyLike(int boardNum, String actorId, String actorNickname) {
         String sql = "INSERT INTO NOTIFICATION (receiver_id, type, actor_id, actor_nickname, board_num, board_subject) "
                    + "SELECT b.writer_id, 'LIKE', ?, COALESCE(?, (SELECT m.nickname FROM MEMBER m WHERE m.id = ?)), b.num, b.subject "
@@ -71,6 +60,18 @@ public class NotificationDAO {
                    + "WHERE m.id <> ? "
                    + "AND NOT EXISTS (SELECT 1 FROM NOTIFICATION_SETTING s WHERE s.user_id = m.id AND s.notice_on = 'N')";
         execute(sql, actorId, actorNickname, makePreview(noticeContent), boardNum, actorId == null ? "" : actorId);
+    }
+
+    public void notifyInquiry(String actorId, String actorNickname, String inquirySubject, String content) {
+        String sql = "INSERT INTO NOTIFICATION (receiver_id, type, actor_id, actor_nickname, board_num, board_subject, preview) "
+                   + "SELECT m.id, 'INQUIRY', ?, ?, NULL, ?, ? FROM MEMBER m WHERE m.role = 'ADMIN' AND m.id <> ?";
+        execute(sql, actorId, actorNickname, inquirySubject, makePreview(content), actorId == null ? "" : actorId);
+    }
+
+    public void notifyInquiryReply(String receiverId, String adminId, String adminNickname, String inquirySubject, String answer) {
+        String sql = "INSERT INTO NOTIFICATION (receiver_id, type, actor_id, actor_nickname, board_num, board_subject, preview) "
+                   + "VALUES (?, 'INQUIRY_REPLY', ?, ?, NULL, ?, ?)";
+        execute(sql, receiverId, adminId, adminNickname, inquirySubject, makePreview(answer));
     }
 
     private static String makePreview(String content) {
@@ -129,7 +130,6 @@ public class NotificationDAO {
         return list;
     }
 
-    /** 알림 1건 조회 (본인 알림만) */
     public NotificationVO get(int notiNum, String userId) {
         if (userId == null) return null;
         String sql = "SELECT n.*, b.board_type FROM NOTIFICATION n LEFT JOIN BOARD b ON b.num = n.board_num "
@@ -166,7 +166,6 @@ public class NotificationDAO {
         return vo;
     }
 
-    /** 알림 1건 읽음 처리 (본인 알림만) */
     public void markRead(int notiNum, String userId) {
         execute("UPDATE NOTIFICATION SET is_read = 'Y' WHERE noti_num = ? AND receiver_id = ?", notiNum, userId);
     }
@@ -175,7 +174,6 @@ public class NotificationDAO {
         execute("UPDATE NOTIFICATION SET is_read = 'Y' WHERE receiver_id = ? AND is_read = 'N'", userId);
     }
 
-    /** 알림 1건 삭제 (본인 알림만) */
     public void delete(int notiNum, String userId) {
         execute("DELETE FROM NOTIFICATION WHERE noti_num = ? AND receiver_id = ?", notiNum, userId);
     }

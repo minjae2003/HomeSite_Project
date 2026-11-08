@@ -17,7 +17,6 @@
 
     String sessionRole = (String) session.getAttribute("role");
 
-    // 공지사항은 관리자만 작성 가능 (일반/고정 구분 없이)
     if (!"ADMIN".equals(sessionRole)) {
         out.println("<script>alert('공지사항은 관리자만 작성할 수 있습니다.'); location.href='list.jsp';</script>");
         return;
@@ -95,5 +94,6 @@
 <script src="../lib/summernote/summernote-lite.min.js"></script>
 <script src="../lib/summernote/lang/summernote-ko-KR.min.js"></script>
 <script src="../js/editor.js"></script>
+<jsp:include page="/module/footer.jsp" flush="false"/>
 </body>
 </html>

@@ -15,8 +15,6 @@ public class BoardVO {
     private String category;
     private int commentCount;
 
-    // DB의 category 컬럼에 매핑되는 값. 자유게시판에서는 쓰지 않고,
-    // 공지게시판(board_type='NOTICE')에서만 FIX(고정공지)/NORMAL(일반공지) 구분에 사용.
     private String noticeType;
 
     public int getNum() { return num; }
@@ -58,6 +56,5 @@ public class BoardVO {
 
     public String getNoticeType() { return noticeType != null ? noticeType : "NORMAL"; }
     public void setNoticeType(String noticeType) { this.noticeType = noticeType; }
-    /** 자유게시판 글이 관리자에 의해 상단 고정됐는지 (category 컬럼 = FIX) */
     public boolean isPinned() { return "FIX".equals(noticeType); }
 }

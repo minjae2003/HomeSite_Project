@@ -7,22 +7,13 @@ import java.util.Base64;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
-/**
- * 비밀번호 해시 유틸 (JDK 기본 내장 PBKDF2-HMAC-SHA256 사용, 외부 jar 불필요)
- *
- * 저장 형식: pbkdf2$반복횟수$솔트(Base64)$해시(Base64)   (약 90자, MEMBER.password VARCHAR(100)에 들어감)
- *   예) pbkdf2$310000$q3l0...==$Zx8f...=
- *
- *  - hash(raw)          : 회원가입/비밀번호 변경 시 DB에 저장할 값 생성
- *  - verify(raw, stored): 로그인 시 입력값과 DB값 비교
- *  - isHashed(stored)   : DB값이 이미 해시인지(예전 평문 비밀번호인지) 판별
- */
+/** 비밀번호 해시 (PBKDF2-HMAC-SHA256). 저장 형식: pbkdf2$반복횟수$솔트$해시 */
 public final class PasswordUtil {
     private PasswordUtil() {}
 
     private static final String PREFIX = "pbkdf2";
     private static final String ALGORITHM = "PBKDF2WithHmacSHA256";
-    private static final int ITERATIONS = 310_000;   // 반복 횟수 (높을수록 안전, 대신 로그인이 느려짐). 값이 해시에 같이 저장되므로 나중에 바꿔도 기존 해시는 계속 검증됨
+    private static final int ITERATIONS = 310_000;
     private static final int SALT_BYTES = 16;
     private static final int HASH_BITS = 256;
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -57,11 +48,6 @@ public final class PasswordUtil {
         verify(raw == null ? "" : raw, dummyHash);
     }
 
-    /**
-     * 비밀번호 규칙 검사 - 통과하면 null, 아니면 사용자에게 보여줄 메시지
-     *  - 8~100자, 영문과 숫자를 모두 포함, 아이디와 같으면 안 됨
-     *  (새로 정하는 비밀번호에만 적용 - 기존 회원은 예전 비밀번호로 계속 로그인 가능)
-     */
     public static String checkPolicy(String raw, String id) {
         if (raw == null || raw.length() < 8) return "비밀번호는 8자 이상이어야 합니다.";
         if (raw.length() > 100) return "비밀번호는 100자 이하로 입력해 주세요.";

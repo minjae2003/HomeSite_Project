@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%
-    // (다른 페이지에 include되므로 변수 이름이 겹치지 않도록 hdr 접두사 사용)
     String id = (String) session.getAttribute("id");
     String hdrNick = (String) session.getAttribute("nickname");
     if (hdrNick == null || hdrNick.isEmpty()) hdrNick = (String) session.getAttribute("name");
@@ -27,7 +26,6 @@
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/layout.css">
-<!-- 모바일 공통 스타일 (모든 페이지에 적용, 페이지 CSS보다 나중에 불러와야 덮어쓸 수 있음) -->
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/mobile.css">
 
 <header id="siteHeader">

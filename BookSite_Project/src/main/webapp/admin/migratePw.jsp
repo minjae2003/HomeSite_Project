@@ -3,7 +3,7 @@
 <%
     // 평문 비밀번호 → 해시 일괄 변환 (배포 직후 관리자가 1번만 실행하고, 이 파일은 삭제할 것)
     if (!"ADMIN".equals(session.getAttribute("role"))) {
-        response.sendError(HttpServletResponse.SC_NOT_FOUND);   // 관리자 외에는 페이지 존재 자체를 숨김
+        response.sendError(HttpServletResponse.SC_NOT_FOUND);
         return;
     }
     String result = null;
