@@ -6,6 +6,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>자취의 품격</title>
+<%
+    String seoBase = seo.SiteUrl.base(request);
+%>
+    <meta name="description" content="<%= HtmlUtil.esc(seo.SiteUrl.SITE_DESC) %>">
+    <link rel="canonical" href="<%= HtmlUtil.esc(seoBase) %>/main/index.jsp">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="자취의 품격">
+    <meta property="og:title" content="자취의 품격 - 자취생 커뮤니티">
+    <meta property="og:description" content="<%= HtmlUtil.esc(seo.SiteUrl.SITE_DESC) %>">
+    <meta property="og:url" content="<%= HtmlUtil.esc(seoBase) %>/main/index.jsp">
+    <%-- 검색 결과에 사이트 이름을 "자취의 품격"으로 표시하도록 알려주는 정보 (구글 사이트 이름) --%>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "자취의 품격",
+      "alternateName": ["자취의품격", "jachiclass", "jachiclass.com"],
+      "url": "<%= HtmlUtil.esc(seoBase) %>/"
+    }
+    </script>
     <link rel="stylesheet" href="../css/main/index.css">
 </head>
 <body>

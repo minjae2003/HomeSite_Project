@@ -1,0 +1,17 @@
+# jachiclass.com - crawler rules
+# Login, account, mypage, admin, write/edit/process pages and search results are not indexed.
+
+User-agent: *
+Disallow: /member/
+Disallow: /mypage/
+Disallow: /admin/
+Disallow: /error/
+Disallow: /board/
+Disallow: /main/search.jsp
+Disallow: /main/checklist.jsp
+Disallow: /*writeForm.jsp
+Disallow: /*updateForm.jsp
+Disallow: /*Pro.jsp
+Disallow: /*keyword=
+
+Sitemap: https://jachiclass.com/sitemap.xml

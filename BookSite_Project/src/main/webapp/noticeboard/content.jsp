@@ -40,7 +40,9 @@
     int num = Integer.parseInt(numParam.trim());
 
     BoardDAO dao = BoardDAO.getInstance();
-    dao.updateReadcount(num);
+    // 검색엔진 봇은 조회수/인기글 집계에서 제외 (봇은 방문마다 새 세션이라 조회수가 부풀려짐)
+    boolean isBotVisit = seo.SiteUrl.isBot(request);
+    if (!isBotVisit) dao.updateReadcount(num);
     BoardVO article = dao.getBoardDetail(num);
 
     if (article == null) {
@@ -104,6 +106,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><%= escAttr(article.getSubject()) %> - 자취의 품격</title>
     <link rel="stylesheet" href="../css/noticeboard/content.css">
+    <link rel="canonical" href="<%= escAttr(seo.SiteUrl.articleUrl(request, num, article.getCategory())) %>">
+<%
+    String seoDesc = seo.SiteUrl.excerpt(article.getContent(), 150);
+    if (seoDesc.isEmpty()) seoDesc = article.getSubject() + " - 자취의 품격";
+%>
+    <meta name="description" content="<%= escAttr(seoDesc) %>">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="자취의 품격">
+    <meta property="og:title" content="<%= escAttr(article.getSubject()) %> - 자취의 품격">
+    <meta property="og:description" content="<%= escAttr(seoDesc) %>">
+    <meta property="og:url" content="<%= escAttr(seo.SiteUrl.articleUrl(request, num, article.getCategory())) %>">
 </head>
 <body>
 

@@ -488,6 +488,33 @@ public class BoardDAO {
         }
     }
 
+    /** 사이트맵용: 글 번호, 게시판 종류(board_type → category), 작성일. 최신 글부터 최대 limit개. 오류 시 null */
+    public List<BoardVO> getSitemapArticles(int limit) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<BoardVO> list = new ArrayList<BoardVO>();
+        try {
+            conn = getConnection();
+            pstmt = conn.prepareStatement("SELECT num, board_type, reg_date FROM BOARD ORDER BY num DESC LIMIT ?");
+            pstmt.setInt(1, limit);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                BoardVO a = new BoardVO();
+                a.setNum(rs.getInt("num"));
+                a.setCategory(rs.getString("board_type"));
+                a.setRegDate(rs.getTimestamp("reg_date"));
+                list.add(a);
+            }
+            return list;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        } finally {
+            close(conn, pstmt, rs);
+        }
+    }
+
     /** 관리자 전용: 자유게시판 글 상단 고정/해제 (공지사항 글은 대상 아님) */
     public boolean setPinned(int num, boolean pinned) {
         Connection conn = null;

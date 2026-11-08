@@ -70,6 +70,10 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>자취게시판 - 자취의 품격</title>
+    <meta name="description" content="자취의 품격 생활 꿀팁/자유 게시판 - 자취 꿀팁, 질문/답변, 일상, 자취 요리 레시피를 나누는 공간입니다.">
+    <meta property="og:site_name" content="자취의 품격">
+    <meta property="og:title" content="자취게시판 - 자취의 품격">
+    <meta property="og:description" content="자취의 품격 생활 꿀팁/자유 게시판 - 자취 꿀팁, 질문/답변, 일상, 자취 요리 레시피를 나누는 공간입니다.">
 <link rel="stylesheet" href="../css/freeboard/list.css">
 </head>
 <body>

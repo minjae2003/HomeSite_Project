@@ -57,6 +57,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>공지사항 - 자취의 품격</title>
+    <meta name="description" content="자취의 품격 공지사항 - 커뮤니티 이용 안내와 새 소식을 확인하세요.">
+    <meta property="og:site_name" content="자취의 품격">
+    <meta property="og:title" content="공지사항 - 자취의 품격">
+    <meta property="og:description" content="자취의 품격 공지사항 - 커뮤니티 이용 안내와 새 소식을 확인하세요.">
     <link rel="stylesheet" href="../css/noticeboard/list.css">
 </head>
 <body>
