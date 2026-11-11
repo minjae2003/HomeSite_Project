@@ -222,6 +222,7 @@ Eclipse에서 프로젝트를 Tomcat 9 서버에 추가한 뒤 실행하고, `ht
 | [jsoup](https://jsoup.org/) | HTML 정제(XSS 방지), 링크 미리보기 파싱 | MIT |
 | [Summernote](https://summernote.org/) | 글쓰기 에디터 | MIT |
 | [jQuery](https://jquery.com/) | Summernote 의존성 | MIT |
+| [Fluent Emoji](https://github.com/microsoft/fluentui-emoji) | 사이트 아이콘(🏠) | MIT |
 | [MySQL Connector/J](https://dev.mysql.com/downloads/connector/j/) | MySQL JDBC 드라이버 | GPLv2 (FOSS 예외) |
 
 <br>
