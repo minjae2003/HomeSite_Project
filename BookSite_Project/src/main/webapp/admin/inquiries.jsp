@@ -5,6 +5,7 @@
         out.println("<script>alert('관리자만 볼 수 있는 페이지입니다.'); location.href='" + request.getContextPath() + "/main/index.jsp';</script>");
         return;
     }
+    String adminTab = "inquiries";
     String status = request.getParameter("status");
     if (!"WAIT".equals(status) && !"DONE".equals(status)) status = "ALL";
     String pageNum = request.getParameter("pageNum");
@@ -25,6 +26,7 @@
     <meta name="robots" content="noindex">
     <title>문의 관리 - 자취의 품격</title>
     <link rel="stylesheet" href="../css/support.css">
+    <link rel="stylesheet" href="../css/admin.css">
     <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" sizes="any">
     <link rel="icon" href="${pageContext.request.contextPath}/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/apple-touch-icon.png">
@@ -39,6 +41,8 @@
             <p>답변 대기 <b style="color:#f97316;"><%= Math.max(0, waitCount) %></b>건 · 답변을 저장하면 문의한 회원에게 알림이 가요.</p>
         </div>
     </div>
+
+    <%@ include file="_nav.jspf" %>
 
     <nav class="sp-tabs">
         <a href="inquiries.jsp?status=ALL" class="<%= "ALL".equals(status) ? "active" : "" %>">전체</a>

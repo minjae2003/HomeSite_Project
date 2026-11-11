@@ -97,8 +97,18 @@ public class ProfileSaveServlet extends HttpServlet {
                 alert(response, "프로필 사진은 jpg, png, gif, webp 파일만 올릴 수 있어요.", null);
                 return;
             }
+            byte[] bytes;
+            try (java.io.InputStream in = photo.getInputStream()) { bytes = in.readAllBytes(); }
+            if (!"ADMIN".equals(session.getAttribute("role"))) {
+                moderation.ImageModeration.Result mod = moderation.ImageModeration.check(bytes, ext, userId);
+                if (mod.rejected()) {
+                    if (mod.label != null) System.err.println("[ImageModeration] 차단(프로필): " + userId + " / " + mod.label);
+                    alert(response, mod.message(), null);
+                    return;
+                }
+            }
             String newName = UUID.randomUUID().toString().replace("-", "") + "." + ext;
-            photo.write(uploadDir + File.separator + newName);
+            java.nio.file.Files.write(new File(uploadDir, newName).toPath(), bytes);
             deleteFile(uploadDir, imgName);
             imgName = newName;
         } else if (removePhoto) {

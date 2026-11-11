@@ -1,0 +1,41 @@
+/* 관리자 페이지 공통 */
+.admin-nav { margin-bottom: 18px; }
+.am-search { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.am-search select, .am-search input[type=text] { padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 14px; font-family: inherit; background: #fff; }
+.am-search input[type=text] { flex: 1; min-width: 200px; }
+.am-table-wrap { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; }
+.am-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.am-table th { background: #f8fafc; color: #475569; font-weight: 700; text-align: left; padding: 11px 12px; border-bottom: 1px solid #e5e7eb; white-space: nowrap; }
+.am-table td { padding: 11px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #334155; }
+.am-table tr:last-child td { border-bottom: none; }
+.am-table tr.suspended { background: #fef2f2; }
+.am-table .num { text-align: right; }
+.am-sub { font-size: 12px; color: #94a3b8; margin-top: 2px; word-break: break-all; }
+.am-email { word-break: break-all; max-width: 220px; }
+.am-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.am-badge.ok { background: #dcfce7; color: #15803d; }
+.am-badge.stop { background: #fee2e2; color: #b91c1c; }
+.am-badge.admin { background: #e0e7ff; color: #4338ca; margin-left: 4px; }
+.am-actions { white-space: nowrap; }
+.am-actions form { display: inline-block; margin: 0 4px 4px 0; vertical-align: top; }
+.am-suspend { display: inline-block; vertical-align: top; margin: 0 4px 4px 0; }
+.am-suspend summary { list-style: none; display: inline-block; }
+.am-suspend summary::-webkit-details-marker { display: none; }
+.am-suspend[open] summary { opacity: .6; }
+.am-suspend form { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; padding: 8px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; white-space: normal; width: 260px; }
+.am-suspend select, .am-suspend input[type=text] { padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; font-family: inherit; }
+.am-suspend input[type=text] { flex: 1; min-width: 120px; }
+.sp-btn.danger-outline { background: #fff; color: #b91c1c; border: 1px solid #fecaca; }
+.sp-btn.danger-outline:hover { background: #fef2f2; }
+
+@media (max-width: 768px) {
+    .am-table thead { display: none; }
+    .am-table, .am-table tbody, .am-table tr, .am-table td { display: block; width: 100%; box-sizing: border-box; }
+    .am-table tr { border-bottom: 1px solid #e5e7eb; padding: 8px 4px; }
+    .am-table td { border: none; padding: 4px 10px; }
+    .am-table td[data-label]::before { content: attr(data-label); display: inline-block; width: 52px; font-size: 12px; color: #94a3b8; font-weight: 700; }
+    .am-table td[data-label="회원"]::before { display: none; }
+    .am-table .num { text-align: left; }
+    .am-actions { white-space: normal; }
+    .am-suspend form { width: auto; }
+}

@@ -54,4 +54,27 @@ public class MemberVO {
 
     public Timestamp getReg_date() { return regDate; }
     public void setReg_date(Timestamp reg_date) { this.regDate = reg_date; }
+
+    private Timestamp suspendUntil;
+    private String suspendReason;
+    private int postCount;
+    private int commentCount;
+
+    public Timestamp getSuspendUntil() { return suspendUntil; }
+    public void setSuspendUntil(Timestamp suspendUntil) { this.suspendUntil = suspendUntil; }
+    public String getSuspendReason() { return suspendReason; }
+    public void setSuspendReason(String suspendReason) { this.suspendReason = suspendReason; }
+    public int getPostCount() { return postCount; }
+    public void setPostCount(int postCount) { this.postCount = postCount; }
+    public int getCommentCount() { return commentCount; }
+    public void setCommentCount(int commentCount) { this.commentCount = commentCount; }
+
+    /** 지금 이용 정지 상태인지 */
+    public boolean isSuspended() { return suspendUntil != null && suspendUntil.getTime() > System.currentTimeMillis(); }
+    /** 정지 종료일 표시 (영구 정지는 9999년으로 저장) */
+    public String getSuspendUntilText() {
+        if (suspendUntil == null) return "";
+        if (suspendUntil.toLocalDateTime().getYear() >= 9999) return "영구";
+        return new java.text.SimpleDateFormat("yyyy.MM.dd HH:mm").format(suspendUntil) + "까지";
+    }
 }

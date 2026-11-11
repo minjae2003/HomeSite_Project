@@ -10,8 +10,7 @@
             <a href="${pageContext.request.contextPath}/support/inquiry.jsp">문의하기</a>
             <% if ("ADMIN".equals(session.getAttribute("role"))) {
                    int ftWait = inquiry.InquiryDAO.getInstance().countAll("WAIT"); %>
-            <a href="${pageContext.request.contextPath}/admin/inquiries.jsp" class="admin">🛠 문의 관리<%= ftWait > 0 ? " (" + ftWait + ")" : "" %></a>
-            <a href="${pageContext.request.contextPath}/admin/bannedWords.jsp" class="admin">🚫 금칙어 관리</a>
+            <a href="${pageContext.request.contextPath}/admin/members.jsp" class="admin">🛠 관리자 메뉴<%= ftWait > 0 ? " (문의 " + ftWait + ")" : "" %></a>
             <% } %>
         </nav>
         <p class="site-footer-info">

@@ -29,6 +29,12 @@
 
     if (check == 1) {
         MemberVO member = dao.getMember(id);
+        if (member != null && member.isSuspended()) {
+            String reason = member.getSuspendReason() == null || member.getSuspendReason().isEmpty() ? "운영정책 위반" : member.getSuspendReason();
+            out.println("<script>alert('이용이 정지된 계정입니다.\\n\\n정지 기간: " + HtmlUtil.js(member.getSuspendUntilText())
+                    + "\\n사유: " + HtmlUtil.js(reason) + "\\n\\n이의가 있으면 사이트 하단 이메일로 문의해 주세요.'); history.go(-1);</script>");
+            return;
+        }
         if (member != null) {
             session.setAttribute("id", member.getId());
             session.setAttribute("nickname", member.getNickname());

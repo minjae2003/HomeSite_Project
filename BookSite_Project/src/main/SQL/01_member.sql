@@ -10,7 +10,9 @@ CREATE TABLE IF NOT EXISTS MEMBER (
     role        VARCHAR(20)  DEFAULT 'USER',
     reg_date        DATETIME     DEFAULT CURRENT_TIMESTAMP,
     pw_changed_at   DATETIME     NULL,
-    info_changed_at DATETIME     NULL
+    info_changed_at DATETIME     NULL,
+    suspend_until   DATETIME     NULL,
+    suspend_reason  VARCHAR(200) NULL
 );
 
 CREATE TABLE IF NOT EXISTS MEMBER_PROFILE (

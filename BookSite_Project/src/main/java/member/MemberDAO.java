@@ -189,6 +189,7 @@ public class MemberDAO {
                 try { vo.setPhone(rs.getString("phone")); } catch (Exception e) {}
                 try { vo.setPwChangedAt(rs.getTimestamp("pw_changed_at")); } catch (Exception e) {}
                 try { vo.setInfoChangedAt(rs.getTimestamp("info_changed_at")); } catch (Exception e) {}
+                try { vo.setSuspendUntil(rs.getTimestamp("suspend_until")); vo.setSuspendReason(rs.getString("suspend_reason")); } catch (Exception e) {}
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -402,6 +403,134 @@ public class MemberDAO {
         }
         return count;
     }
+    // ===== 관리자 회원 관리 =====
+
+    private static String adminWhere(String keyword, String filter) {
+        StringBuilder w = new StringBuilder(" WHERE 1 = 1");
+        if (keyword != null && !keyword.isEmpty()) w.append(" AND (m.id LIKE ? OR m.nickname LIKE ? OR m.name LIKE ? OR m.email LIKE ?)");
+        if ("SUSPENDED".equals(filter)) w.append(" AND m.suspend_until > NOW()");
+        else if ("ADMIN".equals(filter)) w.append(" AND m.role = 'ADMIN'");
+        return w.toString();
+    }
+
+    private static int bindKeyword(PreparedStatement pstmt, String keyword) throws java.sql.SQLException {
+        int idx = 1;
+        if (keyword != null && !keyword.isEmpty()) {
+            String like = "%" + keyword.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%";
+            for (int k = 0; k < 4; k++) pstmt.setString(idx++, like);
+        }
+        return idx;
+    }
+
+    /** 관리자: 회원 수 (검색어, 필터 ALL/SUSPENDED/ADMIN). 오류 시 -1 */
+    public int adminCount(String keyword, String filter) {
+        Connection conn = null; PreparedStatement pstmt = null; ResultSet rs = null;
+        try {
+            conn = getConnection();
+            pstmt = conn.prepareStatement("SELECT COUNT(*) FROM MEMBER m" + adminWhere(keyword, filter));
+            bindKeyword(pstmt, keyword);
+            rs = pstmt.executeQuery();
+            return rs.next() ? rs.getInt(1) : 0;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return -1;
+        } finally {
+            close(conn, pstmt, rs);
+        }
+    }
+
+    /** 관리자: 회원 목록 (최근 가입순, 글·댓글 수 포함) */
+    public java.util.List<MemberVO> adminList(String keyword, String filter, int start, int count) {
+        java.util.List<MemberVO> list = new java.util.ArrayList<MemberVO>();
+        Connection conn = null; PreparedStatement pstmt = null; ResultSet rs = null;
+        try {
+            conn = getConnection();
+            pstmt = conn.prepareStatement(
+                "SELECT m.id, m.name, m.nickname, m.email, m.role, m.reg_date, m.suspend_until, m.suspend_reason, "
+              + "(SELECT COUNT(*) FROM BOARD b WHERE b.writer_id = m.id) AS post_cnt, "
+              + "(SELECT COUNT(*) FROM BOARD_COMMENT c WHERE c.writer_id = m.id) AS comment_cnt "
+              + "FROM MEMBER m" + adminWhere(keyword, filter)
+              + " ORDER BY m.reg_date DESC, m.id LIMIT ?, ?");
+            int idx = bindKeyword(pstmt, keyword);
+            pstmt.setInt(idx++, Math.max(0, start));
+            pstmt.setInt(idx, count);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                MemberVO vo = new MemberVO();
+                vo.setId(rs.getString("id"));
+                vo.setName(rs.getString("name"));
+                vo.setNickname(rs.getString("nickname"));
+                vo.setEmail(rs.getString("email"));
+                vo.setRole(rs.getString("role"));
+                vo.setRegDate(rs.getTimestamp("reg_date"));
+                vo.setSuspendUntil(rs.getTimestamp("suspend_until"));
+                vo.setSuspendReason(rs.getString("suspend_reason"));
+                vo.setPostCount(rs.getInt("post_cnt"));
+                vo.setCommentCount(rs.getInt("comment_cnt"));
+                list.add(vo);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        } finally {
+            close(conn, pstmt, rs);
+        }
+        return list;
+    }
+
+    /** 관리자: 이용 정지 (days가 0 이하면 영구). 관리자 계정은 정지할 수 없음 */
+    public boolean suspend(String id, int days, String reason) {
+        Connection conn = null; PreparedStatement pstmt = null;
+        try {
+            conn = getConnection();
+            pstmt = conn.prepareStatement(days > 0
+                ? "UPDATE MEMBER SET suspend_until = NOW() + INTERVAL ? DAY, suspend_reason = ? WHERE id = ? AND role <> 'ADMIN'"
+                : "UPDATE MEMBER SET suspend_until = '9999-12-31 23:59:59', suspend_reason = ? WHERE id = ? AND role <> 'ADMIN'");
+            int idx = 1;
+            if (days > 0) pstmt.setInt(idx++, days);
+            pstmt.setString(idx++, reason);
+            pstmt.setString(idx, id);
+            return pstmt.executeUpdate() == 1;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        } finally {
+            close(conn, pstmt, null);
+        }
+    }
+
+    /** 관리자: 정지 해제 */
+    public boolean unsuspend(String id) {
+        Connection conn = null; PreparedStatement pstmt = null;
+        try {
+            conn = getConnection();
+            pstmt = conn.prepareStatement("UPDATE MEMBER SET suspend_until = NULL, suspend_reason = NULL WHERE id = ?");
+            pstmt.setString(1, id);
+            return pstmt.executeUpdate() == 1;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        } finally {
+            close(conn, pstmt, null);
+        }
+    }
+
+    /** 이용 정지 종료 시각 (정지 중이 아니면 null, 오류 시에도 null) */
+    public java.sql.Timestamp getActiveSuspension(String id) {
+        Connection conn = null; PreparedStatement pstmt = null; ResultSet rs = null;
+        try {
+            conn = getConnection();
+            pstmt = conn.prepareStatement("SELECT suspend_until FROM MEMBER WHERE id = ? AND suspend_until > NOW()");
+            pstmt.setString(1, id);
+            rs = pstmt.executeQuery();
+            return rs.next() ? rs.getTimestamp(1) : null;
+        } catch (Exception ex) {
+            return null;
+        } finally {
+            close(conn, pstmt, rs);
+        }
+    }
+
     private void close(Connection conn, PreparedStatement pstmt, ResultSet rs) {
         if (rs != null) try { rs.close(); } catch (Exception e) {}
         if (pstmt != null) try { pstmt.close(); } catch (Exception e) {}

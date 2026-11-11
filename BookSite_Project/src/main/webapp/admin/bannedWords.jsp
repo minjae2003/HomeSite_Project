@@ -5,6 +5,7 @@
         out.println("<script>alert('관리자만 볼 수 있는 페이지입니다.'); location.href='" + request.getContextPath() + "/main/index.jsp';</script>");
         return;
     }
+    String adminTab = "words";
     List<BannedWordDAO.Word> words = BannedWordDAO.getInstance().list();
     int banCount = 0, allowCount = 0;
     if (words != null) for (BannedWordDAO.Word w : words) { if ("ALLOW".equals(w.type)) allowCount++; else banCount++; }
@@ -17,6 +18,7 @@
     <meta name="robots" content="noindex">
     <title>금칙어 관리 - 자취의 품격</title>
     <link rel="stylesheet" href="../css/support.css">
+    <link rel="stylesheet" href="../css/admin.css">
     <style>
         .bw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .bw-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
@@ -41,8 +43,8 @@
             <h1>🚫 금칙어 관리</h1>
             <p>글 제목·본문, 댓글, 닉네임, 프로필 소개에 금칙어가 있으면 저장되지 않아요. (관리자 계정은 검사하지 않음)</p>
         </div>
-        <a class="sp-link" href="inquiries.jsp">문의 관리 ›</a>
     </div>
+    <%@ include file="_nav.jspf" %>
 
     <% if (words == null) { %>
         <div class="sp-card sp-note">금칙어 목록을 불러오지 못했어요. 서버 DB에 BANNED_WORD 테이블이 있는지 확인해 주세요.</div>

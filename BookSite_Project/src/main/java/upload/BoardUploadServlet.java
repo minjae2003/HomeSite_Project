@@ -140,6 +140,17 @@ public class BoardUploadServlet extends HttpServlet {
             String fileType = fileTypeOf(ext);
             if (fileType == null) continue; // 허용 확장자가 아니면 무시 (보안: 실행 가능한 파일 업로드 차단)
 
+            if ("IMAGE".equals(fileType) && !isAdmin) {
+                byte[] bytes;
+                try (java.io.InputStream in = part.getInputStream()) { bytes = in.readAllBytes(); }
+                moderation.ImageModeration.Result mod = moderation.ImageModeration.check(bytes, ext, sessionUserId);
+                if (mod.rejected()) {
+                    if (mod.label != null) System.err.println("[ImageModeration] 차단: " + sessionUserId + " / " + mod.label);
+                    for (BoardFileVO f : newFiles) new File(uploadDir, f.getSavedName()).delete();
+                    alertAndRedirect(response, mod.message(), null);
+                    return;
+                }
+            }
             String savedName = UUID.randomUUID().toString().replace("-", "") + "." + ext.toLowerCase();
             part.write(uploadDir + File.separator + savedName);
 

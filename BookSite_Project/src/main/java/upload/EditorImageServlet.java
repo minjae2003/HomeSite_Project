@@ -61,8 +61,18 @@ public class EditorImageServlet extends HttpServlet {
         String uploadDir = getServletContext().getRealPath("/uploads");
         File dir = new File(uploadDir);
         if (!dir.exists()) dir.mkdirs();
+        byte[] bytes;
+        try (InputStream in = part.getInputStream()) { bytes = in.readAllBytes(); }
+        if (!"ADMIN".equals(session.getAttribute("role"))) {
+            moderation.ImageModeration.Result mod = moderation.ImageModeration.check(bytes, ext, (String) session.getAttribute("id"));
+            if (mod.rejected()) {
+                if (mod.label != null) System.err.println("[ImageModeration] 차단: " + session.getAttribute("id") + " / " + mod.label);
+                fail(response, 400, mod.message());
+                return;
+            }
+        }
         String savedName = UUID.randomUUID().toString().replace("-", "") + "." + ext;
-        part.write(uploadDir + File.separator + savedName);
+        java.nio.file.Files.write(new File(uploadDir, savedName).toPath(), bytes);
 
         synchronized (session) {
             @SuppressWarnings("unchecked")
