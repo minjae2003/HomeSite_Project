@@ -52,6 +52,8 @@ JSP/Servlet으로 만든 커뮤니티 웹사이트입니다. 게시판, 댓글, 
 ### 운영 기능
 - **📮 1:1 문의**: 회원 → 관리자 문의, 관리자 답변 시 알림 / 게시글 🚨 신고 버튼
 - **🚫 금칙어 필터**: 글·댓글·닉네임 검사, 띄어쓰기·숫자·기호를 끼운 우회 표현까지 탐지, 관리자 화면에서 금칙어/예외 단어 관리
+- **🖼 사진 자동 검사**: 업로드 사진을 AWS Rekognition으로 검사해 선정적·폭력적·혐오 이미지 차단 (음식·술·수영복 사진 등은 허용)
+- **👥 회원 관리** (관리자): 회원 검색·필터, 글·댓글 수 확인, 이용 정지(1·3·7·30일·영구, 사유 안내)·해제, 강제 탈퇴
 - **약관·개인정보처리방침·운영정책** 페이지, 회원가입 및 기존 회원 동의 절차(동의 기록 저장, 정책 버전 관리)
 - ✅ 자취 시작 체크리스트 (계정별 저장)
 
@@ -71,7 +73,8 @@ JSP/Servlet으로 만든 커뮤니티 웹사이트입니다. 게시판, 댓글, 
 | **Frontend** | HTML, CSS, JavaScript, jQuery, Summernote |
 | **Database** | MySQL 8 |
 | **WAS / Web Server** | Apache Tomcat 9, Nginx (리버스 프록시) |
-| **Infra** | AWS EC2 (Ubuntu 24.04, 서울 리전), 탄력적 IP |
+| **Infra** | AWS EC2 (Ubuntu 24.04, 서울 리전), 탄력적 IP, IAM 역할 |
+| **AI / 외부 서비스** | AWS Rekognition (이미지 유해성 검사) |
 | **Domain / HTTPS** | 가비아 도메인, Let's Encrypt (Certbot 자동 갱신) |
 | **Library** | jsoup (HTML 정제·파싱), MySQL Connector/J |
 | **Tool** | Eclipse, Git / GitHub |
@@ -84,13 +87,18 @@ JSP/Servlet으로 만든 커뮤니티 웹사이트입니다. 게시판, 댓글, 
                       HTTPS (443)
   사용자 브라우저  ─────────────────▶  Nginx  ───────▶  Tomcat 9  ───────▶  MySQL 8
   (jachiclass.com)                  (SSL 처리,          (JSP/Servlet)
-                                     리버스 프록시)
+                                     리버스 프록시)            │
                                     └──────────── AWS EC2 (Ubuntu) ────────────┘
+                                                               │ 사진 검사 (IAM 역할, SigV4)
+                                                               ▼
+                                                      AWS Rekognition (서울 리전)
 ```
 
 - 가비아 DNS의 A 레코드가 EC2 탄력적 IP를 가리킴
 - Nginx가 HTTPS를 처리하고 Tomcat(8080)으로 전달
 - 인증서는 Let's Encrypt(Certbot)로 발급, 90일마다 자동 갱신
+- Rekognition 호출 권한은 **EC2 인스턴스 역할**(사진 검사 1개 동작만 허용하는 최소 권한)로 받음 → 접근 키를 코드·파일에 두지 않음
+- AWS SDK 없이 표준 Java로 인스턴스 메타데이터(IMDSv2)에서 임시 자격증명을 받아 요청에 직접 서명(SigV4)
 
 <br>
 
@@ -104,6 +112,9 @@ JSP/Servlet으로 만든 커뮤니티 웹사이트입니다. 게시판, 댓글, 
 | **비밀번호 유출** | PBKDF2-HMAC-SHA256 해시 + 솔트, 고정 시간 비교 |
 | **무작위 대입** | 로그인·아이디/비밀번호 찾기 시도 횟수 제한(아이디별·IP별), 아이디 존재 여부 노출 방지 |
 | **파일 업로드 공격** | 확장자 화이트리스트, 이미지 매직 넘버 검사, SVG 차단, 저장 파일명 무작위화 |
+| **유해 이미지** | AWS Rekognition 자동 검사, 사용자별 검사 횟수 제한(요금 남용 방지) |
+| **악성 이용자** | 금칙어 필터, 이용 정지 시 로그인 차단 + 이미 로그인한 세션의 글쓰기 등 요청 차단(`SuspendFilter`) |
+| **클라우드 자격증명 유출** | 접근 키 대신 EC2 IAM 역할(최소 권한) 사용 |
 | **SSRF** (링크 미리보기) | 글에 실제로 있는 링크만 요청, 사설 IP·AWS 메타데이터 주소 차단, 리다이렉트마다 재검사, 크기·시간 제한 |
 | **오픈 리다이렉트** | 이동 주소는 사이트 내부 경로만 허용 |
 | **세션 탈취** | 세션 쿠키 `HttpOnly`, URL에 세션 ID 미노출 |
@@ -121,7 +132,8 @@ BookSite_Project/src/main
 │   ├── checklist      # 자취 체크리스트 저장
 │   ├── filter         # 금칙어 필터
 │   ├── inquiry        # 1:1 문의
-│   ├── member         # 회원, 로그인 시도 제한, 약관 동의(ConsentFilter)
+│   ├── member         # 회원, 로그인 시도 제한, 약관 동의(ConsentFilter), 이용 정지(SuspendFilter)
+│   ├── moderation     # AWS Rekognition 사진 검사 (IMDSv2 자격증명, SigV4 서명)
 │   ├── mypage         # 마이페이지, 프로필, 등급
 │   ├── notification   # 알림
 │   ├── preview        # 링크 미리보기 (SSRF 방지)
@@ -137,7 +149,7 @@ BookSite_Project/src/main
 │   ├── mypage         # 마이페이지, 알림, 프로필, 계정
 │   ├── support        # 1:1 문의
 │   ├── policy         # 이용약관, 개인정보처리방침, 운영정책, 동의 화면
-│   ├── admin          # 문의 관리, 금칙어 관리
+│   ├── admin          # 회원 관리, 문의 관리, 금칙어 관리
 │   ├── module         # 공통 header / footer
 │   ├── css, js        # 스타일, 스크립트
 │   └── lib            # jQuery, Summernote
@@ -150,7 +162,7 @@ BookSite_Project/src/main
 
 | 테이블 | 설명 |
 |---|---|
-| `MEMBER` / `MEMBER_PROFILE` | 회원 / 프로필 |
+| `MEMBER` / `MEMBER_PROFILE` | 회원(이용 정지 기간·사유 포함) / 프로필 |
 | `MEMBER_CONSENT` | 약관·개인정보 동의 기록 (정책 버전별) |
 | `BOARD` / `BOARD_COMMENT` / `BOARD_LIKE` / `BOARD_FILE` | 게시글 / 댓글 / 추천 / 첨부파일 |
 | `BOARD_VIEW_LOG` | 실시간 인기글 집계용 조회 기록 (7일 보관) |
@@ -165,9 +177,10 @@ BookSite_Project/src/main
 |---|---|
 | `01_member.sql` ~ `11_banned_word.sql` | 테이블별 생성 스크립트 (`CREATE TABLE IF NOT EXISTS`) |
 | `ALLSQL.sql` | 위 파일 전체를 합친 것 (DB를 처음 만들 때) |
+| `08_sync_nickname.sql`, `12_member_suspend.sql` | 기존 DB를 업데이트할 때 **한 번만** 실행하는 변경 스크립트 (새로 만든 DB에는 실행하지 않음) |
 | `00_reset.sql` | ⚠️ **모든 테이블 삭제** |
 
-> ⚠️ `00_reset.sql`과 `ALLSQL.sql`은 기존 데이터를 모두 지웁니다. 운영 중인 DB에는 새로 추가된 테이블의 파일(예: `11_banned_word.sql`)만 실행하세요.
+> ⚠️ `00_reset.sql`과 `ALLSQL.sql`은 기존 데이터를 모두 지웁니다. 운영 중인 DB에는 새로 추가된 테이블이나 변경 스크립트(예: `11_banned_word.sql`, `12_member_suspend.sql`)만 실행하세요.
 
 <br>
 
@@ -203,6 +216,8 @@ DB 접속 정보는 저장소에 포함하지 않습니다. Tomcat의 `context.x
 ### 4. 실행
 Eclipse에서 프로젝트를 Tomcat 9 서버에 추가한 뒤 실행하고, `http://localhost:8080/(컨텍스트 경로)/main/index.jsp`로 접속합니다.
 
+> 💡 사진 자동 검사는 EC2 IAM 역할이 있는 서버에서만 동작합니다. 로컬에서는 검사를 자동으로 건너뛰므로 별도 설정이 필요 없습니다.
+
 <br>
 
 ## 🚀 배포
@@ -210,6 +225,7 @@ Eclipse에서 프로젝트를 Tomcat 9 서버에 추가한 뒤 실행하고, `ht
 1. Eclipse에서 WAR 파일로 내보내기
 2. EC2 서버로 WAR 업로드 후 배포 스크립트 실행 (기존 버전 백업 → 새 버전 배포 → 응답 확인)
 3. 새 테이블이 추가된 경우, 해당 테이블의 SQL만 서버 DB에 실행
+4. (최초 1회) EC2 인스턴스에 `rekognition:DetectModerationLabels`만 허용하는 IAM 역할 연결 — 사진 자동 검사용
 
 > 접속 키, DB 비밀번호 등 비밀 정보는 저장소에 올리지 않습니다.
 
