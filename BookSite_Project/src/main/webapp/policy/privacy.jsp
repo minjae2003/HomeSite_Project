@@ -9,6 +9,9 @@
     <title>개인정보처리방침 - 자취의 품격</title>
     <meta name="description" content="자취의 품격 개인정보처리방침입니다.">
     <link rel="stylesheet" href="../css/policy.css">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" sizes="any">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/apple-touch-icon.png">
 </head>
 <body>
 <jsp:include page="/module/header.jsp" flush="false"/>

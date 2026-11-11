@@ -62,6 +62,9 @@
     <meta property="og:title" content="공지사항 - 자취의 품격">
     <meta property="og:description" content="자취의 품격 공지사항 - 커뮤니티 이용 안내와 새 소식을 확인하세요.">
     <link rel="stylesheet" href="../css/noticeboard/list.css">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" sizes="any">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/apple-touch-icon.png">
 </head>
 <body>
 <jsp:include page="../module/header.jsp" flush="false"/>

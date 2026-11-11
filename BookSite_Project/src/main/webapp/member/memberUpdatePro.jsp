@@ -34,6 +34,10 @@
         out.println("<script>alert('입력값이 너무 깁니다.'); history.back();</script>");
         return;
     }
+    if (!"ADMIN".equals(session.getAttribute("role")) && filter.WordFilter.find(nickname) != null) {
+        out.println("<script>alert('닉네임에 사용할 수 없는 표현이 있어요.'); history.back();</script>");
+        return;
+    }
     String phoneRaw = request.getParameter("phone");
     String digits = (phoneRaw == null) ? "" : phoneRaw.replaceAll("[^0-9]", "");
     String phone = null;

@@ -43,6 +43,11 @@
             out.println("<script>alert('닉네임은 2~50자로 입력해 주세요.'); history.go(-1);</script>");
             return;
         }
+        String badWord = filter.WordFilter.find(nickname + " " + id);
+        if (badWord != null) {
+            out.println("<script>alert('닉네임이나 아이디에 사용할 수 없는 표현이 있어요.'); history.go(-1);</script>");
+            return;
+        }
         String email = request.getParameter("email");
         email = (email == null) ? "" : email.trim();
         if (!email.isEmpty() && (email.length() > 100 || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"))) {

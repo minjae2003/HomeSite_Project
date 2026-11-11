@@ -62,6 +62,11 @@ public class ProfileSaveServlet extends HttpServlet {
             alert(response, "한줄 소개는 " + ProfileDAO.BIO_MAX + "자까지 입력할 수 있어요.", null);
             return;
         }
+        if (!"ADMIN".equals(session.getAttribute("role"))
+                && (filter.WordFilter.find(nickname) != null || filter.WordFilter.find(bio) != null)) {
+            alert(response, "닉네임이나 한줄 소개에 사용할 수 없는 표현이 있어요.", null);
+            return;
+        }
         if (!region.isEmpty() && !ProfileDAO.isValidRegion(region)) region = "";
         if (!years.isEmpty() && !ProfileDAO.YEARS.contains(years)) years = "";
 

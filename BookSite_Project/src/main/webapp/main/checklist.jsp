@@ -94,6 +94,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>자취 시작 체크리스트 — 자취의 품격</title>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main/checklist.css">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" sizes="any">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/apple-touch-icon.png">
 </head>
 <body>
 

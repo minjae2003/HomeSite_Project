@@ -38,6 +38,14 @@
         out.println("<script>alert('댓글 내용을 입력해 주세요.'); history.back();</script>");
         return;
     }
+    // 금칙어 검사 (관리자 제외)
+    if (!"ADMIN".equals(session.getAttribute("role"))) {
+        String badWord = filter.WordFilter.find(content);
+        if (badWord != null) {
+            out.println("<script>alert('" + util.HtmlUtil.js(filter.WordFilter.message(badWord)) + "'); history.back();</script>");
+            return;
+        }
+    }
     if (content.length() > 1000) {
         out.println("<script>alert('댓글은 1000자까지 입력할 수 있습니다.'); history.back();</script>");
         return;

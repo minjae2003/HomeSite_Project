@@ -40,6 +40,14 @@
     boardNumParam = boardNumParam.trim();
 
     if (content != null && !content.trim().isEmpty()) {
+            // 금칙어 검사 (관리자 제외)
+            if (!"ADMIN".equals(session.getAttribute("role"))) {
+                String badWord = filter.WordFilter.find(content);
+                if (badWord != null) {
+                    out.println("<script>alert('" + util.HtmlUtil.js(filter.WordFilter.message(badWord)) + "'); history.back();</script>");
+                    return;
+                }
+            }
         int boardNum = Integer.parseInt(boardNumParam);
 
         CommentVO comment = new CommentVO();

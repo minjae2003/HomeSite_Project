@@ -113,6 +113,10 @@
     <meta property="og:title" content="<%= escAttr(article.getSubject()) %> - 자취의 품격">
     <meta property="og:description" content="<%= escAttr(seoDesc) %>">
     <meta property="og:url" content="<%= escAttr(seo.SiteUrl.articleUrl(request, num, article.getCategory())) %>">
+    <meta property="og:image" content="<%= escAttr(seo.SiteUrl.base(request)) %>/icon-512.png">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" sizes="any">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/apple-touch-icon.png">
 </head>
 <body>
 

@@ -41,6 +41,9 @@
 <title>계정 관리 — 자취의 품격</title>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/mypage/index.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/mypage/account.css">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" sizes="any">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/apple-touch-icon.png">
 </head>
 <body>
 

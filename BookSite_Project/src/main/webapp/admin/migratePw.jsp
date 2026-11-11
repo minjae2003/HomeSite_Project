@@ -15,7 +15,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head><meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"><title>비밀번호 해시 변환</title></head>
+    <meta name="viewport" content="width=device-width, initial-scale=1"><title>비밀번호 해시 변환</title>    <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" sizes="any">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/apple-touch-icon.png">
+</head>
 <body style="font-family:sans-serif; margin:40px;">
     <h2>비밀번호 해시 일괄 변환</h2>
     <p>아직 평문으로 저장된 회원 비밀번호를 모두 해시로 바꿉니다. 이미 변환된 계정은 건드리지 않으며, 여러 번 실행해도 안전합니다.</p>

@@ -16,6 +16,9 @@
     <meta name="robots" content="noindex">
     <title>내 문의 내역 - 자취의 품격</title>
     <link rel="stylesheet" href="../css/support.css">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" sizes="any">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/apple-touch-icon.png">
 </head>
 <body>
 <jsp:include page="/module/header.jsp" flush="false"/>

@@ -35,6 +35,9 @@
         .consent-note { margin-top: 14px; font-size: 12.5px; color: #94a3b8; line-height: 1.6; }
         .consent-note a { color: #64748b; }
     </style>
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" sizes="any">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/apple-touch-icon.png">
 </head>
 <body>
 <jsp:include page="/module/header.jsp" flush="false"/>

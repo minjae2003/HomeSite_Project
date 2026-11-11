@@ -11,6 +11,7 @@
             <% if ("ADMIN".equals(session.getAttribute("role"))) {
                    int ftWait = inquiry.InquiryDAO.getInstance().countAll("WAIT"); %>
             <a href="${pageContext.request.contextPath}/admin/inquiries.jsp" class="admin">🛠 문의 관리<%= ftWait > 0 ? " (" + ftWait + ")" : "" %></a>
+            <a href="${pageContext.request.contextPath}/admin/bannedWords.jsp" class="admin">🚫 금칙어 관리</a>
             <% } %>
         </nav>
         <p class="site-footer-info">

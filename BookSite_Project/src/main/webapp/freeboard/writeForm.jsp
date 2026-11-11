@@ -31,6 +31,9 @@
     <link rel="stylesheet" href="../css/freeboard/write.css">
     <link rel="stylesheet" href="../lib/summernote/summernote-lite.min.css">
     <link rel="stylesheet" href="../css/editor.css">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" sizes="any">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/apple-touch-icon.png">
 </head>
 <body>
 

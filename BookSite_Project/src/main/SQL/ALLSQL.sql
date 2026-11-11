@@ -5,6 +5,7 @@
 -- [주의] 모든 테이블과 데이터를 삭제합니다. DB를 처음부터 다시 만들 때만 실행하세요.
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS BANNED_WORD;
 DROP TABLE IF EXISTS INQUIRY;
 DROP TABLE IF EXISTS MEMBER_CONSENT;
 DROP TABLE IF EXISTS BOARD_VIEW_LOG;
@@ -176,7 +177,7 @@ VALUES ('admin', 'admin1234', '관리자', '관리자', 'admin@example.com', 'Y'
 
 -- ===== 09_member_consent.sql =====
 -- 회원 약관/개인정보 동의 기록 (정책 버전별로 한 줄)
--- 한 줄이 있다 = 그 버전의 [필수] 이용약관, [필수] 개인정보 수집·이용, [필수] 만 14세 이상에 모두 동의함
+-- 한 줄이 있다 = 그 버전의 [필수] 이용약관, [필수] 개인정보 수집·이용에 모두 동의함
 -- 서버 DB에는 이 파일만 실행하면 됩니다 (기존 데이터는 건드리지 않음)
 CREATE TABLE IF NOT EXISTS MEMBER_CONSENT (
     user_id        VARCHAR(50) NOT NULL,
@@ -206,4 +207,16 @@ CREATE TABLE IF NOT EXISTS INQUIRY (
     INDEX idx_inquiry_user (user_id, inquiry_num),
     INDEX idx_inquiry_status (status, inquiry_num),
     CONSTRAINT fk_inquiry_member FOREIGN KEY (user_id) REFERENCES MEMBER(id) ON DELETE CASCADE
+);
+
+-- ===== 11_banned_word.sql =====
+-- 금칙어(BAN) / 예외 단어(ALLOW)
+-- 기본 목록은 관리자 화면(/admin/bannedWords.jsp)의 [기본 목록 넣기] 버튼으로 추가
+-- 서버 DB에는 이 파일만 실행하면 됩니다 (기존 데이터는 건드리지 않음)
+CREATE TABLE IF NOT EXISTS BANNED_WORD (
+    word_id   INT AUTO_INCREMENT PRIMARY KEY,
+    word      VARCHAR(50) NOT NULL,
+    type      VARCHAR(10) NOT NULL DEFAULT 'BAN',
+    reg_date  DATETIME    DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_banned_word (word, type)
 );

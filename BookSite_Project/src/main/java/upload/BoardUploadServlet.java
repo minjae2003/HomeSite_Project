@@ -109,6 +109,16 @@ public class BoardUploadServlet extends HttpServlet {
         boolean html = "html".equals(request.getParameter("contentFormat"));
         if (html) content = RichText.sanitize(content);
 
+        // 금칙어 검사 (관리자 제외)
+        if (!isAdmin) {
+            String plain = html ? RichText.toText(RichText.MARK + content) : content;
+            String badWord = filter.WordFilter.find(subject + "\n" + plain);
+            if (badWord != null) {
+                alertAndRedirect(response, filter.WordFilter.message(badWord), null);
+                return;
+            }
+        }
+
         String uploadDir = getServletContext().getRealPath("/uploads");
         File dir = new File(uploadDir);
         if (!dir.exists()) dir.mkdirs();

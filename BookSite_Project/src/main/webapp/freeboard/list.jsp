@@ -72,6 +72,9 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
     <meta property="og:title" content="자취게시판 - 자취의 품격">
     <meta property="og:description" content="자취의 품격 생활 꿀팁/자유 게시판 - 자취 꿀팁, 질문/답변, 일상, 자취 요리 레시피를 나누는 공간입니다.">
 <link rel="stylesheet" href="../css/freeboard/list.css">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" sizes="any">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/apple-touch-icon.png">
 </head>
 <body>
 	<jsp:include page="../module/header.jsp" flush="false" />

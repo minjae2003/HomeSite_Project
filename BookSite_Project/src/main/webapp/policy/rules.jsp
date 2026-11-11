@@ -9,6 +9,9 @@
     <title>운영정책 - 자취의 품격</title>
     <meta name="description" content="자취의 품격 커뮤니티 운영정책과 권리침해 신고 방법입니다.">
     <link rel="stylesheet" href="../css/policy.css">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" sizes="any">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/apple-touch-icon.png">
 </head>
 <body>
 <jsp:include page="/module/header.jsp" flush="false"/>
@@ -62,6 +65,8 @@
             <li>글의 주제와 맞지 않는 게시판에 올린 글은 운영자가 다른 게시판으로 옮기거나 수정을 요청할 수 있습니다.</li>
             <li>공지사항과 📌 고정글은 운영자만 작성·지정할 수 있습니다.</li>
         </ul>
+
+        <p>욕설·비방·도박 광고 등 <b>금칙어가 들어간 글, 댓글, 닉네임은 자동으로 등록되지 않아요.</b> 띄어쓰기나 숫자·기호를 끼워 넣어 피해 가는 표현도 걸러집니다.</p>
 
         <h2 id="r4">4. 위반 시 조치</h2>
         <p>위반 정도와 횟수에 따라 아래 순서로 조치합니다. 불법 정보나 심각한 위반은 단계와 관계없이 바로 삭제하고 이용을 제한할 수 있습니다.</p>

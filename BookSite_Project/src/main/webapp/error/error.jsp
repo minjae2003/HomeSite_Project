@@ -35,6 +35,9 @@
     .home { background: #ff5722; color: #fff; }
     .back { background: #e2e8f0; color: #475569; margin-left: 8px; }
 </style>
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" sizes="any">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/apple-touch-icon.png">
 </head>
 <body>
     <div class="box">

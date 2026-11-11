@@ -16,6 +16,7 @@
     <meta property="og:title" content="자취의 품격 - 자취생 커뮤니티">
     <meta property="og:description" content="<%= HtmlUtil.esc(seo.SiteUrl.SITE_DESC) %>">
     <meta property="og:url" content="<%= HtmlUtil.esc(seoBase) %>/main/index.jsp">
+    <meta property="og:image" content="<%= HtmlUtil.esc(seoBase) %>/icon-512.png">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -26,6 +27,9 @@
     }
     </script>
     <link rel="stylesheet" href="../css/main/index.css">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.ico" sizes="any">
+    <link rel="icon" href="${pageContext.request.contextPath}/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="${pageContext.request.contextPath}/apple-touch-icon.png">
 </head>
 <body>
 	<%
