@@ -46,14 +46,14 @@
         return;
     }
 
-    String uploadDir = application.getRealPath("/uploads");
+    String uploadDir = util.UploadDir.root(application).getPath();
     for (String name : savedNames) {
         if (name == null) continue;
         File f = new File(uploadDir, name);
         if (f.exists()) f.delete();
     }
     if (profileImg != null && !profileImg.contains("/") && !profileImg.contains("\\") && !profileImg.contains("..")) {
-        File pf = new File(application.getRealPath("/uploads/profile"), profileImg);
+        File pf = new File(util.UploadDir.profile(application).getPath(), profileImg);
         if (pf.exists()) pf.delete();
     }
     session.invalidate();

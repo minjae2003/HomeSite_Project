@@ -84,7 +84,7 @@ public class ProfileSaveServlet extends HttpServlet {
         ProfileDAO dao = ProfileDAO.getInstance();
         ProfileVO old = dao.get(userId);
         String imgName = old.getProfileImg();
-        String uploadDir = getServletContext().getRealPath("/uploads/profile");
+        String uploadDir = util.UploadDir.profile(getServletContext()).getPath();
         File dir = new File(uploadDir);
         if (!dir.exists()) dir.mkdirs();
 

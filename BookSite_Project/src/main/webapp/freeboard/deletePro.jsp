@@ -39,7 +39,7 @@
     }
 
     List<BoardFileVO> attachedFiles = BoardFileDAO.getInstance().getFiles(num);
-    String uploadDir = application.getRealPath("/uploads");
+    String uploadDir = util.UploadDir.root(application).getPath();
     for (BoardFileVO f : attachedFiles) {
         File physical = new File(uploadDir, f.getSavedName());
         if (physical.exists()) physical.delete();

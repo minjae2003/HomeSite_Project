@@ -49,6 +49,7 @@
             height: mobile ? 300 : 420,
             placeholder: $editor.attr('placeholder') || '내용을 입력해 주세요.',
             disableDragAndDrop: true,
+            dialogsInBody: true,
             toolbar: [
                 ['style', ['style']],
                 ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
@@ -88,6 +89,10 @@
         });
 
         var $editable = $editor.next('.note-editor').find('.note-editable');
+
+        // 사진 창의 파일 입력(name="files")이 글 폼과 함께 전송되면 첨부로 한 번 더 저장되므로 폼 전송에서 제외
+        $(document).on('change', '.note-image-input', function () { this.removeAttribute('name'); });
+        $('.note-image-input').removeAttr('name');
         var $handle = $editor.next('.note-editor').find('.note-control-selection');
 
         function rangeAt(x, y) {

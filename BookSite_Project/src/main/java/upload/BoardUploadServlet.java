@@ -119,12 +119,20 @@ public class BoardUploadServlet extends HttpServlet {
             }
         }
 
-        String uploadDir = getServletContext().getRealPath("/uploads");
+        String uploadDir = util.UploadDir.root(getServletContext()).getPath();
         File dir = new File(uploadDir);
         if (!dir.exists()) dir.mkdirs();
 
         List<BoardFileVO> newFiles = new ArrayList<BoardFileVO>();
         StringBuilder appendedImages = new StringBuilder();
+        // 본문에 이미 에디터로 넣은 사진 (같은 사진이 첨부로 한 번 더 오면 건너뛰기 위해)
+        List<File> editorImages = new ArrayList<File>();
+        if (html) {
+            for (String name : RichText.uploadNames(content)) {
+                File f = new File(uploadDir, name);
+                if (f.isFile()) editorImages.add(f);
+            }
+        }
         for (Part part : request.getParts()) {
             if (!"files".equals(part.getName())) continue;
 
@@ -139,6 +147,8 @@ public class BoardUploadServlet extends HttpServlet {
 
             String fileType = fileTypeOf(ext);
             if (fileType == null) continue; // 허용 확장자가 아니면 무시 (보안: 실행 가능한 파일 업로드 차단)
+
+            if ("IMAGE".equals(fileType) && html && isDuplicateOf(part, editorImages)) continue;
 
             if ("IMAGE".equals(fileType) && !isAdmin) {
                 byte[] bytes;
@@ -283,6 +293,19 @@ public class BoardUploadServlet extends HttpServlet {
         }
 
         response.sendRedirect(request.getContextPath() + "/" + redirectBoard + "/content.jsp?num=" + boardNum + "&pageNum=" + pageNum);
+    }
+
+    private static boolean isDuplicateOf(Part part, List<File> files) throws IOException {
+        if (files.isEmpty()) return false;
+        byte[] bytes = null;
+        for (File f : files) {
+            if (f.length() != part.getSize()) continue;
+            if (bytes == null) {
+                try (java.io.InputStream in = part.getInputStream()) { bytes = in.readAllBytes(); }
+            }
+            if (Arrays.equals(bytes, java.nio.file.Files.readAllBytes(f.toPath()))) return true;
+        }
+        return false;
     }
 
     private void alertAndRedirect(HttpServletResponse response, String message, String location) throws IOException {

@@ -58,7 +58,7 @@ public class EditorImageServlet extends HttpServlet {
             return;
         }
 
-        String uploadDir = getServletContext().getRealPath("/uploads");
+        String uploadDir = util.UploadDir.root(getServletContext()).getPath();
         File dir = new File(uploadDir);
         if (!dir.exists()) dir.mkdirs();
         byte[] bytes;

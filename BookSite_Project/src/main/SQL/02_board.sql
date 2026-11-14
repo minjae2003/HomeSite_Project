@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS BOARD_FILE (
     saved_name    VARCHAR(255) NOT NULL,
     file_type     VARCHAR(20)  NOT NULL,
     file_size     BIGINT       DEFAULT 0,
-    upload_order  INT          DEFAULT 0,          -- 본문 내 [img1]/[video1] 매칭 순서
+    upload_order  INT          DEFAULT 0,          
     reg_date      DATETIME     DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_boardfile_board FOREIGN KEY (board_num) REFERENCES BOARD(num) ON DELETE CASCADE
 );

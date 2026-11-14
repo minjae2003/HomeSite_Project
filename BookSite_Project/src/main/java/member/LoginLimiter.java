@@ -19,11 +19,11 @@ public final class LoginLimiter {
     }
 
     public static int lockedMinutes(HttpServletRequest request, String id) {
-        return Math.max(BY_IP.lockedMinutes(request.getRemoteAddr()), BY_ID.lockedMinutes(idKey(id)));
+        return Math.max(BY_IP.lockedMinutes(util.ClientIp.get(request)), BY_ID.lockedMinutes(idKey(id)));
     }
 
     public static int fail(HttpServletRequest request, String id) {
-        int ipLeft = BY_IP.fail(request.getRemoteAddr());
+        int ipLeft = BY_IP.fail(util.ClientIp.get(request));
         int idLeft = BY_ID.fail(idKey(id));
         return Math.min(ipLeft, idLeft);
     }

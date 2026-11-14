@@ -57,8 +57,26 @@
     <form action="${pageContext.request.contextPath}/board/upload?_csrf=<%= util.CsrfUtil.token(session) %>" method="post" enctype="multipart/form-data"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
         <input type="hidden" name="num" value="<%= num %>">
         <input type="hidden" name="pageNum" value="<%= pageNum %>">
-        <input type="hidden" name="category" value="<%= board.getCategory() %>">
         <input type="hidden" name="redirectBoard" value="freeboard">
+
+        <% String curCat = board.getCategory() == null ? "FREE" : board.getCategory().trim().toUpperCase();
+           if ("NOTICE".equals(curCat)) { %>
+        <input type="hidden" name="category" value="NOTICE">
+        <% } else {
+               if (!java.util.Arrays.asList("FREE", "TIP", "QNA", "RECIPE").contains(curCat)) curCat = "FREE";
+               String[][] cats = { {"FREE", "🏫 일상/수다"}, {"TIP", "💡 자취꿀팁"}, {"QNA", "❓ 질문/답변"}, {"RECIPE", "🍳 요리레시피"} }; %>
+        <div class="form-group">
+            <label>카테고리</label>
+            <div class="category-select-group">
+                <% for (String[] c : cats) { %>
+                <label>
+                    <input type="radio" name="category" value="<%= c[0] %>" <%= c[0].equals(curCat) ? "checked" : "" %>>
+                    <span class="cat-btn"><%= c[1] %></span>
+                </label>
+                <% } %>
+            </div>
+        </div>
+        <% } %>
 
         <div class="form-group">
             <label>제목</label>
@@ -104,6 +122,6 @@
 <script src="../lib/jquery/jquery.min.js"></script>
 <script src="../lib/summernote/summernote-lite.min.js"></script>
 <script src="../lib/summernote/lang/summernote-ko-KR.min.js"></script>
-<script src="../js/editor.js"></script>
+<script src="../js/editor.js?v=20261111"></script>
 </body>
 </html>

@@ -16,11 +16,11 @@ public class FindLimiter {
     private static final AttemptLimiter BY_IP = new AttemptLimiter(MAX_FAIL, LOCK_MS, LOCK_MS);
 
     public static int lockedMinutes(HttpServletRequest request) {
-        return BY_IP.lockedMinutes(request.getRemoteAddr());
+        return BY_IP.lockedMinutes(util.ClientIp.get(request));
     }
 
     public static int fail(HttpServletRequest request) {
-        return BY_IP.fail(request.getRemoteAddr());
+        return BY_IP.fail(util.ClientIp.get(request));
     }
 
     /** 성공해도 실패 기록은 지우지 않음 (내 정보로 한 번 성공해서 기록을 초기화한 뒤 다시 대입하는 것 방지 - 10분 지나면 자동 초기화) */

@@ -50,14 +50,14 @@
         if (savedNames == null) {
             msg = "탈퇴 처리 중 오류가 발생했습니다.";
         } else {
-            String uploadDir = application.getRealPath("/uploads");
+            String uploadDir = util.UploadDir.root(application).getPath();
             for (String name : savedNames) {
                 if (name == null) continue;
                 File f = new File(uploadDir, name);
                 if (f.exists()) f.delete();
             }
             if (profileImg != null && !profileImg.contains("/") && !profileImg.contains("\\") && !profileImg.contains("..")) {
-                File pf = new File(application.getRealPath("/uploads/profile"), profileImg);
+                File pf = new File(util.UploadDir.profile(application).getPath(), profileImg);
                 if (pf.exists()) pf.delete();
             }
             msg = "강제 탈퇴 처리했습니다.";

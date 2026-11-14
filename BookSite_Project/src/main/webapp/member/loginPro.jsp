@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="util.HtmlUtil" %>
-<%@ page import="member.MemberDAO" %>
+<%@ page import="member.MemberDAO, member.LoginLimiter" %>
 <%@ page import="member.MemberVO" %>
 
 <%
@@ -24,8 +24,24 @@
 
     if (id != null) id = id.trim();
 
+    // 로그인 시도 제한: 아이디별 15분에 5번, IP별 15분에 20번 틀리면 잠시 잠금 (무작위 대입 방지)
+    int locked = LoginLimiter.lockedMinutes(request, id);
+    if (locked > 0) {
+        out.println("<script>alert('로그인 실패가 너무 많아요. " + locked + "분 뒤에 다시 시도해 주세요.'); history.go(-1);</script>");
+        return;
+    }
+
     MemberDAO dao = MemberDAO.getInstance();
     int check = dao.userCheck(id, pass);
+    if (check == 1) {
+        LoginLimiter.success(request, id);
+    } else {
+        int left = LoginLimiter.fail(request, id);
+        if (left == 0) {
+            out.println("<script>alert('로그인 실패가 너무 많아요. 잠시 뒤에 다시 시도해 주세요.'); history.go(-1);</script>");
+            return;
+        }
+    }
 
     if (check == 1) {
         MemberVO member = dao.getMember(id);
@@ -36,9 +52,12 @@
             return;
         }
         if (member != null) {
-            session.setAttribute("id", member.getId());
-            session.setAttribute("nickname", member.getNickname());
-            session.setAttribute("role", member.getRole());
+            // 세션 고정 공격 방지: 로그인 전 세션은 버리고 새 세션(새 세션 ID, 새 CSRF 토큰)으로 로그인 처리
+            session.invalidate();
+            HttpSession loginSession = request.getSession(true);
+            loginSession.setAttribute("id", member.getId());
+            loginSession.setAttribute("nickname", member.getNickname());
+            loginSession.setAttribute("role", member.getRole());
 
             out.println("<script>alert('" + HtmlUtil.js(member.getNickname()) + "님 환영합니다!'); location.href='../main/index.jsp';</script>");
         } else {

@@ -111,6 +111,6 @@
 <script src="../lib/jquery/jquery.min.js"></script>
 <script src="../lib/summernote/summernote-lite.min.js"></script>
 <script src="../lib/summernote/lang/summernote-ko-KR.min.js"></script>
-<script src="../js/editor.js"></script>
+<script src="../js/editor.js?v=20261111"></script>
 </body>
 </html>
