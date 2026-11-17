@@ -24,7 +24,7 @@
     }
 %>
 
-<link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/header.css?v=20261117d">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/layout.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/mobile.css">
 
@@ -125,4 +125,31 @@
             panel.classList.remove('open');
         }
     });
+    // 헤더를 한 줄로 유지: 자리가 모자라면 검색창부터 숨기고, 그래도 모자라면 게시판 메뉴를 ☰ 안으로
+    // + 고정 헤더 높이만큼 페이지 안 링크 이동 위치를 내림
+    (function () {
+        var header = document.getElementById('siteHeader');
+        if (!header) return;
+        var logo = header.querySelector('.logo');
+        var auth = header.querySelector('.header-auth');
+        function wrapped() {
+            return auth.getBoundingClientRect().top >= logo.getBoundingClientRect().bottom;
+        }
+        function layout() {
+            header.classList.remove('no-search', 'no-nav');
+            if (window.innerWidth > 760 && logo && auth) {
+                if (wrapped()) header.classList.add('no-search');
+                if (wrapped()) header.classList.add('no-nav');
+            }
+            if (!header.classList.contains('no-nav') && window.innerWidth > 760 && header.classList.contains('menu-open')) {
+                hdrToggleMenu();
+            }
+            if (!header.classList.contains('menu-open')) {
+                document.documentElement.style.scrollPaddingTop = (header.offsetHeight + 12) + 'px';
+            }
+        }
+        layout();
+        window.addEventListener('resize', layout);
+        window.addEventListener('load', layout);
+    })();
 </script>
