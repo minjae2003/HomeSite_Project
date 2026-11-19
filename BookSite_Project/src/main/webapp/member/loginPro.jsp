@@ -53,8 +53,10 @@
         }
         if (member != null) {
             // 세션 고정 공격 방지: 로그인 전 세션은 버리고 새 세션(새 세션 ID, 새 CSRF 토큰)으로 로그인 처리
+            Object visitCounted = session.getAttribute(visit.VisitServlet.COUNTED);   // 로그인으로 세션이 바뀌어도 방문자 중복 집계 방지
             session.invalidate();
             HttpSession loginSession = request.getSession(true);
+            if (visitCounted != null) loginSession.setAttribute(visit.VisitServlet.COUNTED, visitCounted);
             loginSession.setAttribute("id", member.getId());
             loginSession.setAttribute("nickname", member.getNickname());
             loginSession.setAttribute("role", member.getRole());

@@ -8,7 +8,7 @@
         hdrNick = hdrNick.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
-    visit.VisitDAO.getInstance().recordVisit(session.getId());
+    boolean hdrNeedVisit = !visit.VisitServlet.countedToday(session) && !"ADMIN".equals(session.getAttribute("role"));
 
     int hdrUnread = 0;
     java.util.List<notification.NotificationVO> hdrNotis = null;
@@ -125,6 +125,23 @@
             panel.classList.remove('open');
         }
     });
+    <% if (hdrNeedVisit) { %>
+    // 방문자 수: 실제로 화면을 보는 사람만 (스크롤·클릭·터치 또는 4초 이상 화면 표시 시 1회 기록)
+    (function () {
+        var sent = false, evs = ['pointerdown', 'scroll', 'keydown', 'touchstart', 'mousemove'];
+        function ping() {
+            if (sent) return;
+            sent = true;
+            evs.forEach(function (t) { window.removeEventListener(t, ping, true); });
+            try {
+                fetch('${pageContext.request.contextPath}/visit', { method: 'POST', credentials: 'same-origin', keepalive: true,
+                    headers: { 'X-CSRF-Token': '<%= util.CsrfUtil.token(session) %>' } });
+            } catch (e) {}
+        }
+        evs.forEach(function (t) { window.addEventListener(t, ping, { capture: true, passive: true }); });
+        setTimeout(function () { if (document.visibilityState === 'visible') ping(); }, 4000);
+    })();
+    <% } %>
     // 헤더를 한 줄로 유지: 자리가 모자라면 검색창부터 숨기고, 그래도 모자라면 게시판 메뉴를 ☰ 안으로
     // + 고정 헤더 높이만큼 페이지 안 링크 이동 위치를 내림
     (function () {

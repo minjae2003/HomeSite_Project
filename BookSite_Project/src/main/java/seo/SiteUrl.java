@@ -29,10 +29,16 @@ public final class SiteUrl {
         if (ua == null || ua.trim().isEmpty()) return true;
         ua = ua.toLowerCase();
         String[] keys = { "bot", "crawl", "spider", "slurp", "yeti", "daumoa", "facebookexternalhit",
-                          "kakaotalk-scrap", "headlesschrome", "curl/", "wget/", "python-requests", "httpclient" };
+                          "kakaotalk-scrap", "headless", "curl/", "wget/", "python", "httpclient",
+                          "scan", "nutch", "censys", "zgrab", "nmap", "measurement", "infrawatch",
+                          "go-http-client", "okhttp", "java/", "libwww", "axios", "node-fetch", "httpx",
+                          "lighthouse", "preview", "dalvik" };
         for (String k : keys) {
             if (ua.contains(k)) return true;
         }
+        // 너무 오래된 Chrome(100 미만)은 대부분 봇이 흉내 낸 값
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("chrome/(\\d+)\\.").matcher(ua);
+        if (m.find() && Integer.parseInt(m.group(1)) < 100) return true;
         return false;
     }
 
