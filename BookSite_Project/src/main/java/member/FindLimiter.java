@@ -1,50 +1,50 @@
 package member;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+
 import util.AttemptLimiter;
 
-/** 아이디/비밀번호 찾기 시도 제한 (IP 기준, 무작위 대입 방지) + 비밀번호 재설정 허가 관리 (세션, 10분) */
+/**
+ * 아이디/비밀번호 찾기 요청 제한.
+ * - IP당: 10분에 5번까지 요청 (가입 여부를 알아내려는 대입 방지)
+ * - 이메일 주소당: 1시간에 3통까지 발송 (남의 메일함에 폭탄 발송 방지)
+ */
 public class FindLimiter {
-    private static final int MAX_FAIL = 5;
-    private static final long LOCK_MS = 10 * 60 * 1000L;
-    private static final long RESET_MS = 10 * 60 * 1000L;
+    private static final AttemptLimiter BY_IP = new AttemptLimiter(5, 10 * 60 * 1000L, 10 * 60 * 1000L);
 
-    private static final String RESET_ID = "RESET_PW_ID";
-    private static final String RESET_UNTIL = "RESET_PW_UNTIL";
-
-    private static final AttemptLimiter BY_IP = new AttemptLimiter(MAX_FAIL, LOCK_MS, LOCK_MS);
+    private static final int MAIL_MAX = 3;
+    private static final long MAIL_WINDOW = 60 * 60 * 1000L;
+    private static final Map<String, long[]> MAIL = new ConcurrentHashMap<String, long[]>();
 
     public static int lockedMinutes(HttpServletRequest request) {
         return BY_IP.lockedMinutes(util.ClientIp.get(request));
     }
 
-    public static int fail(HttpServletRequest request) {
-        return BY_IP.fail(util.ClientIp.get(request));
+    /** 요청 한 번을 기록 (성공·실패와 상관없이 셈) */
+    public static void count(HttpServletRequest request) {
+        BY_IP.fail(util.ClientIp.get(request));
     }
 
-    /** 성공해도 실패 기록은 지우지 않음 (내 정보로 한 번 성공해서 기록을 초기화한 뒤 다시 대입하는 것 방지 - 10분 지나면 자동 초기화) */
-    public static void success(HttpServletRequest request) {
-    }
-
-    public static void allowReset(HttpSession session, String id) {
-        session.setAttribute(RESET_ID, id);
-        session.setAttribute(RESET_UNTIL, System.currentTimeMillis() + RESET_MS);
-    }
-
-    public static String resetId(HttpSession session) {
-        String id = (String) session.getAttribute(RESET_ID);
-        Long until = (Long) session.getAttribute(RESET_UNTIL);
-        if (id == null || until == null || until < System.currentTimeMillis()) {
-            clearReset(session);
-            return null;
+    /** 이 주소로 메일을 더 보내도 되면 true (보낸 것으로 기록) */
+    public static boolean takeMail(String email) {
+        String key = email.trim().toLowerCase();
+        long now = System.currentTimeMillis();
+        if (MAIL.size() > 10000) {
+            for (Iterator<long[]> it = MAIL.values().iterator(); it.hasNext(); ) {
+                if (now - it.next()[0] > MAIL_WINDOW) it.remove();
+            }
         }
-        return id;
-    }
-
-    public static void clearReset(HttpSession session) {
-        session.removeAttribute(RESET_ID);
-        session.removeAttribute(RESET_UNTIL);
+        long[] e = MAIL.computeIfAbsent(key, k -> new long[] { now, 0 });
+        synchronized (e) {
+            if (now - e[0] > MAIL_WINDOW) { e[0] = now; e[1] = 0; }
+            if (e[1] >= MAIL_MAX) return false;
+            e[1]++;
+            return true;
+        }
     }
 
     public static String mask(String id) {

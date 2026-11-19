@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%-- 사이트 이름·연락처·정책 버전은 util.SiteInfo에서 관리 --%>
 <%@ page import="util.SiteInfo, member.ConsentDAO" %>
 <%
     // 상태를 바꾸는 요청은 POST만 허용 (CSRF 토큰 검사는 CsrfFilter)

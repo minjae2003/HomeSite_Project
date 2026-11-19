@@ -5,6 +5,7 @@
 -- [주의] 모든 테이블과 데이터를 삭제합니다. DB를 처음부터 다시 만들 때만 실행하세요.
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS PASSWORD_RESET;
 DROP TABLE IF EXISTS BANNED_WORD;
 DROP TABLE IF EXISTS INQUIRY;
 DROP TABLE IF EXISTS MEMBER_CONSENT;
@@ -221,4 +222,12 @@ CREATE TABLE IF NOT EXISTS BANNED_WORD (
     type      VARCHAR(10) NOT NULL DEFAULT 'BAN',
     reg_date  DATETIME    DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY uk_banned_word (word, type)
+);
+
+CREATE TABLE IF NOT EXISTS PASSWORD_RESET (
+    token_hash  CHAR(64)    NOT NULL PRIMARY KEY,
+    member_id   VARCHAR(50) NOT NULL,
+    expires_at  BIGINT      NOT NULL,
+    created_at  BIGINT      NOT NULL,
+    KEY idx_password_reset_member (member_id)
 );

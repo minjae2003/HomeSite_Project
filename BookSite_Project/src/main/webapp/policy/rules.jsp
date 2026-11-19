@@ -89,6 +89,7 @@
         <h3>회원이 아니라면: 이메일로 신고</h3>
         <div class="policy-contact">
             신고 이메일: <a href="mailto:<%= SiteInfo.CONTACT_EMAIL %>"><%= SiteInfo.CONTACT_EMAIL %></a><br>
+            보조 이메일: <a href="mailto:<%= SiteInfo.CONTACT_EMAIL_SUB %>"><%= SiteInfo.CONTACT_EMAIL_SUB %></a><br>
             제목에 <b>[권리침해 신고]</b>를 붙여 주시면 더 빨리 확인할 수 있습니다.
         </div>
         <p>어느 방법이든 아래 내용을 함께 보내 주세요.</p>
@@ -115,6 +116,7 @@
 
         <div class="policy-history">
             <b>변경 이력</b><br>
+            · 2026년 11월 19일: 신고 이메일 변경<br>
             · <%= SiteInfo.EFFECTIVE_DATE %>: 운영정책 제정
         </div>
     </article>

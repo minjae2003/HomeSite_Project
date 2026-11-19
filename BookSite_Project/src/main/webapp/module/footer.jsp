@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%-- 사이트 이름·연락처·정책 버전은 util.SiteInfo에서 관리 --%>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/footer.css">
 <footer class="site-footer">
     <div class="site-footer-inner">

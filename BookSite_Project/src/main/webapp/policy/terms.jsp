@@ -142,7 +142,8 @@
         </ol>
         <div class="policy-contact">
             운영자: <%= SiteInfo.OPERATOR %><br>
-            문의: <a href="mailto:<%= SiteInfo.CONTACT_EMAIL %>"><%= SiteInfo.CONTACT_EMAIL %></a>
+            문의: <a href="mailto:<%= SiteInfo.CONTACT_EMAIL %>"><%= SiteInfo.CONTACT_EMAIL %></a><br>
+            보조 이메일: <a href="mailto:<%= SiteInfo.CONTACT_EMAIL_SUB %>"><%= SiteInfo.CONTACT_EMAIL_SUB %></a>
         </div>
 
         <div class="policy-history">

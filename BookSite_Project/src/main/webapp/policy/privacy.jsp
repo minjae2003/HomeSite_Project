@@ -91,7 +91,7 @@
         <h2 id="p5">5. 처리 위탁</h2>
         <table class="policy-table">
             <tr><th>위탁받는 자</th><th>위탁 업무</th><th>보관 위치</th></tr>
-            <tr><td>Amazon Web Services</td><td>서버 및 데이터베이스 운영(클라우드 호스팅), 업로드 사진의 유해성 자동 검사(Amazon Rekognition)</td><td>대한민국(AWS 서울 리전)</td></tr>
+            <tr><td>Amazon Web Services</td><td>서버 및 데이터베이스 운영(클라우드 호스팅), 업로드 사진의 유해성 자동 검사(Amazon Rekognition), 아이디·비밀번호 찾기 안내 메일 발송(Amazon SES)</td><td>대한민국(AWS 서울 리전)</td></tr>
         </table>
         <p>운영자는 위탁받는 자가 개인정보를 안전하게 처리하는지 관리합니다.</p>
 
@@ -127,7 +127,8 @@
         <p>개인정보와 관련한 문의, 불만, 피해 구제 요청은 아래로 연락해 주세요. 빠르게 답변하고 처리하겠습니다.</p>
         <div class="policy-contact">
             개인정보 보호책임자: <%= SiteInfo.OPERATOR %><br>
-            이메일: <a href="mailto:<%= SiteInfo.CONTACT_EMAIL %>"><%= SiteInfo.CONTACT_EMAIL %></a>
+            이메일: <a href="mailto:<%= SiteInfo.CONTACT_EMAIL %>"><%= SiteInfo.CONTACT_EMAIL %></a><br>
+            보조 이메일: <a href="mailto:<%= SiteInfo.CONTACT_EMAIL_SUB %>"><%= SiteInfo.CONTACT_EMAIL_SUB %></a>
         </div>
 
         <h2 id="p11">11. 권익침해 구제 방법</h2>
@@ -144,6 +145,7 @@
 
         <div class="policy-history">
             <b>변경 이력</b><br>
+            · 2026년 11월 19일: 개인정보 보호책임자 연락처(이메일) 변경, 아이디·비밀번호 찾기 안내 메일 발송(처리 위탁 업무) 추가<br>
             · 2026년 11월 11일: 업로드 사진 자동 검사(처리 위탁 업무) 추가<br>
             · <%= SiteInfo.EFFECTIVE_DATE %>: 개인정보처리방침 제정
         </div>

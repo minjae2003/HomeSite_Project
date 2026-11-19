@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="member.MemberDAO, member.FindLimiter, util.PasswordUtil" %>
+<%@ page import="member.MemberDAO, member.FindLimiter, member.PasswordResetDAO, util.PasswordUtil" %>
 <%!
     private String esc(String s) {
         if (s == null) return "";
@@ -8,10 +8,13 @@
 %>
 <%
     request.setCharacterEncoding("UTF-8");
+    response.setHeader("Cache-Control", "no-store");
 
-    String resetId = FindLimiter.resetId(session);
+    String token = request.getParameter("token");
+    PasswordResetDAO resetDao = PasswordResetDAO.getInstance();
+    String resetId = resetDao.peek(token);
     if (resetId == null) {
-        out.println("<script>alert('본인 확인 시간이 지났거나 잘못된 접근입니다.\\n다시 본인 확인을 해 주세요.'); location.href='findPw.jsp';</script>");
+        out.println("<script>alert('링크가 만료되었거나 이미 사용된 링크예요.\\n비밀번호 찾기를 다시 해 주세요.'); location.href='findPw.jsp';</script>");
         return;
     }
 
@@ -24,12 +27,15 @@
             error = policyError;
         } else if (!pass.equals(passConfirm)) {
             error = "새 비밀번호가 서로 일치하지 않아요.";
+        } else if (resetDao.consume(token) == null) {
+            out.println("<script>alert('링크가 만료되었거나 이미 사용된 링크예요.'); location.href='findPw.jsp';</script>");
+            return;
         } else if (MemberDAO.getInstance().resetPassword(resetId, pass)) {
-            FindLimiter.clearReset(session);
+            resetDao.deleteAll(resetId);
             out.println("<script>alert('비밀번호가 변경되었습니다. 새 비밀번호로 로그인해 주세요.'); location.href='loginForm.jsp';</script>");
             return;
         } else {
-            error = "비밀번호 변경 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.";
+            error = "비밀번호 변경 중 오류가 발생했어요. 비밀번호 찾기를 다시 해 주세요.";
         }
     }
 %>
@@ -56,8 +62,9 @@
                 <h2>새 비밀번호 설정</h2>
 
                 <form name="reset_form" method="post" action="resetPw.jsp" onsubmit="return checkReset(this);"><input type="hidden" name="_csrf" value="<%= util.CsrfUtil.token(session) %>">
+                    <input type="hidden" name="token" value="<%= esc(token) %>">
                     <p class="find-desc"><b><%= esc(FindLimiter.mask(resetId)) %></b> 계정의 새 비밀번호를 입력해 주세요.<br>
-                        10분 안에 변경을 완료해야 해요.</p>
+                        메일 링크는 한 번만 사용할 수 있어요.</p>
 
                     <% if (error != null) { %><div class="find-error"><%= esc(error) %></div><% } %>
 
@@ -82,6 +89,10 @@
     <jsp:include page="/module/footer.jsp" flush="false"/>
 
 <script>
+// 주소창·방문 기록에 링크 토큰이 남지 않게 지움 (토큰은 폼 안에만 보관)
+if (window.history && history.replaceState && location.search.indexOf('token=') >= 0) {
+    history.replaceState(null, '', location.pathname);
+}
 function checkReset(f) {
     if (f.pass.value.length < 8 || !/[A-Za-z]/.test(f.pass.value) || !/[0-9]/.test(f.pass.value)) {
         alert("새 비밀번호는 8자 이상, 영문과 숫자를 모두 포함해야 합니다."); f.pass.focus(); return false;

@@ -72,3 +72,5 @@
 .find-links a { color: #6b7280; text-decoration: none; }
 .find-links a:hover { color: #f95e07; }
 .find-links span { color: #d1d5db; }
+.find-sent { font-size: 14px; color: #1f2937; line-height: 1.7; margin: 0; word-break: break-all; }
+.find-note a { color: #f95e07; }

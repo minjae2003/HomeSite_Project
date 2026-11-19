@@ -198,18 +198,18 @@ public class MemberDAO {
         }
         return vo;
     }
-    public java.util.List<String> findIds(String name, String email) {
+    /** 이메일로 가입한 아이디 목록 (아이디 찾기 메일용) */
+    public java.util.List<String> findIdsByEmail(String email) {
         java.util.List<String> ids = new java.util.ArrayList<String>();
-        if (isBlank(name) || isBlank(email)) return ids;
+        if (isBlank(email)) return ids;
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             conn = getConnection();
             pstmt = conn.prepareStatement(
-                "SELECT id FROM MEMBER WHERE name = ? AND LOWER(email) = LOWER(?) AND email <> '' ORDER BY reg_date");
-            pstmt.setString(1, name.trim());
-            pstmt.setString(2, email.trim());
+                "SELECT id FROM MEMBER WHERE LOWER(email) = LOWER(?) AND email <> '' ORDER BY reg_date LIMIT 10");
+            pstmt.setString(1, email.trim());
             rs = pstmt.executeQuery();
             while (rs.next()) ids.add(rs.getString(1));
         } catch (Exception ex) {
@@ -220,26 +220,26 @@ public class MemberDAO {
         return ids;
     }
 
-    public boolean matchForReset(String id, String name, String email) {
-        if (isBlank(id) || isBlank(name) || isBlank(email)) return false;
+    /** 아이디와 이메일이 일치하면 DB에 저장된 이메일 주소, 아니면 null (비밀번호 재설정 메일용) */
+    public String emailForReset(String id, String email) {
+        if (isBlank(id) || isBlank(email)) return null;
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             conn = getConnection();
             pstmt = conn.prepareStatement(
-                "SELECT 1 FROM MEMBER WHERE id = ? AND name = ? AND LOWER(email) = LOWER(?) AND email <> ''");
+                "SELECT email FROM MEMBER WHERE id = ? AND LOWER(email) = LOWER(?) AND email <> ''");
             pstmt.setString(1, id.trim());
-            pstmt.setString(2, name.trim());
-            pstmt.setString(3, email.trim());
+            pstmt.setString(2, email.trim());
             rs = pstmt.executeQuery();
-            return rs.next();
+            return rs.next() ? rs.getString(1) : null;
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
             close(conn, pstmt, rs);
         }
-        return false;
+        return null;
     }
 
     public boolean resetPassword(String id, String newPassword) {

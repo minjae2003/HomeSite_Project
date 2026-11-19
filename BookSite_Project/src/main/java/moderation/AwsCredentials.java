@@ -10,14 +10,15 @@ import java.util.regex.Pattern;
 
 /**
  * EC2 인스턴스 역할의 임시 자격증명 (인스턴스 메타데이터 IMDSv2).
+ * 이미지 검사(Rekognition)와 메일 발송(SES)이 같이 사용.
  * 만료 5분 전에 새로 받고, EC2가 아니면(응답 없음) 10분 동안 다시 시도하지 않는다.
  */
-final class AwsCredentials {
+public final class AwsCredentials {
     private AwsCredentials() {}
 
-    static final class Creds {
-        final String accessKey, secretKey, token;
-        final long expiresAt;
+    public static final class Creds {
+        public final String accessKey, secretKey, token;
+        public final long expiresAt;
         Creds(String a, String s, String t, long e) { accessKey = a; secretKey = s; token = t; expiresAt = e; }
     }
 
@@ -25,9 +26,9 @@ final class AwsCredentials {
     private static volatile Creds cached;
     private static volatile long unavailableUntil = 0;
 
-    static synchronized void invalidate() { cached = null; }
+    public static synchronized void invalidate() { cached = null; }
 
-    static synchronized Creds get() {
+    public static synchronized Creds get() {
         long now = System.currentTimeMillis();
         if (cached != null && cached.expiresAt - now > 5 * 60 * 1000L) return cached;
         if (now < unavailableUntil) return null;
